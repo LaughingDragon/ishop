@@ -16,10 +16,19 @@
     ],
     "require": {
         "composer/installers": "^2.3",
+        "drupal/backup_migrate": "^5.1",
         "drupal/core-composer-scaffold": "^11.4",
         "drupal/core-project-message": "^11.4",
         "drupal/core-recipe-unpack": "^11.4",
         "drupal/core-recommended": "^11.4",
+        "drupal/encrypt": "^3.3",
+        "drupal/flood_control": "^3.0",
+        "drupal/gin": "^5.0",
+        "drupal/gin_toolbar": "^3.0",
+        "drupal/key": "^1.22",
+        "drupal/real_aes": "^2.6",
+        "drupal/seckit": "^2.0",
+        "drupal/tfa": "^1.13",
         "drush/drush": "^13"
     },
     "conflict": {
