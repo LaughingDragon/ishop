@@ -166,8 +166,9 @@ reference project is used only for its rules and formatting logic.
   recognises each link's platform, checkboxes remembered from last time.)
 - [x] "Quick add from a live listing" form: paste a Poshmark/Mercari/etc. URL,
   enter title and price, done. No scraping of marketplace pages.
-- [ ] Only if Liam later asks: a one-off import of the son's 112 items as
-  "Posted" records so the sold-elsewhere alarm covers them.
+- [x] ~~Only if Liam later asks: a one-off import of the son's 112 items as
+  "Posted" records so the sold-elsewhere alarm covers them.~~ Not doing:
+  Liam signed off Phase 2 on 2026-10-15 with "Go no old records" (item 128).
 
 ## Phase 3: selling helpers
 
