@@ -55,6 +55,17 @@ final class SecretScannerTest extends UnitTestCase {
   }
 
   /**
+   * Tests that secrets and email addresses are told apart.
+   */
+  public function testClassify(): void {
+    $this->assertSame(['secrets' => [], 'emails' => TRUE], SecretScanner::classify(SecretScanner::scan("Send from a@gmail.com\nand b@gmail.com")));
+    $both = SecretScanner::classify(SecretScanner::scan("a@gmail.com\npassword: Tr0ub4dor&3"));
+    $this->assertSame(['password or key assignment'], $both['secrets']);
+    $this->assertTrue($both['emails']);
+    $this->assertSame(['secrets' => [], 'emails' => FALSE], SecretScanner::classify([]));
+  }
+
+  /**
    * Lines that must pass.
    */
   public static function harmless(): array {

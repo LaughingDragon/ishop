@@ -17,6 +17,11 @@ final class SecretScanner {
    */
   private const ALLOWED_EMAIL_DOMAINS = ['ishoponamazonwaytoomuch.ohbah.com'];
 
+  /**
+   * The kind reported for an email address (personal data, not a secret).
+   */
+  public const EMAIL = 'email address (possible personal data)';
+
   private const PATTERNS = [
     'private key block' => '/-----BEGIN [A-Z ]*PRIVATE KEY-----/',
     'Anthropic API key' => '/\bsk-ant-[A-Za-z0-9_-]{10,}/',
@@ -47,13 +52,30 @@ final class SecretScanner {
       if (preg_match_all('/[A-Za-z0-9._%+-]+@([A-Za-z0-9.-]+\.[A-Za-z]{2,})/', $line, $m)) {
         foreach ($m[1] as $domain) {
           if (!in_array(strtolower($domain), self::ALLOWED_EMAIL_DOMAINS, TRUE)) {
-            $findings[] = sprintf('line %d: email address (possible personal data)', $i + 1);
+            $findings[] = sprintf('line %d: %s', $i + 1, self::EMAIL);
             break;
           }
         }
       }
     }
     return $findings;
+  }
+
+  /**
+   * Splits findings into secrets and email addresses, without line numbers.
+   *
+   * @param list<string> $findings
+   *   The output of scan().
+   *
+   * @return array{secrets: list<string>, emails: bool}
+   *   The distinct kinds of secret found, and whether an email was found.
+   */
+  public static function classify(array $findings): array {
+    $kinds = array_values(array_unique(array_map(fn ($f) => preg_replace('/^line \d+: /', '', $f), $findings)));
+    return [
+      'secrets' => array_values(array_diff($kinds, [self::EMAIL])),
+      'emails' => in_array(self::EMAIL, $kinds, TRUE),
+    ];
   }
 
 }

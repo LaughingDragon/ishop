@@ -40,6 +40,14 @@ final class AnswerPunchForm extends FormBase {
       '#rows' => 5,
       '#required' => TRUE,
     ];
+    // Shown once an answer containing an email address has been submitted.
+    $typed = (string) ($form_state->getUserInput()['answer'] ?? '');
+    if (SecretScanner::classify(SecretScanner::scan($typed))['emails']) {
+      $form['email_ok'] = [
+        '#type' => 'checkbox',
+        '#title' => $this->t("This email address is ours (for example the address the site sends from), not a customer's."),
+      ];
+    }
     $form['actions'] = ['#type' => 'actions'];
     $form['actions']['submit'] = [
       '#type' => 'submit',
@@ -53,8 +61,12 @@ final class AnswerPunchForm extends FormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state): void {
-    if (SecretScanner::scan((string) $form_state->getValue('answer'))) {
-      $form_state->setErrorByName('answer', $this->t('This looks like it contains a password, key or email address. Please remove it; the site office must never hold secrets.'));
+    $found = SecretScanner::classify(SecretScanner::scan((string) $form_state->getValue('answer')));
+    if ($found['secrets']) {
+      $form_state->setErrorByName('answer', $this->t('Not saved: your answer looks like it contains a secret (@kinds). Please remove it and save again. Passwords and keys never go in the site office.', ['@kinds' => implode(', ', $found['secrets'])]));
+    }
+    elseif ($found['emails'] && !$form_state->getValue('email_ok')) {
+      $form_state->setErrorByName('email_ok', $this->t("Not saved yet: your answer includes an email address. If it's one of ours, tick the box under the answer and press Save again. Customer email addresses must not go in the site office."));
     }
   }
 
