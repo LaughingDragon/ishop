@@ -208,6 +208,10 @@ reference project is used only for its rules and formatting logic.
   mounted, free space on both disks; see DiskStatus in ishop_office). Short and readable on a
   phone. Needs a working mail transport (Symfony Mailer + an SMTP relay;
   ask Liam which, never store SMTP passwords in config).
+- [ ] **Enforce the content security policy** (moved here from punch item 51 at
+  Liam's request, 2026-10-15): it stays report-only until this phase is done;
+  then, after a full week of normal use with a clean violation log, switch
+  Security Kit's CSP from report-only to enforce.
 
 ## Phase 6: Amazon import and return windows
 
