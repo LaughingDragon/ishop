@@ -39,6 +39,17 @@ ishop_office.ask_cody_results:
     _permission: 'access site office'
     _custom_access: '\Drupal\ishop_office\Controller\OfficeController::askCodyResultsAccess'
 
+ishop_office.mail_setup:
+  path: '/site-office/mail-setup'
+  defaults:
+    _form: '\Drupal\ishop_office\Form\MailSetupForm'
+    _title: 'Mail setup'
+  requirements:
+    _permission: 'access site office'
+    _custom_access: '\Drupal\ishop_office\Form\MailSetupForm::access'
+  options:
+    no_cache: TRUE
+
 ishop_office.status_json:
   path: '/site-office/status.json'
   defaults:

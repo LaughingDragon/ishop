@@ -916,3 +916,28 @@ $settings['file_private_path'] = '/var/www/ishop/private';
 $settings['trusted_host_patterns'] = [
   '^ishoponamazonwaytoomuch\.ohbah\.com$',
 ];
+
+// ishop: outgoing mail through Gmail SMTP (punch item 116, 2026-10-15).
+// Cody saves the Gmail address and its app password on /site-office/mail-setup;
+// they live only in these files (never in config, git or the database). Until
+// both exist, Drupal keeps PHP mail().
+$ishop_mail_dir = '/var/www/ishop/secrets/mail';
+if (is_readable("$ishop_mail_dir/address.txt") && is_readable("$ishop_mail_dir/app_password.txt")) {
+  $ishop_mail_address = trim((string) file_get_contents("$ishop_mail_dir/address.txt"));
+  $ishop_mail_password = trim((string) file_get_contents("$ishop_mail_dir/app_password.txt"));
+  if ($ishop_mail_address !== '' && $ishop_mail_password !== '') {
+    $config['system.mail']['interface']['default'] = 'symfony_mailer';
+    $config['system.mail']['interface']['webform'] = 'symfony_mailer';
+    $config['system.mail']['mailer_dsn'] = [
+      'scheme' => 'smtp',
+      'host' => 'smtp.gmail.com',
+      'user' => $ishop_mail_address,
+      'password' => $ishop_mail_password,
+      'port' => 587,
+      'options' => [],
+    ];
+    // Gmail sends only as the signed-in address.
+    $config['system.site']['mail'] = $ishop_mail_address;
+  }
+  unset($ishop_mail_password);
+}
