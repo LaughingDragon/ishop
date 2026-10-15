@@ -153,7 +153,7 @@ Approved 2026-10-15 (punch item 78: proposal plus Claude (review)'s gaps; Liam d
   per-photo "Make cover" and up/down arrows, and optional quick fields. A custom web manifest so it
   installs to the home screen (no PWA beta, no offline cache). Tested on iPhone first: Cody uses
   Google Chrome on an iPhone (WebKit underneath).
-- [ ] **Tests and reports:** unit tests for the rules, rendering checks, and a build report per step.
+- [x] **Tests and reports:** unit tests for the rules, rendering checks, and a build report per step.
 
 ## Phase 2: fresh start (no historical import)
 
