@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\Tests\ishop_matrix\Unit;
 
 use Drupal\Component\Datetime\TimeInterface;
+use Drupal\Core\Cache\CacheTagsInvalidatorInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\ishop_matrix\Birthday;
@@ -36,7 +37,7 @@ final class BirthdayTest extends UnitTestCase {
     });
     $time = $this->createMock(TimeInterface::class);
     $time->method('getCurrentTime')->willReturn((new \DateTimeImmutable($now, new \DateTimeZone('America/Los_Angeles')))->getTimestamp());
-    return new Birthday($state, $time);
+    return new Birthday($state, $time, $this->createMock(CacheTagsInvalidatorInterface::class));
   }
 
   /**

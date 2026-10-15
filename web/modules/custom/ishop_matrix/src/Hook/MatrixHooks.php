@@ -59,6 +59,19 @@ final class MatrixHooks {
   }
 
   /**
+   * Implements hook_mail(): the birthday email and its test.
+   *
+   * TEMPORARY (birthday mode): see TEMPORARY.md.
+   */
+  #[Hook('mail')]
+  public function mail(string $key, array &$message, array $params): void {
+    if (in_array($key, ['birthday', 'birthday_test'], TRUE)) {
+      $message['subject'] = $params['subject'];
+      $message['body'][] = $params['body'];
+    }
+  }
+
+  /**
    * Implements hook_page_bottom(): the song and "Resume the party".
    *
    * No autoplay (browsers block it): the dashboard's "Start the party"

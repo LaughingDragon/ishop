@@ -96,3 +96,8 @@ body.rm-birthday {
 /* On the birthday, birthday mode replaces the football / Gold Rush accents. */
 .rm-birthday .rm-yards,
 .rm-birthday .rm-footer__edition { display: none; }
+
+/* Cody's requested video: a card below the sign, a plain link out. */
+.rm-party-video { margin: 0 0 28px; padding: 20px 24px; border: 2px solid var(--rm-party-pink); }
+.rm-party-video h2 { margin: 0 0 6px; color: var(--rm-party-gold); }
+.rm-party-video p { margin: 0 0 16px; }

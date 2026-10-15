@@ -1,0 +1,10 @@
+# TEMPORARY (birthday mode): see TEMPORARY.md.
+[Unit]
+Description=ishop: check for Cody's birthday email daily at 07:00 Pacific
+
+[Timer]
+OnCalendar=*-*-* 07:00:00 America/Los_Angeles
+Persistent=true
+
+[Install]
+WantedBy=timers.target

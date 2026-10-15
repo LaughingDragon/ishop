@@ -3,4 +3,8 @@ services:
     autowire: true
   # TEMPORARY (birthday mode): see TEMPORARY.md.
   Drupal\ishop_matrix\Birthday: ~
+  Drupal\ishop_matrix\BirthdayMail: ~
+  logger.channel.ishop_matrix:
+    parent: logger.channel_base
+    arguments: ['ishop_matrix']
   Drupal\ishop_matrix\Season: ~

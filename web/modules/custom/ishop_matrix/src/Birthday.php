@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Drupal\ishop_matrix;
 
 use Drupal\Component\Datetime\TimeInterface;
-use Drupal\Core\Cache\Cache;
+use Drupal\Core\Cache\CacheTagsInvalidatorInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\State\StateInterface;
 use Drupal\ishop_office\OfficeStructure;
@@ -48,16 +48,33 @@ final class Birthday {
    */
   public const SONG = 'private://birthday/cody-birthday.mp3';
 
+  /**
+   * The owner's requested birthday video (Liam, 2026-10-15).
+   *
+   * A plain link out: no embed, so no CSP change.
+   */
+  public const VIDEO_URL = 'https://www.youtube.com/watch?v=Tz2tD8Hzb7o';
+
   public function __construct(
     private readonly StateInterface $state,
     private readonly TimeInterface $time,
+    private readonly CacheTagsInvalidatorInterface $cacheTagsInvalidator,
   ) {}
 
   /**
    * The settings: date ("MM-DD" or ""), mode, preview (user IDs).
    */
   public function settings(): array {
-    return ($this->state->get(self::STATE) ?? []) + ['date' => '', 'mode' => 'auto', 'preview' => [], 'launched' => []];
+    return ($this->state->get(self::STATE) ?? []) + [
+      'date' => '',
+      'mode' => 'auto',
+      'preview' => [],
+      'launched' => [],
+      'mail_subject' => '',
+      'mail_body' => '',
+      'mail_approved' => FALSE,
+      'mail_sent' => '',
+    ];
   }
 
   /**
@@ -66,7 +83,7 @@ final class Birthday {
   public function save(array $settings): void {
     $settings['preview'] = array_values(array_intersect(array_map('intval', $settings['preview'] ?? []), self::MANAGERS));
     $this->state->set(self::STATE, $settings);
-    Cache::invalidateTags([self::CACHE_TAG]);
+    $this->cacheTagsInvalidator->invalidateTags([self::CACHE_TAG]);
   }
 
   /**
@@ -145,6 +162,13 @@ final class Birthday {
       'tags' => [self::CACHE_TAG],
       'max-age' => max($midnight - $this->time->getCurrentTime(), 60),
     ];
+  }
+
+  /**
+   * Today's date (Pacific), Y-m-d.
+   */
+  public function todayDate(): string {
+    return $this->today()->format('Y-m-d');
   }
 
   /**

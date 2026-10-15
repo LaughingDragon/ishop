@@ -56,12 +56,17 @@ final class MatrixController extends ControllerBase {
       'hello' => $this->t('Happy birthday, boss!'),
       'line' => $this->t("The whole building is celebrating. Every room, every shelf, every listing. Take the day. You've earned it."),
       'start' => $this->t('Start the party'),
+      'video_title' => $this->t('Your requested wake-up call'),
+      'video_line' => $this->t('You asked, the crew delivers.'),
+      'video_url' => Birthday::VIDEO_URL,
+      'video_button' => $this->t('Play it on YouTube'),
     ] : NULL;
     // On the birthday, birthday mode replaces the football accents.
     $game = $party ? NULL : $this->season->todaysGame();
     return [
       '#type' => 'inline_template',
       '#template' => '{% if party %}<section class="rm-greeting rm-party-sign"><div class="rm-confetti" aria-hidden="true"></div><div class="rm-greeting__text"><span class="rm-badge rm-badge--party">{{ party.badge }}</span><h1>{{ party.hello }}</h1><p>{{ party.line }}</p><button type="button" class="rm-button rm-button--gold rm-party-toggle" hidden>{{ party.start }}</button></div></section>
+<section class="rm-card rm-party-video" aria-labelledby="rm-party-video-title"><h2 id="rm-party-video-title">{{ party.video_title }}</h2><p>{{ party.video_line }}</p><a class="rm-button rm-button--gold" href="{{ party.video_url }}" target="_blank" rel="noopener noreferrer">{{ party.video_button }}</a></section>
 {% else %}<section class="rm-greeting"><div class="rm-greeting__text"><h1>{{ hello }}</h1><p>{{ date }}</p></div>{% if game %}<span class="rm-badge rm-badge--game">{% include "@reseller_matrix/includes/room-icon.html.twig" with { room: "football", size: 22 } only %}{{ game.badge }}</span>{% else %}<span class="rm-badge">{{ badge }}</span>{% endif %}</section>
 {% if score %}<section class="rm-scoreboard" aria-labelledby="rm-season"><h2 id="rm-season">{{ score.title }} <span class="rm-scoreboard__since">{{ score.since }}</span></h2><dl class="rm-scoreboard__cells">{% for c in score.cells %}<div class="rm-scoreboard__cell"><dt>{{ c.label }}</dt><dd>{{ c.value }}</dd></div>{% endfor %}</dl></section>{% endif %}{% endif %}
 <section class="rm-needs" id="needs" aria-labelledby="rm-now"><h2 id="rm-now">{{ needs_title }}</h2>
