@@ -151,8 +151,8 @@ Approved 2026-10-15 (punch item 78: proposal plus Claude (review)'s gaps; Liam d
   - "Sold here" cascade, confirmed before it applies; un-marking restores the previous statuses.
 - [ ] **Phone:** /add with "Take photos" / "Choose photos", "Take another" / "Done" after each camera shot,
   per-photo "Make cover" and up/down arrows, and optional quick fields. A custom web manifest so it
-  installs to the home screen (no PWA beta, no offline cache). Tested on iPhone and Android until Cody
-  says which phone he has.
+  installs to the home screen (no PWA beta, no offline cache). Tested on iPhone (Safari) first:
+  Cody has an iPhone.
 - [ ] **Tests and reports:** unit tests for the rules, rendering checks, and a build report per step.
 
 ## Phase 2: fresh start (no historical import)
