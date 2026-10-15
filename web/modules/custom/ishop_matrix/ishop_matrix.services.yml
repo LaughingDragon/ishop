@@ -3,3 +3,4 @@ services:
     autowire: true
   # TEMPORARY (birthday mode): see TEMPORARY.md.
   Drupal\ishop_matrix\Birthday: ~
+  Drupal\ishop_matrix\Season: ~

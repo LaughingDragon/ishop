@@ -22,6 +22,10 @@
     {% endif %}
   </div>
   <div class="rm-bulbs" aria-hidden="true"></div>
+  {# Football accent: a yard-line strip (no team marks). #}
+  <div class="rm-yards" aria-hidden="true">
+    {% for n in [10, 20, 30, 40, 50, 40, 30, 20, 10] %}<span{% if n == 50 %} class="rm-yards__fifty"{% endif %}>{{ n }}</span>{% endfor %}
+  </div>
 </header>
 
 {% if page.primary_menu %}
@@ -38,7 +42,7 @@
 </main>
 
 <footer class="container rm-footer" role="contentinfo">
-  <span>{{ site_name }}</span>
+  <span>{{ site_name }} <span class="rm-footer__edition">· {{ 'Gold Rush Edition, est. 1849-ish'|t }}</span></span>
   {{ page.footer }}
   {% if logged_in %}<a href="{{ path('user.logout') }}">{{ 'Log out'|t }}</a>{% endif %}
 </footer>

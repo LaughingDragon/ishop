@@ -18,6 +18,15 @@
 @keyframes rm-twinkle { 50% { background-image: radial-gradient(circle, #E0A93A 0 4px, transparent 4.5px); } }
 @media (prefers-reduced-motion: reduce) { .rm-bulbs { animation: none; } }
 
+/* Football accent: yard lines under the bulbs (decorative, aria-hidden). */
+.rm-yards {
+  display: flex; justify-content: space-around; align-items: center; height: 34px; overflow: hidden;
+  background-color: #1D1816;
+  background-image: repeating-linear-gradient(to right, #4A3A36 0 2px, transparent 2px 48px);
+  font-family: var(--rm-font-sign); font-size: 13px; line-height: 1; color: #8C7B70;
+}
+.rm-yards__fifty { color: var(--rm-gold); }
+
 /* Rooms menu (main menu block in primary_menu). Scoped to .rm-menu so
    Drupal's contextual links are never caught by these rules. */
 .rm-nav { background: #1D1816; border-bottom: 1px solid var(--rm-line); }

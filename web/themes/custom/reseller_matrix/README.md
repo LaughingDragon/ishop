@@ -85,6 +85,14 @@ my_office, mailroom, calendar, break_room, add).
 | `rm-chip` (`--todo`, `--live`, `--sold`, `--alert`) | span | Listing status: To post, Posted, Sold here, Take down |
 | `rm-card` | div | Generic panel |
 | `rm-table-wrap` | div around table | Tables scroll sideways on phones |
+| `rm-yards` (`rm-yards__fifty`) | div, aria-hidden | Football accent: yard-line strip under the bulbs (10 ... 50 ... 10) |
+| `rm-scoreboard` > h2 + `rm-scoreboard__cells` (dl of `rm-scoreboard__cell`) | section | "This season": Sold, Listed, Gold struck since the season start |
+| `rm-badge--game` | span | Gold "Game day" badge (with the `football` icon) instead of "Open for business" |
+| `rm-footer__edition` | span | "Gold Rush Edition, est. 1849-ish" |
+
+Football and Gold Rush accents (approved 2026-10-15): football flavour only.
+No team names or nicknames, logos, helmets, player names, numbers or photos,
+or team slogans anywhere. Keep the red #C8312B and gold #F2C14E.
 
 Glance lines must use real data only; when there's nothing, say so plainly
 ("Nothing to ship today").

@@ -92,3 +92,7 @@ body.rm-birthday {
 .rm-party-gate__sign p { margin: 0 0 20px; font-size: 21px; }
 .rm-party-gate__start { min-height: 56px; padding: 12px 28px; font-size: 21px; }
 .rm-party-gate__later { margin-top: 10px; }
+
+/* On the birthday, birthday mode replaces the football / Gold Rush accents. */
+.rm-birthday .rm-yards,
+.rm-birthday .rm-footer__edition { display: none; }

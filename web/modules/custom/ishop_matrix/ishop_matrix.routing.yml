@@ -7,6 +7,15 @@ ishop_matrix.dashboard:
     _permission: 'access content'
     _user_is_logged_in: 'TRUE'
 
+ishop_matrix.my_office:
+  path: '/room/my-office'
+  defaults:
+    _controller: '\Drupal\ishop_matrix\Controller\MatrixController::myOffice'
+    _title: 'My office'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+
 ishop_matrix.room:
   path: '/room/{room}'
   defaults:

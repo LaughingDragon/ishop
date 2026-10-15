@@ -11,7 +11,9 @@ use Drupal\Core\Url;
 use Drupal\Core\Cache\Cache;
 use Drupal\ishop_items\Platforms;
 use Drupal\ishop_matrix\Birthday;
+use Drupal\ishop_matrix\Form\SeasonForm;
 use Drupal\ishop_matrix\Rooms;
+use Drupal\ishop_matrix\Season;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -27,6 +29,7 @@ final class MatrixController extends ControllerBase {
     private readonly DateFormatterInterface $dateFormatter,
     private readonly TimeInterface $time,
     private readonly Birthday $birthday,
+    private readonly Season $season,
   ) {}
 
   /**
@@ -54,10 +57,13 @@ final class MatrixController extends ControllerBase {
       'line' => $this->t("The whole building is celebrating. Every room, every shelf, every listing. Take the day. You've earned it."),
       'start' => $this->t('Start the party'),
     ] : NULL;
+    // On the birthday, birthday mode replaces the football accents.
+    $game = $party ? NULL : $this->season->todaysGame();
     return [
       '#type' => 'inline_template',
       '#template' => '{% if party %}<section class="rm-greeting rm-party-sign"><div class="rm-confetti" aria-hidden="true"></div><div class="rm-greeting__text"><span class="rm-badge rm-badge--party">{{ party.badge }}</span><h1>{{ party.hello }}</h1><p>{{ party.line }}</p><button type="button" class="rm-button rm-button--gold rm-party-toggle" hidden>{{ party.start }}</button></div></section>
-{% else %}<section class="rm-greeting"><div class="rm-greeting__text"><h1>{{ hello }}</h1><p>{{ date }}</p></div><span class="rm-badge">{{ badge }}</span></section>{% endif %}
+{% else %}<section class="rm-greeting"><div class="rm-greeting__text"><h1>{{ hello }}</h1><p>{{ date }}</p></div>{% if game %}<span class="rm-badge rm-badge--game">{% include "@reseller_matrix/includes/room-icon.html.twig" with { room: "football", size: 22 } only %}{{ game.badge }}</span>{% else %}<span class="rm-badge">{{ badge }}</span>{% endif %}</section>
+{% if score %}<section class="rm-scoreboard" aria-labelledby="rm-season"><h2 id="rm-season">{{ score.title }} <span class="rm-scoreboard__since">{{ score.since }}</span></h2><dl class="rm-scoreboard__cells">{% for c in score.cells %}<div class="rm-scoreboard__cell"><dt>{{ c.label }}</dt><dd>{{ c.value }}</dd></div>{% endfor %}</dl></section>{% endif %}{% endif %}
 <section class="rm-needs" id="needs" aria-labelledby="rm-now"><h2 id="rm-now">{{ needs_title }}</h2>
 {% for n in needs %}<div class="rm-needs__row"><span>{{ n.text }}</span><a class="rm-button{% if n.ghost %} rm-button--ghost{% endif %}" href="{{ n.url }}">{{ n.action }}</a></div>
 {% else %}<p class="rm-needs__empty">{{ nothing }}</p>{% endfor %}</section>
@@ -66,7 +72,14 @@ final class MatrixController extends ControllerBase {
 {% endfor %}</ul>',
       '#context' => [
         'hello' => $this->t('Welcome back, boss!'),
-        'date' => $this->t("@date. Here's the building at a glance.", ['@date' => $this->dateFormatter->format($now, 'custom', 'l, F j')]),
+        'date' => $game && $game['kickoff'] !== ''
+          ? $this->t("@date. Kickoff at @time. Here's the building at a glance.", [
+            '@date' => $this->dateFormatter->format($now, 'custom', 'l, F j'),
+            '@time' => date('g:i A', strtotime('2000-01-01 ' . $game['kickoff'])),
+          ])
+          : $this->t("@date. Here's the building at a glance.", ['@date' => $this->dateFormatter->format($now, 'custom', 'l, F j')]),
+        'game' => $game ? ['badge' => $this->t('Game day')] : NULL,
+        'score' => $party ? NULL : $this->scoreboard(),
         'badge' => $this->t('Open for business'),
         'needs_title' => $this->t('Needs you now'),
         'needs' => $needs,
@@ -76,7 +89,7 @@ final class MatrixController extends ControllerBase {
         'party' => $party,
       ],
       '#cache' => [
-        'tags' => Cache::mergeTags(['node_list:item', 'platform_listing_list'], $birthday_cache['tags']),
+        'tags' => Cache::mergeTags(['node_list:item', 'platform_listing_list', Season::CACHE_TAG], $birthday_cache['tags']),
         'contexts' => Cache::mergeContexts(['user.permissions'], $birthday_cache['contexts']),
         // The date line and "closes in N days" change daily.
         'max-age' => min(3600, $birthday_cache['max-age']),
@@ -103,7 +116,7 @@ final class MatrixController extends ControllerBase {
       $sold = $sold ? Platforms::PLATFORMS[reset($sold)->getPlatform()] : NULL;
       $rows[] = [
         'text' => $sold
-          ? $this->t('@item sold on @sold. Take it down from @list.', [
+          ? $this->t('Touchdown! @item sold on @sold. Take it down from @list.', [
             '@item' => $row['item']->label(),
             '@sold' => $sold,
             '@list' => Rooms::andList($row['platforms']),
@@ -172,6 +185,52 @@ final class MatrixController extends ControllerBase {
       'mailroom' => $not_built,
       'calendar-wall' => $not_built,
       'break-room' => $not_built,
+    ];
+  }
+
+  /**
+   * The "This season" scoreboard: sold, listed, gold struck since the start.
+   *
+   * Real data only; zeros when there is nothing yet. Sold and gold struck
+   * count "Sold here" listings by when they were last changed (there is no
+   * separate sale date); listed counts listings by "Date posted".
+   */
+  private function scoreboard(): array {
+    $start = $this->season->startOfSeason();
+    $listings = $this->entityTypeManager()->getStorage('platform_listing');
+    $sold_ids = $listings->getQuery()->accessCheck(FALSE)
+      ->condition('status', Platforms::SOLD_HERE)
+      ->condition('changed', $start->getTimestamp(), '>=')
+      ->execute();
+    $sold_items = [];
+    $gold = 0.0;
+    foreach ($listings->loadMultiple($sold_ids) as $listing) {
+      $sold_items[$listing->get('item')->target_id] = TRUE;
+      $gold += (float) $listing->get('sold_price')->value;
+    }
+    $listed = (int) $listings->getQuery()->accessCheck(FALSE)
+      ->condition('date_posted', $start->format('Y-m-d'), '>=')
+      ->count()->execute();
+    return [
+      'title' => $this->t('This season'),
+      'since' => $this->t('since @date', ['@date' => $start->format('M j')]),
+      'cells' => [
+        ['label' => $this->t('Sold'), 'value' => number_format(count($sold_items))],
+        ['label' => $this->t('Listed'), 'value' => number_format($listed)],
+        ['label' => $this->t('Gold struck'), 'value' => '$' . number_format($gold)],
+      ],
+    ];
+  }
+
+  /**
+   * My office: the season settings and game days (the rest is coming).
+   */
+  public function myOffice(): array {
+    $build = $this->room('my-office');
+    return [
+      'season' => $this->formBuilder()->getForm(SeasonForm::class),
+      'rest' => $build,
+      '#attached' => ['library' => ['ishop_matrix/matrix']],
     ];
   }
 

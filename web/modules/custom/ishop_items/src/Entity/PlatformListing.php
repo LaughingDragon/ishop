@@ -9,6 +9,7 @@ use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\ContentEntityDeleteForm;
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Entity\EntityChangedTrait;
+use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\RevisionLogEntityTrait;
 use Drupal\Core\Entity\RevisionLogInterface;
@@ -91,6 +92,19 @@ final class PlatformListing extends ContentEntityBase implements RevisionLogInte
    */
   public function getPlatform(): string {
     return (string) $this->get('platform')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   *
+   * A listing that goes live gets today's date as "Date posted" if it has
+   * none, so "Listed this season" counts every way of marking it Posted.
+   */
+  public function preSave(EntityStorageInterface $storage): void {
+    parent::preSave($storage);
+    if (in_array($this->getStatus(), [Platforms::POSTED, Platforms::AT_RISK], TRUE) && $this->get('date_posted')->isEmpty()) {
+      $this->set('date_posted', \Drupal::service('date.formatter')->format(\Drupal::time()->getRequestTime(), 'custom', 'Y-m-d'));
+    }
   }
 
   /**

@@ -39,3 +39,26 @@
 .rm-chip--live { background: var(--rm-gold); border-color: var(--rm-gold); color: var(--rm-ground); }
 .rm-chip--sold { background: var(--rm-ok); border-color: var(--rm-ok); color: #FFFFFF; }
 .rm-chip--alert { background: var(--rm-red); border-color: var(--rm-red); color: var(--rm-on-red); }
+
+/* Game day badge (football accent): solid gold with a plain ball icon. */
+.rm-badge--game { background: var(--rm-gold); border-color: var(--rm-gold); color: var(--rm-ground); }
+.rm-badge--game::before { display: none; }
+
+/* "This season" scoreboard: gold sign digits on a black board. */
+.rm-scoreboard { margin: 0 0 28px; padding: 18px 22px 22px; border-radius: var(--rm-radius); background: #0F0D0C; border: 2px solid var(--rm-line); }
+.rm-scoreboard h2 { margin: 0 0 14px; font-size: 20px; color: var(--rm-text); }
+.rm-scoreboard__since { margin-left: 8px; font-family: var(--rm-font-body); font-size: 16px; font-weight: 600; color: var(--rm-text-soft); }
+.rm-scoreboard__cells { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0; }
+.rm-scoreboard__cell { display: flex; flex-direction: column-reverse; align-items: center; gap: 6px; padding: 12px 6px; border-radius: var(--rm-radius-inner); background: #1A1614; text-align: center; }
+.rm-scoreboard__cell dd { margin: 0; font-family: var(--rm-font-sign); font-size: clamp(26px, 7vw, 40px); line-height: 1; color: var(--rm-gold); overflow-wrap: anywhere; }
+.rm-scoreboard__cell dt { font-size: 15px; font-weight: 700; color: var(--rm-text-soft); text-transform: uppercase; letter-spacing: .06em; }
+
+/* My office: the season form. */
+.rm-season-form { margin: 0 0 24px; padding: 22px 24px; }
+.rm-season-form h2 { margin-top: 0; }
+.rm-season-form__start .fieldset__wrapper, .rm-season-form__start > .fieldset-wrapper { display: flex; flex-wrap: wrap; gap: 12px; }
+.rm-season-form__start select { width: auto; }
+.rm-season-form__days { width: 100%; border-collapse: collapse; }
+.rm-season-form__days caption { text-align: left; margin-bottom: 8px; color: var(--rm-text-soft); font-size: 16px; }
+.rm-season-form__days td { padding: 4px 8px 4px 0; vertical-align: top; }
+.rm-season-form__days th { text-align: left; font-size: 15px; color: var(--rm-text-soft); padding-bottom: 4px; }
