@@ -11,26 +11,46 @@ namespace Drupal\ishop_items;
  * Drafts takes a spreadsheet based on its Google Sheet template, and each row
  * becomes a draft. Ported from the old crosslister's make_depop_csv.py.
  *
- * The columns are the old app's "documented bulk columns as of 2026-08".
- * Depop has changed them before: check them against the header row of
- * Depop's own template and edit COLUMNS if they differ (the rest keys off it).
+ * The columns are copied from Depop's own template (Cody pasted its header
+ * row, item 153, 2026-10-15). Depop has changed them before: if an upload is
+ * rejected, compare again and edit COLUMNS (unknown columns are left empty).
+ *
+ * Pictures: the template wants photo URLs Depop can fetch, but item photos
+ * are private (behind the login), so those columns stay empty and the photos
+ * come as a ZIP, one folder per item named like its SKU (item-<ID>).
  */
 final class DepopBulk {
 
   /**
-   * Header row, in order.
+   * Header row, exactly as Depop's template has it (Cody, item 153).
    */
   public const COLUMNS = [
-    'description',
-    'price',
-    'category',
-    'subcategory',
-    'brand',
-    'size',
-    'condition',
-    'colour',
-    'quantity',
-    'photo_folder',
+    'Description',
+    'Category',
+    'Price',
+    'Brand',
+    'Condition',
+    'Size',
+    'Color 1',
+    'Color 2',
+    'Source 1',
+    'Source 2',
+    'Age',
+    'Style 1',
+    'Style 2',
+    'Style 3',
+    'Location',
+    'Picture Hero url',
+    'Picture 2 url',
+    'Picture 3 url',
+    'Picture 4 url',
+    'Picture 5 url',
+    'Picture 6 url',
+    'Picture 7 url',
+    'Picture 8 url',
+    'Domestic Shipping price',
+    'International Shipping price',
+    'SKU',
   ];
 
   /**
@@ -50,32 +70,31 @@ final class DepopBulk {
    *
    * @param array $listing
    *   Plain values, as for PostPack::build().
-   * @param string $folder
-   *   The item's folder name in the photos ZIP.
+   * @param string $sku
+   *   The item's SKU, also its folder name in the photos ZIP.
    *
    * @return array{row: ?array, reason: ?string}
    *   The row keyed by COLUMNS, or NULL and the reason it was skipped.
    */
-  public static function row(array $listing, string $folder): array {
+  public static function row(array $listing, string $sku): array {
     $pack = PostPack::build('depop', $listing);
     $text = $pack['fields'][0]['value'];
     if ($text === '' || ($listing['price'] ?? NULL) === NULL) {
       return ['row' => NULL, 'reason' => 'missing text or price'];
     }
     $parts = array_values(array_filter(array_map('trim', explode('>', (string) ($listing['category'] ?? ''))), fn ($p) => $p !== ''));
+    $values = [
+      'Description' => $text,
+      'Category' => $parts ? end($parts) : '',
+      'Price' => sprintf('%.2f', $listing['price']),
+      'Brand' => (string) ($listing['brand'] ?? ''),
+      'Condition' => self::CONDITIONS[$listing['condition'] ?? ''] ?? 'Used - Good',
+      'Size' => (string) ($listing['size'] ?? ''),
+      'Color 1' => (string) ($listing['color'] ?? ''),
+      'SKU' => $sku,
+    ];
     return [
-      'row' => [
-        'description' => $text,
-        'price' => sprintf('%.2f', $listing['price']),
-        'category' => $parts[0] ?? '',
-        'subcategory' => count($parts) > 1 ? end($parts) : '',
-        'brand' => (string) ($listing['brand'] ?? ''),
-        'size' => (string) ($listing['size'] ?? ''),
-        'condition' => self::CONDITIONS[$listing['condition'] ?? ''] ?? 'Used - Good',
-        'colour' => (string) ($listing['color'] ?? ''),
-        'quantity' => '1',
-        'photo_folder' => $folder,
-      ],
+      'row' => array_map(fn ($column) => $values[$column] ?? '', array_combine(self::COLUMNS, self::COLUMNS)),
       'reason' => NULL,
     ];
   }
@@ -96,10 +115,10 @@ final class DepopBulk {
   }
 
   /**
-   * An item's folder name in the photos ZIP: row number and item ID.
+   * An item's SKU on Depop, also its folder name in the photos ZIP.
    */
-  public static function folder(int $row, int $nid): string {
-    return sprintf('%02d-item-%d', $row, $nid);
+  public static function sku(int $nid): string {
+    return 'item-' . $nid;
   }
 
 }

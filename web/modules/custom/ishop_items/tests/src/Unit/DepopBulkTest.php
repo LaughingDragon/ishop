@@ -16,7 +16,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 final class DepopBulkTest extends UnitTestCase {
 
   /**
-   * A row uses the Depop pack's text and Depop's own condition words.
+   * A row follows Depop's template: its columns, its condition words, a SKU.
    */
   public function testRow(): void {
     $listing = [
@@ -26,29 +26,30 @@ final class DepopBulkTest extends UnitTestCase {
       'size' => 'M',
       'color' => 'Navy',
       'condition' => 'Good',
-      'category' => "Men's Clothing > T-Shirts",
+      'category' => "Men's Clothing",
       'price' => 12.5,
     ];
-    $row = DepopBulk::row($listing, '01-item-7')['row'];
-    $this->assertSame(PostPack::build('depop', $listing)['fields'][0]['value'], $row['description']);
-    $this->assertSame('12.50', $row['price']);
-    $this->assertSame("Men's Clothing", $row['category']);
-    $this->assertSame('T-Shirts', $row['subcategory']);
-    $this->assertSame('Used - Good', $row['condition']);
-    $this->assertSame('Navy', $row['colour']);
-    $this->assertSame('1', $row['quantity']);
-    $this->assertSame('01-item-7', $row['photo_folder']);
+    $row = DepopBulk::row($listing, 'item-7')['row'];
     $this->assertSame(DepopBulk::COLUMNS, array_keys($row));
+    $this->assertSame(PostPack::build('depop', $listing)['fields'][0]['value'], $row['Description']);
+    $this->assertSame('12.50', $row['Price']);
+    $this->assertSame("Men's Clothing", $row['Category']);
+    $this->assertSame('Used - Good', $row['Condition']);
+    $this->assertSame('Navy', $row['Color 1']);
+    $this->assertSame('item-7', $row['SKU']);
+    // Photos are private, so Depop's picture URL columns stay empty.
+    $this->assertSame('', $row['Picture Hero url']);
+    $this->assertSame('', $row['Domestic Shipping price']);
   }
 
   /**
-   * Flat categories have no subcategory; unknown conditions say Used - Good.
+   * Category paths use their last part; unknown conditions say Used - Good.
    */
-  public function testFlatCategoryAndDefaults(): void {
-    $row = DepopBulk::row(['title' => 'Lamp', 'category' => 'Home & Kitchen', 'price' => 5.0], 'f')['row'];
-    $this->assertSame('Home & Kitchen', $row['category']);
-    $this->assertSame('', $row['subcategory']);
-    $this->assertSame('Used - Good', $row['condition']);
+  public function testCategoryAndDefaults(): void {
+    $row = DepopBulk::row(['title' => 'Lamp', 'category' => 'Home & Kitchen > Lamps', 'price' => 5.0], 'item-1')['row'];
+    $this->assertSame('Lamps', $row['Category']);
+    $this->assertSame('Used - Good', $row['Condition']);
+    $this->assertSame('item-9', DepopBulk::sku(9));
   }
 
   /**
@@ -65,7 +66,7 @@ final class DepopBulkTest extends UnitTestCase {
    */
   public function testCsvRoundTrip(): void {
     $listing = ['title' => 'Lamp, brass', 'description' => "Says \"hello\".\nWorks.", 'price' => 5.0];
-    $row = DepopBulk::row($listing, '01-item-1')['row'];
+    $row = DepopBulk::row($listing, 'item-1')['row'];
     $csv = DepopBulk::csv([$row]);
     $lines = [];
     $handle = fopen('php://memory', 'r+');
@@ -75,7 +76,7 @@ final class DepopBulkTest extends UnitTestCase {
       $lines[] = $line;
     }
     $this->assertSame(DepopBulk::COLUMNS, $lines[0]);
-    $this->assertSame($row['description'], $lines[1][0]);
+    $this->assertSame($row['Description'], $lines[1][0]);
     $this->assertCount(2, $lines);
   }
 

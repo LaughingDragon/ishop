@@ -35,7 +35,7 @@ final class DepopBulkController extends ControllerBase {
   private function build(): array {
     $rows = $included = $skipped = [];
     foreach ($this->listings->toPostQueue('depop') as $nid => $item) {
-      $folder = DepopBulk::folder(count($rows) + 1, $nid);
+      $folder = DepopBulk::sku($nid);
       $result = DepopBulk::row(PostController::listingValues($item), $folder);
       if ($result['row'] === NULL) {
         $skipped[] = ['item' => $item, 'reason' => $result['reason']];
@@ -72,11 +72,11 @@ final class DepopBulkController extends ControllerBase {
         'how' => [
           $this->t('On a computer, open Depop, go to Selling Hub, then Drafts.'),
           $this->t('Use its bulk upload (it offers a Google Sheet template) and upload the CSV from here. Each row becomes a draft.'),
-          $this->t('Unzip the photos. Each draft\'s folder is named in its photo_folder column (01-item-..., 02-item-...): add those photos to that draft, in order.'),
+          $this->t('Unzip the photos. Each folder is named like a draft\'s SKU (item-...): add that folder\'s photos to that draft, in order. (Depop\'s picture columns are left empty: our photos are private, so Depop can\'t fetch them.)'),
           $this->t('Publish each draft, then paste its link into the item\'s Listings and set Depop to Posted. It then leaves this list.'),
         ],
         'in_title' => $this->t('In the CSV'),
-        'folder_label' => $this->t('Photo folder'),
+        'folder_label' => $this->t('SKU and photo folder'),
         'item_label' => $this->t('Item'),
         'included' => array_map(fn ($r) => [
           'folder' => $r['folder'],
@@ -90,7 +90,7 @@ final class DepopBulkController extends ControllerBase {
           'reason' => $s['reason'],
           'url' => $post($s['item']),
         ], $bulk['skipped']),
-        'note' => $this->t('Only items still "To post" on Depop that Depop allows are included. If Depop rejects the file, its template\'s column names may have changed: tell the site office.'),
+        'note' => $this->t('Only items still "To post" on Depop that Depop allows are included. The columns match Depop\'s template as of October 2026; if Depop rejects the file, its template may have changed: tell the site office.'),
       ],
       '#attached' => ['library' => ['ishop_items/post']],
       '#cache' => ['max-age' => 0],
