@@ -1,0 +1,9 @@
+[Unit]
+Description=ishop: copy backups off the VM nightly, after the 02:15 backups
+
+[Timer]
+OnCalendar=*-*-* 02:45:00 America/Los_Angeles
+Persistent=true
+
+[Install]
+WantedBy=timers.target
