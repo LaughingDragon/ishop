@@ -15,6 +15,9 @@ use Drupal\node\NodeInterface;
 
 /**
  * The site office pages: plain headings, plain tables, no tabs or scripts.
+ *
+ * Markup follows the Construction theme's markup contract (see its README and
+ * preview/site-office.html); it still reads as plain semantic HTML without it.
  */
 final class OfficeController extends ControllerBase {
 
@@ -23,62 +26,114 @@ final class OfficeController extends ControllerBase {
   ) {}
 
   /**
-   * Links to every office page, shown at the top of each.
+   * The office tabs (so-nav), with the current page marked.
    */
   public static function nav(): array {
+    $path = \Drupal::request()->getPathInfo();
     $links = [
-      'Status board' => 'ishop_office.board',
-      'Plans' => NULL,
-      'Build reports' => 'ishop_office.reports',
-      'Punch list' => 'ishop_office.punch_list',
-      'Decision log' => 'ishop_office.decisions',
-      'status.json' => 'ishop_office.status_json',
+      ['Status board', '/site-office', $path === '/site-office'],
+      ['Plans', '/site-office/plans', $path === '/site-office/plans'],
+      ['Build reports', '/site-office/reports', str_starts_with($path, '/site-office/reports')],
+      ['Punch list', '/site-office/punch-list', $path === '/site-office/punch-list'],
+      ['Decision log', '/site-office/decisions', $path === '/site-office/decisions'],
     ];
-    $items = [];
-    foreach ($links as $title => $route) {
-      $url = $route ? Url::fromRoute($route) : Url::fromUserInput('/site-office/plans');
-      $items[] = Link::fromTextAndUrl($title, $url)->toRenderable();
-    }
     return [
-      '#type' => 'html_tag',
-      '#tag' => 'nav',
-      '#attributes' => ['aria-label' => 'Site office', 'class' => ['ishop-office-nav']],
-      'list' => ['#theme' => 'item_list', '#items' => $items],
+      '#type' => 'inline_template',
+      '#template' => '<nav class="so-nav" aria-label="Site office">{% for l in links %}<a href="{{ l.url }}"{% if l.current %} aria-current="page"{% endif %}>{{ l.title }}</a>{% endfor %}</nav>',
+      '#context' => [
+        'links' => array_map(fn ($l) => [
+          'title' => $l[0],
+          'url' => Url::fromUserInput($l[1])->toString(),
+          'current' => $l[2],
+        ], $links),
+      ],
+      '#cache' => ['contexts' => ['url.path']],
     ];
   }
 
   /**
-   * The landing page: status board, open punch list, recent activity.
+   * A road-sign status pill (so-pill) for a phase status key.
+   */
+  public static function pill(string $status): array {
+    $modifier = [
+      'done' => 'done',
+      'in_progress' => 'progress',
+      'blocked' => 'blocked',
+    ][$status] ?? 'idle';
+    return [
+      '#type' => 'inline_template',
+      '#template' => '<span class="so-pill so-pill--{{ modifier }}">{{ label }}</span>',
+      '#context' => ['modifier' => $modifier, 'label' => Vocabulary::PHASE_STATUS[$status] ?? $status],
+    ];
+  }
+
+  /**
+   * A caution-tape progress bar with its percentage (so-progress-row).
+   */
+  public static function progress(?int $percent): array {
+    if ($percent === NULL) {
+      return ['#markup' => t('No checklist')];
+    }
+    return [
+      '#type' => 'inline_template',
+      '#template' => '<div class="so-progress-row"><progress class="so-progress{% if p == 100 %} is-done{% endif %}" value="{{ p }}" max="100">{{ p }}%</progress><span class="so-progress-row__pct">{{ p }}%</span></div>',
+      '#context' => ['p' => $percent],
+    ];
+  }
+
+  /**
+   * The landing page: summary sign, status board, punch list, recent activity.
    */
   public function board(): array {
     $build = $this->page();
-    $build['intro'] = [
-      '#type' => 'html_tag',
-      '#tag' => 'p',
-      '#value' => $this->t('Like the trailer on a construction site: the plans on the wall and the daily reports. Percent done counts the ticked checklist items under each phase in ROADMAP.md. All dates are YYYY-MM-DD.'),
+    $phases = $this->office->statusBoard();
+    $open = $this->office->punchItems('open');
+    $done = array_sum(array_column($phases, 'checklist_done'));
+    $total = array_sum(array_column($phases, 'checklist_total'));
+    $latest = $this->office->reports(1);
+    $latest = $latest ? (string) reset($latest)->get('field_office_date')->value : NULL;
+    $build['sign'] = [
+      '#type' => 'inline_template',
+      '#template' => '<section class="so-sign" aria-labelledby="so-sign-title"><div class="so-sign__inner"><div class="so-sign__text"><h2 id="so-sign-title">{{ title }}</h2><p>{{ text }}</p></div><div class="so-stats"><div class="so-stat"><span class="so-stat__value">{{ percent }}%</span><span class="so-stat__label">of the plan built</span></div><div class="so-stat"><span class="so-stat__value">{{ open }}</span><span class="so-stat__label">{{ open == 1 ? \'punch item open\' : \'punch items open\' }}</span></div></div></div></section>',
+      '#context' => [
+        'title' => $total && $done === $total ? $this->t('All built') : $this->t('Work in progress'),
+        'text' => $this->t('@done of @total checklist items finished across @phases phases. Last report filed @date. Percent done counts the ticked items in ROADMAP.md.', [
+          '@done' => $done,
+          '@total' => $total,
+          '@phases' => count($phases),
+          '@date' => $latest ?? $this->t('never'),
+        ]),
+        'percent' => $total ? (int) floor(100 * $done / $total) : 0,
+        'open' => count($open),
+      ],
     ];
 
     $rows = [];
-    foreach ($this->office->statusBoard() as $phase) {
+    foreach ($phases as $phase) {
       $report = $phase['latest_report'];
       $rows[] = [
         Link::fromTextAndUrl($phase['name'], Url::fromUri($phase['url']))->toString(),
-        $phase['status_label'],
-        $phase['percent_done'] === NULL ? $this->t('No checklist') : $phase['percent_done'] . '%',
-        $phase['checklist_done'] . ' of ' . $phase['checklist_total'],
-        substr($phase['last_updated'], 0, 10),
-        $report ? Link::fromTextAndUrl($report['title'], Url::fromUri($report['url']))->toString() : $this->t('None yet'),
+        ['data' => self::pill($phase['status'])],
+        ['data' => self::progress($phase['percent_done'])],
+        ['data' => ['#markup' => '<code>' . $phase['checklist_done'] . ' / ' . $phase['checklist_total'] . '</code>']],
+        ['data' => $this->time(substr($phase['last_updated'], 0, 10))],
+        $report ? [
+          'data' => [
+            '#type' => 'inline_template',
+            '#template' => '<a href="{{ url }}" title="{{ title }}"><time datetime="{{ date }}">{{ date }}</time></a>',
+            '#context' => $report,
+          ],
+        ] : $this->t('None yet'),
       ];
     }
     $build['status'] = $this->section($this->t('Status board'), $this->table(
-      $this->t('One row per roadmap phase.'),
-      ['Phase', 'Status', 'Done', 'Checklist', 'Last update', 'Latest report'],
+      ['Phase', 'Status', 'Progress', 'Checklist', 'Last update', 'Latest report'],
       $rows,
       $this->t('No phases yet. Run drush ishop:plans.'),
     ));
 
-    $build['punch'] = $this->section($this->t('Waiting on someone'), $this->punchTable($this->office->punchItems('open'), FALSE));
-    $build['reports'] = $this->section($this->t('Latest build reports'), $this->reportTable($this->office->reports(5)));
+    $build['punch'] = $this->punchCallout($open, $this->t('Punch list: waiting on someone'));
+    $build['reports'] = $this->section($this->t('Latest build reports'), $this->reportCards($this->office->reports(5)));
     $build['decisions'] = $this->section($this->t('Recent decisions'), $this->decisionTable($this->office->decisions(5), FALSE));
     $build['json'] = [
       '#type' => 'html_tag',
@@ -95,7 +150,7 @@ final class OfficeController extends ControllerBase {
    */
   public function reports(): array {
     $build = $this->page();
-    $build['reports'] = $this->reportTable($this->office->reports());
+    $build['reports'] = $this->reportCards($this->office->reports());
     return $build;
   }
 
@@ -104,7 +159,7 @@ final class OfficeController extends ControllerBase {
    */
   public function punchList(): array {
     $build = $this->page();
-    $build['open'] = $this->section($this->t('Open'), $this->punchTable($this->office->punchItems('open'), FALSE));
+    $build['open'] = $this->punchCallout($this->office->punchItems('open'), $this->t('Open: waiting on someone'));
     $build['closed'] = $this->section($this->t('Closed'), $this->punchTable($this->office->punchItems('closed'), TRUE));
     return $build;
   }
@@ -125,18 +180,22 @@ final class OfficeController extends ControllerBase {
     $done = (int) $phase->get('field_checklist_done')->value;
     $total = (int) $phase->get('field_checklist_total')->value;
     $build['done'] = [
-      '#type' => 'html_tag',
-      '#tag' => 'p',
-      '#value' => $total
-        ? $this->t('Done: @percent% (@done of @total checklist items ticked in ROADMAP.md).', [
-          '@percent' => (int) floor(100 * $done / $total),
-          '@done' => $done,
-          '@total' => $total,
-        ])
-        : $this->t('Done: this phase has no checklist items in ROADMAP.md.'),
+      'pill' => self::pill((string) $phase->get('field_phase_status')->value),
+      'bar' => self::progress($total ? (int) floor(100 * $done / $total) : NULL),
+      'text' => [
+        '#type' => 'html_tag',
+        '#tag' => 'p',
+        '#value' => $total
+          ? $this->t('Done: @percent% (@done of @total checklist items ticked in ROADMAP.md).', [
+            '@percent' => (int) floor(100 * $done / $total),
+            '@done' => $done,
+            '@total' => $total,
+          ])
+          : $this->t('Done: this phase has no checklist items in ROADMAP.md.'),
+      ],
       '#weight' => 1,
     ];
-    $build['reports'] = $this->section($this->t('Build reports for this phase'), $this->reportTable($this->office->forPhase('office_report', $phase))) + ['#weight' => 200];
+    $build['reports'] = $this->section($this->t('Build reports for this phase'), $this->reportCards($this->office->forPhase('office_report', $phase))) + ['#weight' => 200];
     $build['punch'] = $this->section($this->t('Punch list items for this phase'), $this->punchTable($this->office->forPhase('office_punch', $phase), FALSE)) + ['#weight' => 201];
     $build['decisions'] = $this->section($this->t('Decisions for this phase'), $this->decisionTable($this->office->forPhase('office_decision', $phase), FALSE)) + ['#weight' => 202];
     $this->cacheability()->applyTo($build);
@@ -198,44 +257,85 @@ final class OfficeController extends ControllerBase {
   }
 
   /**
-   * A table that turns into labelled blocks on narrow screens (see CSS).
+   * A plain table that scrolls sideways on phones (so-table-wrap).
    */
-  private function table($caption, array $header, array $rows, $empty): array {
-    $labelled = [];
-    foreach ($rows as $row) {
-      $cells = [];
-      foreach (array_values($row) as $i => $cell) {
-        $cells[] = ['data' => $cell, 'data-label' => $header[$i]];
-      }
-      $labelled[] = $cells;
-    }
+  private function table(array $header, array $rows, $empty): array {
     return [
       '#type' => 'table',
-      '#caption' => $caption,
       '#header' => $header,
-      '#rows' => $labelled,
+      '#rows' => $rows,
       '#empty' => $empty,
       // No responsive-table script: every column stays in the HTML.
       '#responsive' => FALSE,
-      '#attributes' => ['class' => ['ishop-office-table']],
+      '#prefix' => '<div class="so-table-wrap">',
+      '#suffix' => '</div>',
     ];
   }
 
   /**
-   * Build reports as a table.
+   * A <time> element for an ISO date.
    */
-  private function reportTable(array $reports): array {
-    $rows = [];
+  private function time(string $date): array {
+    return [
+      '#type' => 'inline_template',
+      '#template' => '<time datetime="{{ d }}">{{ d }}</time>',
+      '#context' => ['d' => $date],
+    ];
+  }
+
+  /**
+   * Build reports as date-tile cards (so-card), newest first.
+   */
+  private function reportCards(array $reports): array {
+    if (!$reports) {
+      return ['#markup' => '<p>' . $this->t('No build reports yet.') . '</p>'];
+    }
+    $cards = [];
     foreach ($reports as $report) {
-      $rows[] = [
-        (string) $report->get('field_office_date')->value,
-        $report->toLink()->toString(),
-        $this->phaseLink($report),
-        $this->markdown($report, 'field_summary'),
-        implode(', ', array_column($report->get('field_commits')->getValue(), 'value')) ?: '-',
+      $date = (string) $report->get('field_office_date')->value;
+      $phase = $report->get('field_office_phase')->entity;
+      $commits = count($report->get('field_commits'));
+      $cards[] = [
+        'url' => $report->toUrl()->toString(),
+        'date' => $date,
+        'month' => date('M', strtotime($date)),
+        'day' => (int) substr($date, 8, 2),
+        'title' => preg_replace('/^\d{4}-\d{2}-\d{2}: /', '', $report->label()),
+        'meta' => implode(' · ', array_filter([
+          $phase && $phase->access('view') ? $phase->label() : NULL,
+          $date,
+          $commits ? $this->formatPlural($commits, '1 commit', '@count commits') : NULL,
+        ])),
       ];
     }
-    return $this->table($this->t('Newest first.'), ['Date', 'Report', 'Phase', 'Summary', 'Commits'], $rows, $this->t('No build reports yet.'));
+    return [
+      '#type' => 'inline_template',
+      '#template' => '{% for c in cards %}<a class="so-card so-card--link" href="{{ c.url }}"><span class="so-date"><time datetime="{{ c.date }}"><span class="so-date__month">{{ c.month }}</span><span class="so-date__day">{{ c.day }}</span></time></span><span><span class="so-card__title">{{ c.title }}</span><span class="so-card__meta">{{ c.meta }}</span></span></a>{% endfor %}',
+      '#context' => ['cards' => $cards],
+    ];
+  }
+
+  /**
+   * Open punch list items as a warning callout (so-callout), oldest first.
+   */
+  private function punchCallout(array $items, $title): array {
+    $list = [];
+    foreach ($items as $item) {
+      $phase = $item->get('field_office_phase')->entity;
+      $list[] = [
+        'url' => $item->toUrl()->toString(),
+        'answer' => $item->toUrl('canonical', ['fragment' => 'answer'])->toString(),
+        'question' => $item->label(),
+        'who' => $this->people($item, 'field_waiting_on'),
+        'phase' => $phase && $phase->access('view') ? $phase->label() : NULL,
+        'opened' => (string) $item->get('field_office_date')->value,
+      ];
+    }
+    return [
+      '#type' => 'inline_template',
+      '#template' => '<section class="so-callout{% if items %} so-callout--warn{% endif %}" aria-labelledby="so-punch-title"><span class="so-diamond"><span>{{ items|length }}</span></span><div class="so-callout__body"><h2 id="so-punch-title">{{ title }}</h2>{% if items %}<ul>{% for i in items %}<li><a href="{{ i.url }}">{{ i.question }}</a>. <strong>Waiting on {{ i.who }}</strong>{% if i.phase %} · {{ i.phase }}{% endif %} · opened <time datetime="{{ i.opened }}">{{ i.opened }}</time> <a class="button button--hazard" href="{{ i.answer }}">Answer it</a></li>{% endfor %}</ul>{% else %}<p>Nothing is waiting on anyone.</p>{% endif %}</div></section>',
+      '#context' => ['items' => $list, 'title' => $title],
+    ];
   }
 
   /**
@@ -247,16 +347,19 @@ final class OfficeController extends ControllerBase {
       $row = [
         $item->toLink()->toString(),
         $this->people($item, 'field_waiting_on'),
-        (string) $item->get('field_office_date')->value,
+        ['data' => $this->time((string) $item->get('field_office_date')->value)],
         $this->phaseLink($item),
       ];
       if ($closed) {
-        $row[] = (string) $item->get('field_closed_date')->value;
+        $row[] = ['data' => $this->time((string) $item->get('field_closed_date')->value)];
         $row[] = $this->markdown($item, 'field_answer');
         $row[] = $this->people($item, 'field_answered_by');
       }
       else {
-        $row[] = Link::fromTextAndUrl($this->t('Answer it'), $item->toUrl('canonical', ['fragment' => 'answer']))->toString();
+        $row[] = Link::fromTextAndUrl($this->t('Answer it'), $item->toUrl('canonical', [
+          'fragment' => 'answer',
+          'attributes' => ['class' => ['button', 'button--hazard']],
+        ]))->toString();
       }
       $rows[] = $row;
     }
@@ -268,7 +371,6 @@ final class OfficeController extends ControllerBase {
       $header[] = 'Answer';
     }
     return $this->table(
-      $closed ? $this->t('Newest closed first.') : $this->t('Oldest first.'),
       $header,
       $rows,
       $closed ? $this->t('Nothing closed yet.') : $this->t('Nothing is waiting on anyone.'),
@@ -282,7 +384,7 @@ final class OfficeController extends ControllerBase {
     $rows = [];
     foreach ($decisions as $decision) {
       $row = [
-        (string) $decision->get('field_office_date')->value,
+        ['data' => $this->time((string) $decision->get('field_office_date')->value)],
         $decision->toLink()->toString(),
         $this->people($decision, 'field_decided_by'),
       ];
@@ -293,7 +395,7 @@ final class OfficeController extends ControllerBase {
       $rows[] = $row;
     }
     $header = $why ? ['Date', 'Decision', 'Decided by', 'Why', 'Phase'] : ['Date', 'Decision', 'Decided by'];
-    return $this->table($this->t('Newest first.'), $header, $rows, $this->t('No decisions logged yet.'));
+    return $this->table($header, $rows, $this->t('No decisions logged yet.'));
   }
 
   /**

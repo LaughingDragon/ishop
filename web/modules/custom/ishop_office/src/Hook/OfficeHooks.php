@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ishop_office\Hook;
 
+use Drupal\block\Entity\Block;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Access\AccessResultInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
@@ -98,9 +99,12 @@ final class OfficeHooks {
       $build += $sections;
       $controller->addCacheability($build);
     }
+    if ($node->bundle() === 'office_report') {
+      $this->reportSections($build, $node);
+    }
     foreach (OfficeStructure::SECTION_FIELDS as $field) {
       // The plans page is one long document with its own headings.
-      if (isset($build[$field]['#theme']) && $node->bundle() !== 'office_plan') {
+      if (isset($build[$field]['#theme']) && !in_array($node->bundle(), ['office_plan', 'office_report'], TRUE)) {
         $label = $node->getFieldDefinition($field)->getLabel();
         $build[$field] = [
           'heading' => ['#type' => 'html_tag', '#tag' => 'h2', '#value' => $label],
@@ -122,6 +126,98 @@ final class OfficeHooks {
       $build['#cache']['max-age'] = 0;
     }
     $build['#attached']['library'][] = 'ishop_office/office';
+  }
+
+  /**
+   * Turns a report's fields into so-report sections.
+   *
+   * Each part is a <section> with an <h2>; real blockers get the warning
+   * panel; commits become hash chips. Date, phase and commits move to the
+   * header band (see node--office-report.html.twig).
+   */
+  private function reportSections(array &$build, NodeInterface $node): void {
+    $fields = [
+      'field_summary', 'field_work_done', 'field_next_steps',
+      'field_blockers', 'field_decisions_needed', 'field_tests',
+    ];
+    foreach ($fields as $field) {
+      if (!isset($build[$field]['#theme'])) {
+        continue;
+      }
+      $heading = ['#type' => 'html_tag', '#tag' => 'h2', '#value' => $node->getFieldDefinition($field)->getLabel()];
+      // "None." or "None. The site runs normally..." is not a blocker.
+      $blocked = $field === 'field_blockers' && !preg_match('/^\s*none\b/i', (string) $node->get($field)->value);
+      $build[$field] = [
+        '#type' => 'html_tag',
+        '#tag' => 'section',
+        '#attributes' => $blocked ? ['class' => ['so-report__blockers']] : [],
+        '#weight' => $build[$field]['#weight'] ?? 0,
+        'diamond' => $blocked ? ['#markup' => '<span class="so-diamond so-diamond--small"><span>!</span></span>'] : [],
+        'body' => $blocked ? [
+          '#type' => 'container',
+          '#attributes' => ['class' => ['so-callout__body']],
+          'heading' => $heading,
+          'field' => $build[$field],
+        ] : ['heading' => $heading, 'field' => $build[$field]],
+      ];
+    }
+    $hashes = array_column($node->get('field_commits')->getValue(), 'value');
+    unset($build['field_commits'], $build['field_office_date'], $build['field_office_phase']);
+    if ($hashes) {
+      $build['ishop_office_commits'] = [
+        '#type' => 'inline_template',
+        '#template' => '<section><h2>{{ title }}</h2><ul class="so-hashes">{% for h in hashes %}<li><code class="so-hash">{{ h }}</code></li>{% endfor %}</ul></section>',
+        '#context' => ['title' => $this->t('Git commits'), 'hashes' => $hashes],
+        '#weight' => 100,
+      ];
+    }
+  }
+
+  /**
+   * Implements hook_theme().
+   */
+  #[Hook('theme')]
+  public function theme(): array {
+    return [
+      'node__office_report' => [
+        'base hook' => 'node',
+        'template' => 'node--office-report',
+      ],
+    ];
+  }
+
+  /**
+   * Implements hook_preprocess_HOOK() for node templates.
+   *
+   * Header band facts for build reports.
+   */
+  #[Hook('preprocess_node')]
+  public function preprocessNode(array &$variables): void {
+    $node = $variables['node'];
+    if (!$node instanceof NodeInterface || $node->bundle() !== 'office_report') {
+      return;
+    }
+    $phase = $node->get('field_office_phase')->entity;
+    $variables['report_date'] = (string) $node->get('field_office_date')->value;
+    $variables['report_phase_label'] = $phase ? $phase->label() : '';
+    $variables['report_phase'] = $phase && $phase->access('view') ? $phase->toLink()->toRenderable() : '-';
+  }
+
+  /**
+   * Implements hook_block_access().
+   *
+   * A build report carries its own <h1> in the header band, so the theme's
+   * page title block is hidden there to keep one <h1> per page.
+   */
+  #[Hook('block_access')]
+  public function blockAccess(Block $block, string $operation, AccountInterface $account): AccessResultInterface {
+    if ($operation !== 'view' || $block->getPluginId() !== 'page_title_block') {
+      return AccessResult::neutral();
+    }
+    $node = $this->routeMatch->getParameter('node');
+    $is_report = $this->routeMatch->getRouteName() === 'entity.node.canonical'
+      && $node instanceof NodeInterface && $node->bundle() === 'office_report';
+    return AccessResult::forbiddenIf($is_report)->addCacheContexts(['route']);
   }
 
   /**

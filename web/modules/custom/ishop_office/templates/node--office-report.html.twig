@@ -1,0 +1,24 @@
+{#
+/**
+ * @file
+ * A build report, in the Construction theme's so-report markup. Plain
+ * semantic HTML (article, header, h1, sections with h2) without the theme.
+ */
+#}
+{{ content.ishop_office_nav }}
+<article{{ attributes.addClass('so-report') }}>
+  <header class="so-report__band">
+    <div>
+      <div class="so-report__kicker">{{ 'Daily build report'|t }} · {{ report_phase_label }}</div>
+      <h1>{{ label }}</h1>
+    </div>
+    <div class="so-report__facts">
+      <div class="so-report__fact"><b>{{ 'Filed'|t }}</b><span><time datetime="{{ report_date }}">{{ report_date }}</time></span></div>
+      <div class="so-report__fact"><b>{{ 'By'|t }}</b><span>{{ author_name }}</span></div>
+      <div class="so-report__fact"><b>{{ 'Phase'|t }}</b><span>{{ report_phase }}</span></div>
+    </div>
+  </header>
+  <div class="so-report__body">
+    {{ content|without('ishop_office_nav') }}
+  </div>
+</article>

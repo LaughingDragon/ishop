@@ -1,73 +1,8 @@
-/* Site office: readable on a phone, plain for machines. */
-.ishop-office-nav ul {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1.25rem;
-  margin: 0 0 1.5rem;
-  padding: 0;
-  list-style: none;
-}
-.ishop-office-nav a {
-  display: inline-block;
-  padding: 0.25rem 0;
-  font-size: 1.125rem;
-}
-.ishop-office-table {
-  width: 100%;
-  margin-bottom: 2rem;
-  border-collapse: collapse;
-  font-size: 1rem;
-}
-.ishop-office-table caption {
-  margin-bottom: 0.5rem;
-  text-align: left;
-  font-style: italic;
-}
-.ishop-office-table th,
-.ishop-office-table td {
-  padding: 0.5rem 0.75rem 0.5rem 0;
-  border-bottom: 1px solid #c8c8c8;
-  text-align: left;
-  vertical-align: top;
-}
-.ishop-office-table td p:first-child {
-  margin-top: 0;
-}
-.ishop-office-table td p:last-child {
-  margin-bottom: 0;
-}
-/* Narrow screens: each row becomes a block, each cell labelled. */
-@media (max-width: 47.99rem) {
-  .ishop-office-table thead {
-    position: absolute;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    width: 1px;
-    height: 1px;
-  }
-  .ishop-office-table,
-  .ishop-office-table tbody,
-  .ishop-office-table tr,
-  .ishop-office-table td {
-    display: block;
-    width: 100%;
-  }
-  .ishop-office-table caption {
-    display: block;
-  }
-  .ishop-office-table tr {
-    padding: 0.5rem 0;
-    border-bottom: 2px solid #8a8a8a;
-  }
-  .ishop-office-table td {
-    padding: 0.25rem 0;
-    border: 0;
-  }
-  .ishop-office-table td[data-label]::before {
-    content: attr(data-label) ": ";
-    font-weight: bold;
-  }
-}
+/*
+ * Site office extras. Layout and components come from the Construction
+ * theme's markup contract (so-* classes); this only covers what it doesn't.
+ */
+
 /* Long commands wrap instead of running off a phone screen. */
 .node pre {
   overflow-x: auto;
@@ -82,4 +17,12 @@
 .ishop-office-answer .button {
   min-height: 3rem;
   font-size: 1.125rem;
+}
+/* Links on the dark fact tiles of a build report use the tile's light text. */
+.so-report__fact a {
+  color: inherit;
+}
+/* Dates in tables stay on one line. */
+.so-table-wrap time {
+  white-space: nowrap;
 }
