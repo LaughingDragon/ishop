@@ -4,7 +4,8 @@ Short rules for any agent (Claude Code or otherwise) working on the ishop site.
 The running log with history and locations is ~/ishop/NOTES.md on the VM.
 
 ## Every session
-- Start with `vendor/bin/drush ishop:office` (status board and open punch list).
+- Start with `vendor/bin/drush ishop:office` (status board and open punch list), then **read every punch item
+  answered or closed since your last build report and act on those answers first** (Liam's rule, 2026-10-15).
 - One commit per change; run `drush cex` first. Never commit secrets (secrets/ and private/ are gitignored).
 - End with a build report: `drush ishop:report file.md --dry-run`, then for real.
 - Push git to the private remote at the end of every session, once it is set up.
