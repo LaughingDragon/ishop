@@ -121,19 +121,35 @@ site-foreman (role "site office"); never public, noindex.
 
 ## Phase 1: the item model and phone app
 
-- [ ] **Item** content type: title, description, flaws/condition notes, brand,
-  size, category, condition, photos (Media, multiple, drag to reorder), asking
-  price, AI price range (min/max), cost paid, purchase date, purchase source,
-  order ID, return-by date, storage location, internal notes, "show in shop"
-  flag (Phase 8), Crosslister ID (for the import).
-- [ ] **Platform listing**: one per item per platform (Poshmark, Mercari, Depop,
-  Grailed, Vinted, Facebook) holding status (To post / Posted / Sold here /
-  Take down / Not needed - sold / Posted - at risk / Not allowed), listing
-  URL, listed price, date posted, sold price, fees, eligibility override and
-  note. Use a custom entity or Paragraphs; justify the choice to Liam.
-- [ ] Taxonomies: brand, category, condition, storage location.
-- [ ] PWA module: installable to his phone's home screen, big "Add item" button
-  opening the camera. HEIC photos must be converted to JPEG on upload.
+Approved 2026-10-15 (punch item 78: proposal plus Claude (review)'s gaps; Liam delegated the decisions).
+
+- [ ] **Disk and photo backups:** the boot disk grows from 10 to 30 GB (snapshot first, Liam's console step).
+  Item photos are left out of the nightly private-files tarball and copied daily to the backup bucket,
+  as additions only.
+- [ ] **Item** content type, plus taxonomies and photos:
+  - Fields: title (counter at 60 and 70, maximum 80), photos (Media, first one is the cover), description
+    (counter at 1000), flaws/condition notes, brand, size (free text), color, category, condition,
+    quantity (default 1), lifecycle status (Draft / Ready / Listed / Sold / Returned to Amazon / Donated /
+    Kept), asking price, AI price range (min/max), original price, cost paid, purchase date, purchase
+    source, order ID, Amazon ASIN, return-by date, weight, package size (L x W x H), storage location,
+    internal notes, and "show in shop" (Phase 8). No Crosslister ID.
+  - Only photos are required on the phone. A "ready to list" checklist shows what's missing.
+  - Taxonomies: condition (6 terms), category (13 top-level terms), brand, storage location (empty until
+    Cody answers), purchase source (Amazon).
+  - Photos: Media "Item photo" in private files. On upload: HEIC/HEIF converted to JPEG, turned the right
+    way up, metadata (GPS) stripped, long edge at most 2560 px. ImageMagick's policy.xml allows only
+    JPEG, PNG, WebP and HEIC/HEIF, and keeps its resource limits.
+- [ ] **Platform listing** custom entity: one per item per platform (Poshmark, Mercari, Depop, Grailed,
+  Vinted, Facebook). Fields: status (To post / Posted / Sold here / Take down / Not needed - sold /
+  Posted - at risk / Not allowed), URL, listed price, date posted, sold price, fees, shipping paid by the
+  seller, eligibility override and note.
+  - Six "To post" rows on every new item, and a listings grid on the item page.
+  - "Sold here" cascade, confirmed before it applies; un-marking restores the previous statuses.
+- [ ] **Phone:** /add with "Take photos" / "Choose photos", "Take another" / "Done" after each camera shot,
+  per-photo "Make cover" and up/down arrows, and optional quick fields. A custom web manifest so it
+  installs to the home screen (no PWA beta, no offline cache). Tested on iPhone and Android until Cody
+  says which phone he has.
+- [ ] **Tests and reports:** unit tests for the rules, rendering checks, and a build report per step.
 
 ## Phase 2: fresh start (no historical import)
 
@@ -214,6 +230,8 @@ reference project is used only for its rules and formatting logic.
   description, price, and a contact form (Webform + Honeypot) or links to his
   marketplace listings. Pathauto, Metatag, Simple XML Sitemap.
 - [ ] One setting turns the whole catalog on or off. Default off.
+- Note (2026-10-15): item photos are private files, so the public catalog needs public derivatives
+  (image-style copies) of the photos it shows.
 
 ## Later, only if the business grows
 
