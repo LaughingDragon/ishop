@@ -1,0 +1,508 @@
+uuid: ed7e6f3b-f901-4031-b523-57be3eb369e2
+langcode: en
+status: open
+dependencies: {  }
+weight: 0
+open: null
+close: null
+uid: 0
+template: false
+archive: false
+id: ask_cody
+title: 'Help design your site'
+description: "Cody's style questionnaire (from Liam, 2026-10-15). One question per page; nothing required; drafts saved on every Next."
+categories: {  }
+elements: |
+  # Webform: ask_cody ("Help design your site")
+  # Elements source. Paste into the webform's Build > Source tab.
+  # One question per wizard page. Settings to apply are listed in the
+  # comment block at the bottom.
+
+  intro:
+    '#type': webform_wizard_page
+    '#title': 'Hello'
+    intro_text:
+      '#type': processed_text
+      '#format': basic_html
+      '#text': |
+        <p><strong>Hi Cody.</strong> Liam and I (Claude) are designing how your site will look and feel, and you're the boss on style.</p>
+        <p>This is a short set of questions, one at a time. There are no wrong answers, and you can skip anything. If you stop partway, your answers are saved and you'll pick up where you left off.</p>
+        <p>About 10 minutes. Tap <strong>Next</strong> to start.</p>
+
+  q_first_thing:
+    '#type': webform_wizard_page
+    '#title': 'First look'
+    first_thing:
+      '#type': webform_radios_other
+      '#title': 'When you open the site, what do you want to see first?'
+      '#options':
+        today: 'What I need to do today'
+        money: "How much I've sold"
+        stock: 'Everything I have for sale'
+        buttons: 'A friendly hello and a few big buttons'
+      '#other__option_label': 'Something else'
+      '#other__placeholder': 'Tell us what you''d want first'
+
+  q_office_idea:
+    '#type': webform_wizard_page
+    '#title': 'The office idea'
+    office_idea:
+      '#type': radios
+      '#title': 'Liam''s idea: set the site up like a small office building with rooms, such as a front desk, your office, a shipping room and a stockroom. How does that sound?'
+      '#options':
+        love: 'Love it'
+        simple: 'I like it, but keep it simple'
+        plain: 'I''d rather have plain menus'
+        unsure: 'Not sure yet'
+
+  q_rooms:
+    '#type': webform_wizard_page
+    '#title': 'Your rooms'
+    rooms:
+      '#type': webform_checkboxes_other
+      '#title': 'Which rooms would you actually use? Pick as many as you like.'
+      '#options':
+        front_desk: 'Front desk: what needs doing today'
+        stockroom: 'Stockroom: everything on the game room table'
+        shipping: 'Shipping room: what to pack and send'
+        my_office: 'My office: money, records and decisions'
+        mailroom: 'Mailroom: messages and reminders'
+        calendar: 'Calendar wall: appointments and bills'
+        break_room: 'Break room: personal stuff, not business'
+      '#other__option_label': 'Another room'
+      '#other__placeholder': 'What would it be for?'
+
+  q_front_name:
+    '#type': webform_wizard_page
+    '#title': 'Naming the front door'
+    front_name:
+      '#type': webform_radios_other
+      '#title': 'What should the main page be called?'
+      '#options':
+        front_desk: 'Front Desk'
+        lobby: 'Lobby'
+        home: 'Home'
+        headquarters: 'Headquarters'
+      '#other__option_label': 'My own name for it'
+      '#other__placeholder': 'Type your name for it'
+
+  q_mood:
+    '#type': webform_wizard_page
+    '#title': 'Mood'
+    mood:
+      '#type': radios
+      '#title': 'How should the site feel when you use it?'
+      '#options':
+        calm: 'Calm and tidy'
+        bright: 'Bright and fun'
+        shop: 'Like a well-run shop'
+        homey: 'Warm and homey'
+        bold: 'Bold and confident'
+
+  q_light_dark:
+    '#type': webform_wizard_page
+    '#title': 'Light or dark'
+    light_dark:
+      '#type': radios
+      '#title': 'Do you prefer a light background or a dark one?'
+      '#options':
+        light: 'Light'
+        dark: 'Dark'
+        auto: 'Follow my phone''s setting'
+        any: 'No preference'
+
+  q_colors:
+    '#type': webform_wizard_page
+    '#title': 'Colors you like'
+    colors_like:
+      '#type': webform_checkboxes_other
+      '#title': 'Which color pairings appeal to you? Pick up to three.'
+      '#options':
+        navy_cream: 'Navy and cream'
+        green_tan: 'Forest green and tan'
+        orange_charcoal: 'Warm orange and charcoal'
+        blue_white: 'Sky blue and white'
+        burgundy_gold: 'Burgundy and gold'
+        black_white: 'Black and white'
+        surprise: 'Surprise me'
+      '#other__option_label': 'Colors of my own'
+      '#other__placeholder': 'Which colors?'
+
+  q_colors_no:
+    '#type': webform_wizard_page
+    '#title': 'Colors you don''t'
+    colors_dislike:
+      '#type': textfield
+      '#title': 'Any colors you can''t stand?'
+      '#placeholder': 'For example: pink, bright green. Or leave blank.'
+
+  q_text_size:
+    '#type': webform_wizard_page
+    '#title': 'Reading comfort'
+    text_size:
+      '#type': radios
+      '#title': 'How big should the writing be?'
+      '#options':
+        regular: 'Regular is fine'
+        bigger: 'A bit bigger'
+        big: 'Big and easy to read'
+
+  q_device:
+    '#type': webform_wizard_page
+    '#title': 'Phone or computer'
+    device:
+      '#type': radios
+      '#title': 'Where will you use the site most?'
+      '#options':
+        phone: 'Mostly my phone'
+        computer: 'Mostly a computer'
+        both: 'Both about the same'
+
+  q_icons:
+    '#type': webform_wizard_page
+    '#title': 'Words or pictures'
+    icons_words:
+      '#type': radios
+      '#title': 'On buttons, do you prefer words, little pictures (icons), or both?'
+      '#options':
+        words: 'Words, so I always know what a button does'
+        both: 'A small picture with a word under it'
+        icons: 'Mostly pictures, it looks cleaner'
+
+  q_humor:
+    '#type': webform_wizard_page
+    '#title': 'A little fun?'
+    humor:
+      '#type': radios
+      '#title': 'Your business name, "I Shop on Amazon Way Too Much," is playful. Should the site be playful too?'
+      '#options':
+        playful: 'Yes, have fun with it'
+        wink: 'A little wink here and there'
+        business: 'Keep it businesslike'
+
+  q_greeting:
+    '#type': webform_wizard_page
+    '#title': 'Greeting'
+    greeting:
+      '#type': webform_radios_other
+      '#title': 'How should the site greet you?'
+      '#options':
+        good_morning: '"Good morning, Cody"'
+        boss: '"Welcome back, boss"'
+        none: 'No greeting needed'
+      '#other__option_label': 'Something else'
+      '#other__placeholder': 'Your greeting'
+
+  q_logo:
+    '#type': webform_wizard_page
+    '#title': 'Logo'
+    logo:
+      '#type': radios
+      '#title': 'Would you like a logo?'
+      '#options':
+        mascot: 'Yes, a fun little mascot'
+        mark: 'A simple symbol with the name'
+        name_only: 'Just the name in nice lettering'
+        not_important: 'Not important to me'
+    logo_ideas:
+      '#type': textfield
+      '#title': 'Any ideas for it? (optional)'
+      '#placeholder': 'For example: a delivery box, a shopping cart, a cartoon of me'
+
+  q_ideal_office:
+    '#type': webform_wizard_page
+    '#title': 'Your dream office'
+    ideal_office:
+      '#type': textarea
+      '#title': 'Picture your ideal office. What does it look like and what''s in it?'
+      '#rows': 4
+      '#placeholder': 'A big desk by a window, plants, a coffee maker... anything that comes to mind.'
+
+  q_admired:
+    '#type': webform_wizard_page
+    '#title': 'Looks you like'
+    admired:
+      '#type': textarea
+      '#title': 'Are there stores, websites or apps whose look you like?'
+      '#rows': 3
+      '#placeholder': 'Name any, and what you like about them if you can.'
+
+  q_annoyances:
+    '#type': webform_wizard_page
+    '#title': 'Pet peeves'
+    annoyances:
+      '#type': textarea
+      '#title': 'What drives you crazy in apps or websites?'
+      '#rows': 3
+      '#placeholder': 'Tiny buttons, too many menus, pop-ups... tell us so we avoid it.'
+
+  q_reminders:
+    '#type': webform_wizard_page
+    '#title': 'Reminders'
+    reminders:
+      '#type': radios
+      '#title': 'How would you like the site to remind you about things to do?'
+      '#options':
+        email: 'One email each morning with everything'
+        phone: 'A notice on my phone when something needs me'
+        open_site: 'Only when I open the site'
+
+  q_others:
+    '#type': webform_wizard_page
+    '#title': 'Other people'
+    other_users:
+      '#type': radios
+      '#title': 'Might anyone else use the site someday?'
+      '#options':
+        just_me: 'Just me'
+        family: 'A family member helping out'
+        helper: 'A paid helper'
+        unsure: 'Not sure'
+
+  q_person:
+    '#type': webform_wizard_page
+    '#title': 'One last fun one'
+    site_as_person:
+      '#type': textfield
+      '#title': 'If your site were a person, how would you describe them in a few words?'
+      '#placeholder': 'For example: organized, cheerful, no-nonsense'
+
+  q_anything:
+    '#type': webform_wizard_page
+    '#title': 'Anything else'
+    anything_else:
+      '#type': textarea
+      '#title': 'Anything else you want us to know?'
+      '#rows': 4
+
+  actions:
+    '#type': webform_actions
+    '#title': 'Send'
+    '#submit__label': 'Send my answers'
+css: |
+  /* Ask Cody: one question per screen, big touch targets (44 px and up). */
+  .webform-submission-ask-cody-form { font-size: 1.125rem; }
+  .webform-submission-ask-cody-form fieldset > legend,
+  .webform-submission-ask-cody-form .form-item > label { font-size: 1.3rem; font-weight: 700; line-height: 1.3; margin-bottom: 12px; }
+  .webform-submission-ask-cody-form .form-type-radio,
+  .webform-submission-ask-cody-form .form-type-checkbox {
+    display: flex; align-items: center; margin: 0 0 10px; padding: 0 0 0 14px;
+    border: 2px solid var(--line, #D9D5CC); border-radius: var(--radius-inner, 10px);
+    background: var(--paper, #fff);
+  }
+  .webform-submission-ask-cody-form .form-type-radio label,
+  .webform-submission-ask-cody-form .form-type-checkbox label {
+    flex: 1; display: flex; align-items: center; min-height: 52px; margin: 0; padding: 10px 14px 10px 12px;
+    font-weight: 500; cursor: pointer;
+  }
+  .webform-submission-ask-cody-form input[type="radio"],
+  .webform-submission-ask-cody-form input[type="checkbox"] { width: 24px; height: 24px; margin: 0; flex: none; accent-color: var(--asphalt, #1C1C1A); }
+  .webform-submission-ask-cody-form .form-type-radio:has(input:checked),
+  .webform-submission-ask-cody-form .form-type-checkbox:has(input:checked) { border-color: var(--asphalt, #1C1C1A); background: var(--hazard, #FFC20E); }
+  .webform-submission-ask-cody-form input[type="text"],
+  .webform-submission-ask-cody-form textarea { width: 100%; min-height: 48px; font-size: 1.1rem; }
+  .webform-submission-ask-cody-form .form-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+  .webform-submission-ask-cody-form .form-actions .button,
+  .webform-submission-ask-cody-form .form-actions input[type="submit"] { min-height: 52px; min-width: 120px; font-size: 1.15rem; }
+  .webform-submission-ask-cody-form .webform-progress { margin-bottom: 18px; }
+
+  /* Progress: 24 pages are too many numbered circles for a phone, so the
+     steps become small dots that fit the width, with the percentage below. */
+  .webform-submission-ask-cody-form .progress-tracker { margin: 8px 0 4px; }
+  .webform-submission-ask-cody-form .progress-step { min-width: 0; }
+  .webform-submission-ask-cody-form .progress-marker::before {
+    width: 10px; height: 10px; font-size: 0; content: '';
+  }
+  .webform-submission-ask-cody-form .progress-marker::after { top: 4px; height: 2px; }
+  .webform-submission-ask-cody-form .progress-text,
+  .webform-submission-ask-cody-form .progress-title { display: none; }
+  .webform-submission-ask-cody-form .webform-progress__percentage { text-align: right; font-weight: 600; }
+javascript: ''
+settings:
+  ajax: false
+  ajax_scroll_top: form
+  ajax_progress_type: ''
+  ajax_effect: ''
+  ajax_speed: null
+  page: true
+  page_submit_path: /site-office/ask-cody
+  page_confirm_path: /site-office/ask-cody/thank-you
+  page_theme_name: ''
+  form_title: source_entity_webform
+  form_submit_once: false
+  form_open_message: ''
+  form_close_message: ''
+  form_exception_message: ''
+  form_previous_submissions: true
+  form_confidential: false
+  form_confidential_message: ''
+  form_disable_remote_addr: false
+  form_convert_anonymous: false
+  form_prepopulate: false
+  form_prepopulate_source_entity: false
+  form_prepopulate_source_entity_required: false
+  form_prepopulate_source_entity_type: ''
+  form_unsaved: false
+  form_disable_back: false
+  form_submit_back: false
+  form_disable_autocomplete: false
+  form_novalidate: false
+  form_disable_inline_errors: false
+  form_required: false
+  form_autofocus: false
+  form_details_toggle: false
+  form_reset: false
+  form_access_denied: default
+  form_access_denied_title: ''
+  form_access_denied_message: ''
+  form_access_denied_attributes: {  }
+  form_file_limit: ''
+  form_file_limit_message: ''
+  form_attributes: {  }
+  form_method: ''
+  form_action: ''
+  share: false
+  share_node: false
+  share_theme_name: ''
+  share_title: true
+  share_page_body_attributes: {  }
+  submission_label: ''
+  submission_exception_message: ''
+  submission_locked_message: ''
+  submission_log: false
+  submission_excluded_elements: {  }
+  submission_exclude_empty: false
+  submission_exclude_empty_checkbox: false
+  submission_views: {  }
+  submission_views_replace: {  }
+  submission_user_columns: {  }
+  submission_user_duplicate: false
+  submission_access_denied: default
+  submission_access_denied_title: ''
+  submission_access_denied_message: ''
+  submission_access_denied_attributes: {  }
+  previous_submission_message: ''
+  previous_submissions_message: ''
+  autofill: false
+  autofill_message: ''
+  autofill_excluded_elements: {  }
+  wizard_progress_bar: true
+  wizard_progress_pages: false
+  wizard_progress_percentage: true
+  wizard_progress_link: false
+  wizard_progress_states: false
+  wizard_start_label: ''
+  wizard_preview_link: false
+  wizard_confirmation: true
+  wizard_confirmation_label: ''
+  wizard_auto_forward: true
+  wizard_auto_forward_hide_next_button: false
+  wizard_keyboard: true
+  wizard_track: ''
+  wizard_prev_button_label: Back
+  wizard_next_button_label: Next
+  wizard_toggle: false
+  wizard_toggle_show_label: ''
+  wizard_toggle_hide_label: ''
+  wizard_page_type: container
+  wizard_page_title_tag: h2
+  preview: 0
+  preview_label: ''
+  preview_title: ''
+  preview_message: ''
+  preview_attributes: {  }
+  preview_excluded_elements: {  }
+  preview_exclude_empty: true
+  preview_exclude_empty_checkbox: false
+  draft: authenticated
+  draft_multiple: false
+  draft_auto_save: true
+  draft_saved_message: 'Saved. You can come back any time and pick up where you left off.'
+  draft_loaded_message: 'Welcome back. Your earlier answers are loaded.'
+  draft_pending_single_message: ''
+  draft_pending_multiple_message: ''
+  confirmation_type: page
+  confirmation_url: ''
+  confirmation_title: 'Thank you'
+  confirmation_message: 'Thank you, Cody. Liam and Claude will turn your answers into two or three looks for you to choose from, right here in the site office.'
+  confirmation_attributes: {  }
+  confirmation_back: true
+  confirmation_back_label: 'Back to the site office'
+  confirmation_back_attributes: {  }
+  confirmation_exclude_query: false
+  confirmation_exclude_token: false
+  confirmation_update: false
+  limit_total: null
+  limit_total_interval: null
+  limit_total_message: ''
+  limit_total_unique: false
+  limit_user: null
+  limit_user_interval: null
+  limit_user_message: ''
+  limit_user_unique: false
+  entity_limit_total: null
+  entity_limit_total_interval: null
+  entity_limit_user: null
+  entity_limit_user_interval: null
+  purge: none
+  purge_days: null
+  results_disabled: false
+  results_disabled_ignore: false
+  results_customize: false
+  token_view: false
+  token_update: false
+  token_delete: false
+  serial_disabled: false
+access:
+  create:
+    roles: {  }
+    users:
+      - 3
+      - 1
+    permissions: {  }
+  view_any:
+    roles: {  }
+    users:
+      - 1
+    permissions: {  }
+  update_any:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  delete_any:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  purge_any:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  view_own:
+    roles: {  }
+    users:
+      - 3
+    permissions: {  }
+  update_own:
+    roles: {  }
+    users:
+      - 3
+    permissions: {  }
+  delete_own:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  administer:
+    roles: {  }
+    users:
+      - 1
+    permissions: {  }
+  test:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  configuration:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+handlers: {  }
+variants: {  }

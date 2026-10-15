@@ -213,13 +213,19 @@ final class OfficeHooks {
    */
   #[Hook('block_access')]
   public function blockAccess(Block $block, string $operation, AccountInterface $account): AccessResultInterface {
-    if ($operation !== 'view' || $block->getPluginId() !== 'page_title_block') {
+    if ($operation !== 'view' || !in_array($block->getPluginId(), ['page_title_block', 'local_tasks_block'], TRUE)) {
       return AccessResult::neutral();
+    }
+    // The questionnaire for Cody: no admin tabs (Test, Results, Build...)
+    // above it, even though his account is an administrator.
+    if (in_array($this->routeMatch->getRouteName(), ['entity.webform.canonical', 'entity.webform.confirmation'], TRUE)
+      && $block->getPluginId() === 'local_tasks_block') {
+      return AccessResult::forbidden()->addCacheContexts(['route']);
     }
     $node = $this->routeMatch->getParameter('node');
     $is_report = $this->routeMatch->getRouteName() === 'entity.node.canonical'
       && $node instanceof NodeInterface && $node->bundle() === 'office_report';
-    return AccessResult::forbiddenIf($is_report)->addCacheContexts(['route']);
+    return AccessResult::forbiddenIf($is_report && $block->getPluginId() === 'page_title_block')->addCacheContexts(['route']);
   }
 
   /**

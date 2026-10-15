@@ -7,7 +7,10 @@ namespace Drupal\ishop_office\Controller;
 use Drupal\Core\Cache\CacheableJsonResponse;
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Access\AccessResultInterface;
 use Drupal\Core\Link;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
 use Drupal\ishop_office\DiskStatus;
 use Drupal\ishop_office\OfficeManager;
@@ -133,6 +136,7 @@ final class OfficeController extends ControllerBase {
       $this->t('No phases yet. Run drush ishop:plans.'),
     ));
 
+    $build['ask_cody'] = $this->askCodyCallout() + ['#weight' => -5];
     $build['storage'] = $this->storageNote();
     $build['punch'] = $this->punchCallout($open, $this->t('Punch list: waiting on someone'));
     $build['reports'] = $this->section($this->t('Latest build reports'), $this->reportCards($this->office->reports(5)));
@@ -230,6 +234,90 @@ final class OfficeController extends ControllerBase {
     // Disk state changes without any Drupal event, so it is never cached.
     $response->getCacheableMetadata()->setCacheMaxAge(0);
     return $response;
+  }
+
+  /**
+   * The style questionnaire, for whoever may fill it in (Cody).
+   *
+   * A big link until answers are sent; "Continue" when a draft exists.
+   */
+  private function askCodyCallout(): array {
+    $build = ['#cache' => ['contexts' => ['user'], 'tags' => ['webform_submission_list', 'config:webform.webform.ask_cody']]];
+    $webform = $this->entityTypeManager()->getStorage('webform')->load('ask_cody');
+    if (!$webform || !$webform->access('submission_create') || !$webform->isOpen()) {
+      return $build;
+    }
+    $storage = $this->entityTypeManager()->getStorage('webform_submission');
+    $mine = $storage->loadByProperties(['webform_id' => 'ask_cody', 'uid' => $this->currentUser()->id()]);
+    $sent = array_filter($mine, fn ($s) => !$s->isDraft());
+    $draft = array_filter($mine, fn ($s) => $s->isDraft());
+    $url = $webform->toUrl()->toString();
+    $build += [
+      '#type' => 'inline_template',
+      '#template' => '<section class="so-callout{% if not sent %} so-callout--warn{% endif %} ishop-ask-cody" aria-labelledby="ask-cody-title"><div class="so-callout__body"><h2 id="ask-cody-title">{{ title }}</h2>{% if sent %}<p>{{ thanks }}</p>{% else %}<p><a class="button button--hazard ishop-ask-cody__go" href="{{ url }}">{{ label }}</a></p><p>{{ hint }}</p>{% endif %}</div></section>',
+      '#context' => [
+        'sent' => (bool) $sent,
+        'title' => $sent ? $this->t('Thanks for your style answers') : $this->t('Your turn: the look of your site'),
+        'thanks' => $this->t('Liam and Claude are working from them. Two or three looks will show up here for you to choose from.'),
+        'url' => $url,
+        'label' => $draft ? $this->t('Continue: help design your site') : $this->t('Help design your site (about 10 min)'),
+        'hint' => $this->t('One question at a time. Skip anything. Your answers save as you go.'),
+      ],
+    ];
+    return $build;
+  }
+
+  /**
+   * Who may read Cody's answers: whoever may view all ask_cody submissions.
+   */
+  public static function askCodyResultsAccess(AccountInterface $account): AccessResultInterface {
+    $webform = \Drupal::entityTypeManager()->getStorage('webform')->load('ask_cody');
+    if (!$webform) {
+      return AccessResult::forbidden()->addCacheTags(['config:webform_list']);
+    }
+    // Named on the form's "view any" rule (webmaster), not just anyone whose
+    // role passes Webform's check (Cody's administrator role would).
+    $named = array_map('intval', $webform->getAccessRules()['view_any']['users'] ?? []);
+    return AccessResult::allowedIf(in_array((int) $account->id(), $named, TRUE))
+      ->addCacheableDependency($webform)->cachePerUser();
+  }
+
+  /**
+   * Cody's answers, readable in the site office (drafts included).
+   *
+   * For Liam, and Claude (review) reading through Liam's browser.
+   */
+  public function askCodyResults(): array {
+    $build = $this->page();
+    $storage = $this->entityTypeManager()->getStorage('webform_submission');
+    $ids = $storage->getQuery()->accessCheck(FALSE)
+      ->condition('webform_id', 'ask_cody')
+      ->sort('changed', 'DESC')
+      ->execute();
+    $builder = $this->entityTypeManager()->getViewBuilder('webform_submission');
+    $build['intro'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'p',
+      '#value' => $ids
+        ? $this->t('Newest first. A draft means Cody started but has not pressed "Send my answers" yet; it shows what he has answered so far.')
+        : $this->t('No answers yet.'),
+    ];
+    foreach ($storage->loadMultiple($ids) as $submission) {
+      $build['s' . $submission->id()] = [
+        'heading' => [
+          '#type' => 'html_tag',
+          '#tag' => 'h2',
+          '#value' => $this->t('@who · @state · @date', [
+            '@who' => $submission->getOwner()->getDisplayName(),
+            '@state' => $submission->isDraft() ? $this->t('draft, in progress') : $this->t('sent'),
+            '@date' => \Drupal::service('date.formatter')->format((int) $submission->getChangedTime(), 'custom', 'Y-m-d H:i'),
+          ]),
+        ],
+        'answers' => $builder->view($submission, 'html'),
+      ];
+    }
+    $build['#cache']['tags'][] = 'webform_submission_list';
+    return $build;
   }
 
   /**

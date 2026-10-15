@@ -30,6 +30,15 @@ ishop_office.decisions:
   requirements:
     _permission: 'access site office'
 
+ishop_office.ask_cody_results:
+  path: '/site-office/ask-cody/results'
+  defaults:
+    _controller: '\Drupal\ishop_office\Controller\OfficeController::askCodyResults'
+    _title: "Cody's style answers"
+  requirements:
+    _permission: 'access site office'
+    _custom_access: '\Drupal\ishop_office\Controller\OfficeController::askCodyResultsAccess'
+
 ishop_office.status_json:
   path: '/site-office/status.json'
   defaults:

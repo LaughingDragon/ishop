@@ -33,6 +33,7 @@
         "drupal/real_aes": "^2.6",
         "drupal/seckit": "^2.0",
         "drupal/tfa": "^1.13",
+        "drupal/webform": "^6.3",
         "drush/drush": "^13"
     },
     "conflict": {
