@@ -6,7 +6,7 @@ name: 'I Shop on Amazon Way Too Much'
 mail: admin@ishoponamazonwaytoomuch.ohbah.com
 slogan: ''
 page:
-  403: ''
+  403: /user/login
   404: ''
   front: /node
 admin_compact_mode: false
