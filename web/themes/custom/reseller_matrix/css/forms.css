@@ -1,0 +1,28 @@
+.form-item, .form-actions { margin: 0 0 18px; }
+label, .form-item__label { display: block; font-weight: 600; margin-bottom: 6px; }
+.form-required::after { content: " *"; color: var(--rm-gold); }
+input[type="text"], input[type="email"], input[type="password"], input[type="search"], input[type="number"],
+input[type="url"], input[type="tel"], input[type="date"], select, textarea {
+  font: inherit; color: var(--rm-text); width: 100%; min-height: var(--rm-tap); padding: 10px 14px;
+  background: #0F0D0C; border: 1.5px solid var(--rm-line); border-radius: var(--rm-radius-inner);
+}
+input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid var(--rm-gold); outline-offset: 1px; border-color: var(--rm-gold); }
+textarea { min-height: 120px; }
+.description, .form-item__description { font-size: 16px; color: var(--rm-text-soft); margin-top: 6px; }
+.form-item--error-message { color: #FF8A80; font-weight: 600; margin-top: 6px; }
+input.error, textarea.error, select.error { border-color: var(--rm-red); }
+
+/* Buttons */
+.rm-button, .button, input.form-submit, button.form-submit {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: var(--rm-tap); padding: 10px 20px; border-radius: var(--rm-radius);
+  font: inherit; font-weight: 700; text-decoration: none; cursor: pointer;
+  background: var(--rm-gold); color: var(--rm-ground); border: 0;
+}
+.rm-button:hover, .button:hover, input.form-submit:hover, button.form-submit:hover { background: var(--rm-gold-hover); color: var(--rm-ground); }
+.rm-button--gold { background: var(--rm-gold); color: var(--rm-ground); }
+.rm-button--ghost { background: transparent; color: var(--rm-text); border: 1.5px solid var(--rm-gold); }
+.rm-button--ghost:hover { background: var(--rm-raised); color: var(--rm-text); }
+.rm-button--ghost-light { background: transparent; color: var(--rm-on-red); border: 1.5px solid var(--rm-on-red); }
+.rm-button--ghost-light:hover { background: rgba(0, 0, 0, 0.15); color: var(--rm-on-red); }
+.button--danger { background: var(--rm-red); color: var(--rm-on-red); }

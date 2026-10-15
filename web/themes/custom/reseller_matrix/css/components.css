@@ -1,0 +1,41 @@
+/* Reseller Matrix components. See README "Markup contract". */
+
+/* Greeting row with the "Open for business" badge. */
+.rm-greeting { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px; margin: 0 0 28px; }
+.rm-greeting__text { flex: 1 1 420px; }
+.rm-greeting h1 { margin: 0; }
+.rm-greeting p { margin: 10px 0 0; color: var(--rm-text-soft); font-size: 20px; }
+.rm-badge { display: inline-flex; align-items: center; gap: 10px; padding: 10px 18px; border-radius: var(--rm-pill);
+  border: 2px solid var(--rm-gold); color: var(--rm-gold); font-family: var(--rm-font-sign); font-size: 18px; }
+.rm-badge::before { content: ""; width: 12px; height: 12px; border-radius: 50%; background: currentColor; }
+
+/* "Needs you now" panel. */
+.rm-needs { background: var(--rm-raised); border: 2px solid var(--rm-red); border-radius: var(--rm-radius); padding: 22px 26px; margin: 0 0 28px; }
+.rm-needs h2 { font-size: 20px; color: var(--rm-gold); margin: 0 0 12px; }
+.rm-needs__row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid var(--rm-line-soft); }
+.rm-needs__empty { margin: 0; color: var(--rm-text-soft); }
+
+/* The building: room tiles. Icon on a red tile with a short word under it,
+   room name and a one-line glance beside it. */
+.rm-rooms { display: flex; flex-wrap: wrap; gap: 16px; margin: 0 0 28px; padding: 0; list-style: none; }
+.rm-rooms > li { flex: 1 1 270px; margin: 0; display: flex; }
+.rm-room { flex: 1 1 270px; display: flex; align-items: center; gap: 16px; padding: 18px 20px; border-radius: var(--rm-radius);
+  background: var(--rm-surface); border: 1.5px solid var(--rm-line); color: var(--rm-text); text-decoration: none; }
+.rm-room:hover { border-color: var(--rm-gold); color: var(--rm-text); }
+.rm-room__icon { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 76px; padding: 10px 0;
+  border-radius: var(--rm-radius-inner); background: var(--rm-red); color: var(--rm-gold); }
+.rm-room__word { font-size: 12px; font-weight: 700; color: var(--rm-on-red); letter-spacing: 0.04em; text-transform: uppercase; }
+.rm-room__text { display: flex; flex-direction: column; }
+.rm-room__name { font-weight: 700; font-size: 21px; }
+.rm-room__glance { color: var(--rm-text-soft); font-size: 17px; }
+
+/* Generic card and section heading. */
+.rm-card { background: var(--rm-surface); border: 1.5px solid var(--rm-line); border-radius: var(--rm-radius); padding: 20px 22px; margin: 0 0 16px; }
+.rm-section-title { font-size: 28px; margin: 0 0 14px; }
+
+/* Status words (always paired with text, never color alone). */
+.rm-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: var(--rm-pill); font-size: 15px; font-weight: 700; border: 1.5px solid var(--rm-line); color: var(--rm-text); }
+.rm-chip--todo { border-color: var(--rm-gold); color: var(--rm-gold); }
+.rm-chip--live { background: var(--rm-gold); border-color: var(--rm-gold); color: var(--rm-ground); }
+.rm-chip--sold { background: var(--rm-ok); border-color: var(--rm-ok); color: #FFFFFF; }
+.rm-chip--alert { background: var(--rm-red); border-color: var(--rm-red); color: var(--rm-on-red); }

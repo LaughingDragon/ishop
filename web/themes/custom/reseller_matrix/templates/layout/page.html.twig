@@ -1,0 +1,43 @@
+{#
+/**
+ * @file
+ * Reseller Matrix: default page.
+ */
+#}
+<header class="rm-header" role="banner">
+  <div class="container rm-header__inner">
+    <a class="rm-brand" href="{{ path('<front>') }}" rel="home">
+      <span class="rm-brand__wordmark">{{ wordmark }}</span>
+      <span class="rm-brand__sub">{{ site_name }}</span>
+    </a>
+    {% if logged_in %}
+      <div class="rm-header__actions">
+        <a class="rm-button rm-button--gold" href="{{ add_item_url }}">
+          {% include '@reseller_matrix/includes/room-icon.html.twig' with { room: 'add', size: 22 } only %}
+          {{ 'Add item'|t }}
+        </a>
+        <a class="rm-button rm-button--ghost-light" href="{{ path('user.page') }}">{{ 'Account'|t }}</a>
+      </div>
+    {% endif %}
+  </div>
+  <div class="rm-bulbs" aria-hidden="true"></div>
+</header>
+
+{% if page.primary_menu %}
+  <nav class="rm-nav" aria-label="{{ 'Rooms'|t }}">
+    <div class="container">{{ page.primary_menu }}</div>
+  </nav>
+{% endif %}
+
+<main id="main-content" class="container rm-main" role="main" tabindex="-1">
+  {{ page.highlighted }}
+  {{ page.content_above }}
+  {{ page.content }}
+  {{ page.content_below }}
+</main>
+
+<footer class="container rm-footer" role="contentinfo">
+  <span>{{ wordmark }}</span>
+  {{ page.footer }}
+  {% if logged_in %}<a href="{{ path('user.logout') }}">{{ 'Log out'|t }}</a>{% endif %}
+</footer>

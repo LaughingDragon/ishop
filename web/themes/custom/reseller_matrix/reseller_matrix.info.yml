@@ -1,0 +1,15 @@
+name: 'Reseller Matrix'
+type: theme
+description: "Cody's main theme (Look C: Red & Gold Marquee). Dark charcoal, red header, gold marquee bulbs, Bungee sign lettering, Work Sans text."
+core_version_requirement: ^10.3 || ^11
+base theme: stable9
+logo: logo.svg
+libraries:
+  - reseller_matrix/global
+regions:
+  primary_menu: 'Primary menu (rooms)'
+  highlighted: Highlighted
+  content_above: 'Content above'
+  content: Content
+  content_below: 'Content below'
+  footer: Footer

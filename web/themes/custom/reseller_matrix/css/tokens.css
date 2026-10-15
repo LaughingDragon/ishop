@@ -1,0 +1,29 @@
+/* Reseller Matrix tokens (Look C: Red & Gold Marquee). Change looks here. */
+:root {
+  --rm-ground: #161312;      /* page background, charcoal */
+  --rm-surface: #221C1A;     /* tiles, cards */
+  --rm-raised: #2D2422;      /* panels that need attention */
+  --rm-line: #3D302D;        /* borders */
+  --rm-line-soft: #4A3A36;   /* row dividers */
+  --rm-red: #C8312B;         /* header, icon tiles */
+  --rm-red-deep: #8F1F1B;    /* bulb strip */
+  --rm-gold: #F2C14E;        /* buttons, wordmark, bulbs */
+  --rm-gold-hover: #F7D886;
+  --rm-text: #FBF3E4;
+  --rm-text-soft: #D3C6B2;   /* secondary text (passes 4.5:1 on all grounds) */
+  --rm-on-red: #FFF1DD;
+  --rm-ok: #2E7D4A;          /* sold / done, used with a word, never alone */
+  --rm-ok-pale: #1F3326;
+
+  --rm-radius: 14px;
+  --rm-radius-inner: calc(var(--rm-radius) - 2px);
+  --rm-pill: 999px;
+
+  --rm-page-max: 960px;
+  --rm-gutter: 20px;
+  --rm-tap: 48px;            /* touch targets: bigger than the 44px minimum */
+
+  --rm-font-sign: "Bungee", "Arial Black", Impact, sans-serif;
+  --rm-font-body: "Work Sans", "Segoe UI", system-ui, sans-serif;
+  --rm-text-size: 19px;      /* Cody asked for "a bit bigger" */
+}

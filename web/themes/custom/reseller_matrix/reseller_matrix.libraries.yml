@@ -1,0 +1,16 @@
+global:
+  css:
+    base:
+      css/fonts.css: {}
+      css/tokens.css: {}
+      css/base.css: {}
+    layout:
+      css/layout.css: {}
+    component:
+      css/forms.css: {}
+      css/components.css: {}
+
+gate:
+  css:
+    layout:
+      css/gate.css: {}

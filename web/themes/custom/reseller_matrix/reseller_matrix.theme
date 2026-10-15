@@ -1,0 +1,53 @@
+<?php
+
+/**
+ * @file
+ * Reseller Matrix theme: preprocess and template suggestions.
+ */
+
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+
+/**
+ * The wordmark shown in the header. Cody named the front page this.
+ */
+const RESELLER_MATRIX_WORDMARK = 'Reseller Matrix';
+
+/**
+ * Implements hook_preprocess_page().
+ */
+function reseller_matrix_preprocess_page(array &$variables): void {
+  $account = \Drupal::currentUser();
+  $variables['wordmark'] = RESELLER_MATRIX_WORDMARK;
+  $variables['site_name'] = \Drupal::config('system.site')->get('name');
+  $variables['user_name'] = $account->isAuthenticated() ? $account->getDisplayName() : '';
+  // "Add item" lives at /add once Phase 1 builds it.
+  $variables['add_item_url'] = '/add';
+  $variables['#cache']['contexts'][] = 'user';
+  $variables['#cache']['tags'][] = 'config:system.site';
+}
+
+/**
+ * Implements hook_theme_suggestions_page_alter().
+ *
+ * The "gate" (marquee sign + login box) is for visitors who are not signed
+ * in: login, password reset, and any access-denied page they hit. Signed-in
+ * users who are denied get the normal page with a message.
+ */
+function reseller_matrix_theme_suggestions_page_alter(array &$suggestions, array $variables): void {
+  if (!\Drupal::currentUser()->isAnonymous()) {
+    return;
+  }
+  $route = \Drupal::routeMatch()->getRouteName();
+  $gate_routes = ['user.login', 'user.pass', 'user.reset.form', 'user.reset.login'];
+  $exception = \Drupal::requestStack()->getCurrentRequest()->attributes->get('exception');
+  if (in_array($route, $gate_routes, TRUE) || $exception instanceof AccessDeniedHttpException) {
+    $suggestions[] = 'page__gate';
+  }
+}
+
+/**
+ * Implements hook_preprocess_menu__main().
+ */
+function reseller_matrix_preprocess_menu__main(array &$variables): void {
+  $variables['attributes']['class'][] = 'rm-menu';
+}

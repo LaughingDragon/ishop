@@ -1,0 +1,22 @@
+{#
+/**
+ * @file
+ * Reseller Matrix: the front door (login, password reset, access denied)
+ * for visitors who are not signed in.
+ */
+#}
+{{ attach_library('reseller_matrix/gate') }}
+<div class="rm-gate">
+  <main id="main-content" class="container rm-gate__main" role="main" tabindex="-1">
+    <section class="rm-gate__sign" aria-label="{{ wordmark }}">
+      <div class="rm-gate__sign-inner">
+        <p class="rm-gate__wordmark">{{ wordmark }}</p>
+        <p class="rm-gate__sub">{{ site_name }}</p>
+      </div>
+    </section>
+    <section class="rm-gate__box">
+      {{ page.highlighted }}
+      {{ page.content }}
+    </section>
+  </main>
+</div>

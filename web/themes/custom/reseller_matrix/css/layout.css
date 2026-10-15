@@ -1,0 +1,44 @@
+.container { max-width: var(--rm-page-max); margin-left: auto; margin-right: auto; padding-left: var(--rm-gutter); padding-right: var(--rm-gutter); }
+
+/* Header: red sign with gold wordmark, marquee bulbs underneath. */
+.rm-header { background: var(--rm-red); }
+.rm-header__inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding-top: 22px; padding-bottom: 22px; }
+.rm-brand { text-decoration: none; color: var(--rm-on-red); }
+.rm-brand:hover { color: var(--rm-on-red); }
+.rm-brand__wordmark { display: block; font-family: var(--rm-font-sign); font-size: 40px; line-height: 1; color: var(--rm-gold); }
+.rm-brand__sub { display: block; font-size: 15px; font-weight: 600; margin-top: 6px; }
+.rm-header__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+
+.rm-bulbs {
+  height: 22px; background-color: var(--rm-red-deep);
+  background-image: radial-gradient(circle, var(--rm-gold) 0 4px, transparent 4.5px);
+  background-size: 28px 22px; background-repeat: space no-repeat; background-position: center;
+  animation: rm-twinkle 2.4s ease-in-out infinite;
+}
+@keyframes rm-twinkle { 50% { background-image: radial-gradient(circle, #E0A93A 0 4px, transparent 4.5px); } }
+@media (prefers-reduced-motion: reduce) { .rm-bulbs { animation: none; } }
+
+/* Rooms menu (main menu block in primary_menu). Scoped to .rm-menu so
+   Drupal's contextual links are never caught by these rules. */
+.rm-nav { background: #1D1816; border-bottom: 1px solid var(--rm-line); }
+.rm-nav ul.rm-menu { display: flex; flex-wrap: wrap; gap: 6px; list-style: none; margin: 0; padding: 10px 0; }
+.rm-nav ul.rm-menu > li { margin: 0; }
+.rm-nav ul.rm-menu > li > a {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 8px 14px; border-radius: var(--rm-pill);
+  color: var(--rm-text); text-decoration: none; font-weight: 600; font-size: 17px;
+}
+.rm-nav ul.rm-menu > li > a:hover { background: var(--rm-raised); color: var(--rm-text); }
+.rm-nav ul.rm-menu > li > a.is-active { background: var(--rm-gold); color: var(--rm-ground); }
+
+.rm-main { padding-top: 32px; padding-bottom: 12px; }
+.rm-main:focus { outline: none; }
+
+.rm-footer { margin-top: 40px; margin-bottom: 40px; padding-top: 18px; border-top: 1px solid var(--rm-line);
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; font-size: 16px; color: var(--rm-text-soft); }
+.rm-footer ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 14px; }
+
+@media (max-width: 600px) {
+  :root { --rm-text-size: 18px; }
+  .rm-brand__wordmark { font-size: 30px; }
+  h1 { font-size: 1.9rem; }
+}
