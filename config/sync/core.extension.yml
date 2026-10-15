@@ -38,6 +38,8 @@ module:
   node: 0
   options: 0
   page_cache: 0
+  password_policy_length: 0
+  password_policy_username: 0
   path: 0
   path_alias: 0
   real_aes: 0
@@ -49,6 +51,7 @@ module:
   update: 0
   user: 0
   views_ui: 0
+  password_policy: 10
   views: 10
   standard: 1000
 theme:

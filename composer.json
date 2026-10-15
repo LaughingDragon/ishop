@@ -27,6 +27,7 @@
         "drupal/gin_toolbar": "^3.0",
         "drupal/key": "^1.22",
         "drupal/markdown_easy": "^2.0",
+        "drupal/password_policy": "^4.0",
         "drupal/real_aes": "^2.6",
         "drupal/seckit": "^2.0",
         "drupal/tfa": "^1.13",
