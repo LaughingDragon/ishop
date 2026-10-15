@@ -1,0 +1,17 @@
+[Unit]
+Description=ishop weekly Drupal and module updates (checks, automatic rollback, site office report)
+After=network-online.target mariadb.service apache2.service php8.4-fpm.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=liampward
+Group=www-data
+UMask=0027
+Environment=HOME=/home/liampward
+Environment=COMPOSER_NO_INTERACTION=1
+WorkingDirectory=/var/www/ishop
+ExecStart=/var/www/ishop/scripts/ishop-update.sh
+# Must finish before unattended upgrades (about 03:30) and the 04:00 reboot window.
+TimeoutStartSec=50min
+TimeoutStopSec=10min

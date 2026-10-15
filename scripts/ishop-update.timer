@@ -1,0 +1,9 @@
+[Unit]
+Description=Run ishop weekly updates Thursdays 02:30 Pacific (after Wednesday Drupal security releases)
+
+[Timer]
+OnCalendar=Thu *-*-* 02:30:00 America/Los_Angeles
+Persistent=true
+
+[Install]
+WantedBy=timers.target
