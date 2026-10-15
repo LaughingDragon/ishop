@@ -40,6 +40,41 @@ final class ItemHooks {
   ) {}
 
   /**
+   * Implements hook_cron(): deletes abandoned item photos.
+   *
+   * Photos uploaded on /add but never saved with an item are deleted after a
+   * day. A photo referenced by any item, or any item's revision history, is
+   * kept.
+   */
+  #[Hook('cron')]
+  public function cron(): void {
+    $cutoff = \Drupal::time()->getRequestTime() - 86400;
+    $media = \Drupal::entityTypeManager()->getStorage('media');
+    $old = $media->getQuery()->accessCheck(FALSE)
+      ->condition('bundle', 'item_photo')
+      ->condition('created', $cutoff, '<')
+      ->execute();
+    if (!$old) {
+      return;
+    }
+    $db = \Drupal::database();
+    $used = $db->select('node_revision__field_photos', 'p')
+      ->fields('p', ['field_photos_target_id'])
+      ->condition('field_photos_target_id', $old, 'IN')
+      ->distinct()
+      ->execute()->fetchCol();
+    $orphans = array_diff($old, $used);
+    foreach ($media->loadMultiple($orphans) as $photo) {
+      $file = $photo->get('field_media_image_1')->entity;
+      $photo->delete();
+      $file?->delete();
+    }
+    if ($orphans) {
+      \Drupal::logger('ishop_items')->info('Deleted @n abandoned item photos.', ['@n' => count($orphans)]);
+    }
+  }
+
+  /**
    * Implements hook_ENTITY_TYPE_insert() for nodes: six "To post" listings.
    */
   #[Hook('node_insert')]
@@ -114,7 +149,7 @@ final class ItemHooks {
     $missing = ReadyCheck::missing(self::checkValues($node));
     $build['ishop_ready'] = [
       '#type' => 'inline_template',
-      '#template' => '{% if missing %}<section class="so-callout so-callout--warn ishop-ready" aria-labelledby="ishop-ready-title"><div class="so-callout__body"><h2 id="ishop-ready-title">{{ title }}</h2><ul>{% for m in missing %}<li>{{ m }}</li>{% endfor %}</ul></div></section>{% else %}<p class="ishop-ready ishop-ready--ok"><strong>{{ ok }}</strong></p>{% endif %}',
+      '#template' => '{% if missing %}<section class="rm-card so-callout so-callout--warn ishop-ready" aria-labelledby="ishop-ready-title"><div class="so-callout__body"><h2 id="ishop-ready-title">{{ title }}</h2><ul>{% for m in missing %}<li>{{ m }}</li>{% endfor %}</ul></div></section>{% else %}<p class="ishop-ready ishop-ready--ok"><strong>{{ ok }}</strong></p>{% endif %}',
       '#context' => [
         'missing' => $missing,
         'title' => $this->t('Before listing, this item still needs'),
@@ -174,7 +209,7 @@ final class ItemHooks {
     if (!DiskStatus::photosOnline()) {
       $notice += [
         '#type' => 'inline_template',
-        '#template' => '<div class="so-callout so-callout--warn ishop-photos-offline" role="alert"><div class="so-callout__body"><h2>{{ title }}</h2><p>{{ text }}</p></div></div>',
+        '#template' => '<div class="rm-card so-callout so-callout--warn ishop-photos-offline" role="alert"><div class="so-callout__body"><h2>{{ title }}</h2><p>{{ text }}</p></div></div>',
         '#context' => [
           'title' => t('Photo storage offline'),
           'text' => t("The disk that holds item photos isn't mounted, so photos can't be shown or added right now. Everything else works. Tell site-foreman (punch list)."),

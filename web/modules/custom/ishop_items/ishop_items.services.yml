@@ -6,3 +6,6 @@ services:
     parent: logger.channel_base
     arguments: ['ishop_items']
   Drupal\ishop_items\ListingManager: ~
+  Drupal\ishop_items\EventSubscriber\WebpTypeSubscriber:
+    tags:
+      - { name: event_subscriber }

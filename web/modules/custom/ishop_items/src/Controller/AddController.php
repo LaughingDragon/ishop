@@ -44,7 +44,7 @@ final class AddController extends ControllerBase {
    */
   public function uploadPhoto(Request $request): JsonResponse {
     if (!DiskStatus::photosOnline()) {
-      return new JsonResponse(['error' => (string) $this->t('Photo storage is offline right now, so photos can\'t be added. Tell site-foreman.')], 503);
+      return new JsonResponse(['error' => (string) $this->t("Photo storage is offline right now, so photos can't be added. Tell site-foreman.")], 503);
     }
     $upload = $request->files->get('photo');
     if (!$upload instanceof UploadedFile || !$upload->isValid()) {

@@ -17,7 +17,7 @@ use Drupal\node\Entity\Node;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
- * "Add item" on the phone: photos first, everything else optional.
+ * The "Add item" form on the phone: photos first, everything else optional.
  *
  * With JavaScript, each photo uploads as soon as it is taken or picked
  * (/add/photo), with "Take another" / "Done" after a camera shot, and
@@ -151,13 +151,13 @@ final class AddItemForm extends FormBase {
    */
   public function validateForm(array &$form, FormStateInterface $form_state): void {
     if (!DiskStatus::photosOnline()) {
-      $form_state->setErrorByName('', $this->t('Photo storage is offline, so items with photos can\'t be added right now.'));
+      $form_state->setErrorByName('', $this->t("Photo storage is offline, so items with photos can't be added right now."));
       return;
     }
     $mids = $this->photoIds($form_state);
     foreach (Media::loadMultiple($mids) as $media) {
       if ($media->bundle() !== 'item_photo' || !$media->access('update')) {
-        $form_state->setErrorByName('photo_ids', $this->t('One of the photos can\'t be used. Remove it and add it again.'));
+        $form_state->setErrorByName('photo_ids', $this->t("One of the photos can't be used. Remove it and add it again."));
         return;
       }
     }

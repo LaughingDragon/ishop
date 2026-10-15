@@ -2,16 +2,16 @@
 .ishop-counter {
   margin-top: 4px;
   font-size: 0.9rem;
-  color: var(--ink-soft, #57544D);
+  color: var(--rm-text-soft, var(--ink-soft, #57544D));
 }
 .ishop-counter--warn {
-  color: #9A3A00;
+  color: var(--rm-gold, #9A3A00);
   font-weight: 600;
 }
 .ishop-ready--ok {
   padding: 10px 14px;
-  border-left: 6px solid var(--done, #1F6B3A);
-  background: #EAF4EE;
+  border-left: 6px solid var(--rm-ok, var(--done, #1F6B3A));
+  background: var(--rm-ok-pale, #EAF4EE);
 }
 
 /* Listings grid. On phones each platform becomes a stacked card. */
@@ -22,9 +22,9 @@
 @media (max-width: 720px) {
   .ishop-listings__table thead { display: none; }
   .ishop-listings__table, .ishop-listings__table tbody, .ishop-listings__table tr, .ishop-listings__table td { display: block; width: 100%; }
-  .ishop-listings__table tr { margin: 0 0 14px; padding: 10px 12px; border: 2px solid var(--line, #D9D5CC); border-radius: var(--radius-inner, 10px); background: var(--paper, #fff); }
+  .ishop-listings__table tr { margin: 0 0 14px; padding: 10px 12px; border: 2px solid var(--rm-line, var(--line, #D9D5CC)); border-radius: var(--radius-inner, 10px); background: var(--rm-surface, var(--paper, #fff)); }
   .ishop-listings__table td { padding: 4px 0; border: 0; }
-  .ishop-listings__table td[data-label]::before { content: attr(data-label); display: block; font-size: 0.85rem; font-weight: 600; color: var(--ink-soft, #57544D); }
+  .ishop-listings__table td[data-label]::before { content: attr(data-label); display: block; font-size: 0.85rem; font-weight: 600; color: var(--rm-text-soft, var(--ink-soft, #57544D)); }
   .ishop-listings__table select, .ishop-listings__table input { min-height: 44px; }
   /* The four money fields (columns 4-7), two per row. */
   .ishop-listings__table td:nth-child(n+4) { display: inline-block; width: 48%; vertical-align: top; }

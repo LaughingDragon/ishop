@@ -10,6 +10,7 @@ use Drupal\Core\Access\AccessResultInterface;
 use Drupal\Core\Hook\Attribute\Hook;
 use Drupal\Core\Hook\Order\OrderAfter;
 use Drupal\Core\Theme\ThemeManagerInterface;
+use Drupal\Core\Url;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
 
@@ -83,7 +84,7 @@ final class MatrixHooks {
   public function preprocessPage(array &$variables): void {
     $variables['#cache']['contexts'][] = 'user.permissions';
     $variables['admin_url'] = \Drupal::currentUser()->hasPermission('access administration pages')
-      ? \Drupal\Core\Url::fromRoute('system.admin')->toString()
+      ? Url::fromRoute('system.admin')->toString()
       : NULL;
   }
 
