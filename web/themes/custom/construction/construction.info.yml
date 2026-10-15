@@ -1,0 +1,16 @@
+name: Construction
+type: theme
+description: 'Construction-zone theme for the site office and the login gate while the site is being built. Hard hats, road signs, hazard stripes.'
+core_version_requirement: ^10.3 || ^11
+base theme: stable9
+logo: logo.svg
+libraries:
+  - construction/global
+regions:
+  primary_menu: 'Primary menu'
+  highlighted: Highlighted
+  breadcrumb: Breadcrumb
+  content_above: 'Content above'
+  content: Content
+  content_below: 'Content below'
+  footer: Footer

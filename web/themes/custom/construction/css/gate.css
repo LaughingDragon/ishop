@@ -1,0 +1,44 @@
+/* The gate: login, password reset and access-denied pages. */
+body:has(.gate) { background: var(--asphalt); }
+.gate { background: var(--asphalt); color: var(--ink-light); min-height: 100vh; padding-bottom: 56px; }
+
+.gate__main { display: flex; flex-wrap: wrap; gap: 32px; align-items: stretch; padding-top: 48px; }
+
+.gate__zone { flex: 1 1 420px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; text-align: center; }
+.gate__sign { width: 260px; height: 260px; display: flex; align-items: center; justify-content: center; }
+.gate__diamond {
+  width: 184px; height: 184px; transform: rotate(45deg);
+  background: var(--warn); border: 6px solid var(--asphalt); outline: 4px solid var(--warn);
+  border-radius: var(--radius); display: flex; align-items: center; justify-content: center;
+}
+.gate__diamond-inner { transform: rotate(-45deg); display: flex; flex-direction: column; align-items: center; gap: 2px; color: var(--asphalt); }
+.gate__diamond-text { font-family: var(--font-sign); font-weight: 800; font-size: 30px; line-height: 1; letter-spacing: 0.04em; text-transform: uppercase; }
+.gate__name { margin: 0; font-family: var(--font-sign); font-weight: 800; font-size: 52px; line-height: 1; letter-spacing: 0.02em; text-transform: uppercase; max-width: 440px; }
+.gate__lede { margin: 0 auto; max-width: 380px; font-size: 19px; color: #DAD6CD; }
+
+/* Yellow sign-style login box. */
+.gate__box { flex: 1 1 360px; background: var(--hazard); border-radius: var(--radius); padding: 8px; color: var(--ink); }
+.gate__box-inner { height: 100%; border: 3px solid var(--asphalt); border-radius: var(--radius-inner); padding: 28px 26px; }
+.gate__box h1 { font-size: 2.1rem; margin-bottom: 18px; }
+.gate__box a { color: var(--ink); font-weight: 600; }
+.gate__box input.form-submit { width: 100%; min-height: 52px; font-size: 22px; }
+.gate__box input.form-submit:hover { background: var(--asphalt); color: #FFFFFF; box-shadow: none; }
+.gate__box .tabs a { background: rgba(28, 28, 26, 0.12); color: var(--ink); }
+.gate__box .tabs a.is-active { background: var(--asphalt); color: var(--hazard); }
+.gate__box .description { color: #3A3833; }
+
+/* Barricade. */
+.gate__barricade { margin-top: 48px; }
+.gate__rail { height: 30px; border-radius: var(--radius); border: 3px solid var(--ink-light);
+  background: repeating-linear-gradient(-45deg, var(--warn) 0 26px, var(--ink-light) 26px 52px); }
+.gate__legs { display: flex; justify-content: space-between; padding: 10px 60px 0; }
+.gate__legs span { width: 12px; height: 70px; background: var(--ink-light); border-radius: 4px; }
+.gate__note { margin-top: 20px; text-align: center; color: #BDB8AE; font-size: 15px; }
+
+@media (max-width: 600px) {
+  .gate__main { padding-top: 28px; }
+  .gate__sign { width: 200px; height: 200px; }
+  .gate__diamond { width: 140px; height: 140px; }
+  .gate__name { font-size: 40px; }
+  .gate__legs { padding: 10px 24px 0; }
+}

@@ -1,0 +1,39 @@
+{#
+/**
+ * @file
+ * Construction theme: the gate. Login, password reset and access-denied
+ * pages for visitors who are not signed in.
+ */
+#}
+{{ attach_library('construction/gate') }}
+<div class="gate">
+  <div class="hazard-stripe" aria-hidden="true"></div>
+
+  <main id="main-content" class="container gate__main" role="main" tabindex="-1">
+    <section class="gate__zone">
+      <div class="gate__sign" aria-hidden="true">
+        <div class="gate__diamond">
+          <div class="gate__diamond-inner">
+            {% include '@construction/includes/hard-hat.html.twig' with { size: 72 } only %}
+            <span class="gate__diamond-text">Work<br>zone</span>
+          </div>
+        </div>
+      </div>
+      <p class="gate__name">{{ site_name }}</p>
+      <p class="gate__lede">{{ 'Site under construction. Crew and owner only past this point.'|t }}</p>
+    </section>
+
+    <section class="gate__box">
+      <div class="gate__box-inner">
+        {{ page.highlighted }}
+        {{ page.content }}
+      </div>
+    </section>
+  </main>
+
+  <div class="container gate__barricade" aria-hidden="true">
+    <div class="gate__rail"></div>
+    <div class="gate__legs"><span></span><span></span></div>
+  </div>
+  <p class="container gate__note">{{ 'Building something for Cody. Check back soon.'|t }}</p>
+</div>

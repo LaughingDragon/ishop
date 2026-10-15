@@ -1,0 +1,124 @@
+/* Site office components. The site office controller adds these classes;
+   see README.md, "Markup contract". Plain semantic HTML still looks right
+   without them (tables, headings and lists are styled in base.css). */
+
+/* Office nav: a <nav class="so-nav"> holding links. */
+.so-nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 24px; padding: 8px; background: var(--asphalt-2); border-radius: var(--radius); }
+.so-nav ul { display: contents; list-style: none; }
+.so-nav li { margin: 0; }
+.so-nav a {
+  display: inline-flex; align-items: center; min-height: var(--tap);
+  padding: 10px 16px; border-radius: var(--radius-inner);
+  font-family: var(--font-sign); font-weight: 700; font-size: 18px;
+  letter-spacing: 0.05em; text-transform: uppercase; text-decoration: none;
+  color: var(--ink-light);
+}
+.so-nav a:hover { background: #3A3833; color: var(--ink-light); }
+.so-nav a[aria-current="page"], .so-nav a.is-active { background: var(--hazard); color: var(--ink); }
+
+/* Road-sign panel: yellow sign with an inset black border. */
+.so-sign { background: var(--hazard); border-radius: var(--radius); padding: 8px; margin: 0 0 28px; }
+.so-sign__inner {
+  border: 3px solid var(--asphalt); border-radius: var(--radius-inner);
+  padding: 22px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px;
+}
+.so-sign__text { flex: 1 1 320px; }
+.so-sign h1, .so-sign h2 { margin: 0; font-size: 2.75rem; line-height: 1; }
+.so-sign p { margin: 10px 0 0; font-size: 18px; font-weight: 500; }
+.so-stats { display: flex; flex-wrap: wrap; gap: 12px; }
+
+/* Dark stat tile, usually inside a sign. */
+.so-stat { background: var(--asphalt); color: var(--ink-light); border-radius: var(--radius); padding: 14px 18px; min-width: 120px; }
+.so-stat__value { display: block; font-family: var(--font-sign); font-weight: 800; font-size: 40px; line-height: 1; color: var(--hazard); }
+.so-stat__label { display: block; font-size: 14px; margin-top: 4px; }
+
+/* Status pills. Shapes differ as well as colors:
+   done = check, in progress = diamond, not started = circle, blocked = octagon. */
+.so-pill {
+  display: inline-flex; align-items: center; gap: 7px; white-space: nowrap;
+  padding: 6px 12px; border-radius: var(--radius-pill);
+  font-family: var(--font-sign); font-weight: 700; font-size: 15px;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  background: var(--idle); color: var(--idle-ink);
+}
+.so-pill::before { content: ""; flex: 0 0 auto; width: 11px; height: 11px; box-sizing: border-box; border: 2.5px solid currentColor; border-radius: 50%; }
+.so-pill--done { background: var(--done); color: #FFFFFF; }
+.so-pill--done::before { width: 6px; height: 11px; border-width: 0 2.5px 2.5px 0; border-radius: 0; transform: rotate(45deg) translate(-1px, -1px); margin: 0 3px 0 2px; }
+.so-pill--progress { background: var(--warn); color: var(--ink); }
+.so-pill--progress::before { width: 10px; height: 10px; border-radius: 1px; transform: rotate(45deg); }
+.so-pill--blocked { background: var(--stop); color: #FFFFFF; }
+.so-pill--blocked::before { width: 13px; height: 13px; border: 0; border-radius: 0; background: currentColor;
+  clip-path: polygon(30% 0, 70% 0, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0 70%, 0 30%); }
+
+/* Progress: <progress class="so-progress" value="75" max="100">.
+   Caution tape while in progress; add .is-done for solid green. */
+.so-progress {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; min-width: 100px; height: 14px; vertical-align: middle;
+  background: var(--track); border: 1.5px solid var(--asphalt); border-radius: var(--radius-pill); overflow: hidden;
+  color: var(--hazard);
+}
+.so-progress::-webkit-progress-bar { background: var(--track); border-radius: var(--radius-pill); }
+.so-progress::-webkit-progress-value { background: var(--stripe-fine); }
+.so-progress::-moz-progress-bar { background: var(--stripe-fine); }
+.so-progress.is-done::-webkit-progress-value { background: var(--done); }
+.so-progress.is-done::-moz-progress-bar { background: var(--done); }
+.so-progress-row { display: flex; align-items: center; gap: 10px; }
+.so-progress-row__pct { font-weight: 600; min-width: 40px; text-align: right; }
+
+/* Warning diamond with a number or "!" inside. */
+.so-diamond {
+  position: relative; display: inline-flex; align-items: center; justify-content: center;
+  width: 84px; height: 84px; flex: 0 0 84px;
+}
+.so-diamond::before {
+  content: ""; position: absolute; width: 60px; height: 60px;
+  background: var(--warn); border: 3px solid var(--asphalt); border-radius: 10px; transform: rotate(45deg);
+}
+.so-diamond > * , .so-diamond { font-family: var(--font-sign); font-weight: 800; font-size: 30px; line-height: 1; }
+.so-diamond > * { position: relative; }
+.so-diamond--small { width: 64px; height: 64px; flex-basis: 64px; font-size: 26px; }
+.so-diamond--small::before { width: 46px; height: 46px; border-radius: 8px; }
+
+/* Cards and callouts. */
+.so-card { background: var(--paper); border: var(--border); border-radius: var(--radius); padding: 18px 22px; margin: 0 0 14px; }
+.so-card--link { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; color: var(--ink); text-decoration: none; }
+.so-card--link:hover { box-shadow: 0 0 0 3px var(--hazard); color: var(--ink); }
+.so-card__title { display: block; font-family: var(--font-sign); font-weight: 700; font-size: 22px; line-height: 1.15; }
+.so-card__meta { display: block; font-size: 15px; color: var(--ink-soft); margin-top: 2px; }
+.so-callout { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; background: var(--paper); border: var(--border); border-radius: var(--radius); padding: 20px 22px; margin: 0 0 28px; }
+.so-callout--warn { background: var(--warn-pale); }
+.so-callout__body { flex: 1 1 360px; }
+.so-callout__body > :last-child { margin-bottom: 0; }
+
+/* Date tile on report cards. */
+.so-date {
+  flex: 0 0 auto; background: var(--asphalt); color: var(--hazard);
+  border-radius: var(--radius-inner); padding: 8px 12px; text-align: center;
+  font-family: var(--font-sign); font-weight: 800; line-height: 1;
+}
+.so-date__month { display: block; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; }
+.so-date__day { display: block; font-size: 30px; }
+
+/* Build report page: <article class="so-report">. */
+.so-report { background: var(--paper); border: var(--border); border-radius: var(--radius); overflow: hidden; margin: 8px 0 28px; }
+.so-report__band {
+  background: var(--hazard); border-bottom: var(--border); padding: 22px 26px;
+  display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: space-between;
+}
+.so-report__kicker { font-family: var(--font-sign); font-weight: 700; font-size: 17px; letter-spacing: 0.08em; text-transform: uppercase; }
+.so-report__band h1 { margin: 6px 0 0; font-size: 2.5rem; text-transform: none; letter-spacing: 0.01em; }
+.so-report__facts { display: flex; flex-wrap: wrap; gap: 10px; }
+.so-report__fact { background: var(--asphalt); color: var(--ink-light); border-radius: var(--radius-inner); padding: 10px 14px; font-size: 15px; }
+.so-report__fact b { display: block; color: var(--hazard); font-family: var(--font-sign); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.so-report__fact span { font-family: var(--font-mono); }
+.so-report__body { padding: 26px; }
+.so-report__body section { margin-bottom: 26px; }
+.so-report__body section:last-child { margin-bottom: 0; }
+.so-report__body h2 { font-size: 1.5rem; margin-bottom: 8px; }
+.so-report__blockers { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; background: var(--warn-pale); border: var(--border); border-radius: var(--radius); padding: 18px 20px; }
+
+/* Commit hashes. */
+.so-hashes { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; margin: 0; }
+.so-hashes li { margin: 0; }
+.so-hash { display: inline-block; font-family: var(--font-mono); font-size: 15px; background: var(--asphalt); color: var(--hazard); border-radius: var(--radius-pill); padding: 6px 12px; text-decoration: none; }

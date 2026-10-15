@@ -1,0 +1,50 @@
+{#
+/**
+ * @file
+ * Construction theme: default page (site office and everything else
+ * while the site is being built).
+ */
+#}
+<div class="hazard-stripe" aria-hidden="true"></div>
+
+<header class="site-header" role="banner">
+  <div class="container site-header__inner">
+    <a class="brand" href="{{ path('<front>') }}" rel="home">
+      <span class="brand__tile">{% include '@construction/includes/hard-hat.html.twig' with { size: 40 } only %}</span>
+      <span class="brand__text">
+        <span class="brand__title">Site office</span>
+        <span class="brand__sub">{{ site_name }} · build in progress</span>
+      </span>
+    </a>
+    {% if logged_in %}
+      <div class="site-header__user">
+        <span class="site-header__crew">Crew: <strong>{{ user_name }}</strong></span>
+        <a class="button button--hazard" href="{{ path('user.logout') }}">Log out</a>
+      </div>
+    {% endif %}
+  </div>
+</header>
+
+{% if page.primary_menu %}
+  <nav class="site-nav" aria-label="{{ 'Main'|t }}">
+    <div class="container">{{ page.primary_menu }}</div>
+  </nav>
+{% endif %}
+
+<main id="main-content" class="container site-main" role="main" tabindex="-1">
+  {{ page.breadcrumb }}
+  {{ page.highlighted }}
+  {{ page.content_above }}
+  {{ page.content }}
+  {{ page.content_below }}
+</main>
+
+<footer class="container site-footer" role="contentinfo">
+  <div class="site-footer__box">
+    <div class="hazard-stripe hazard-stripe--thick" aria-hidden="true"></div>
+    <div class="site-footer__bar">
+      <span class="site-footer__motto">Hard hats required · authorized crew only</span>
+      {{ page.footer }}
+    </div>
+  </div>
+</footer>

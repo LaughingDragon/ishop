@@ -1,0 +1,107 @@
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--concrete);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-sign);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  margin: 0 0 0.5em;
+}
+h1 { font-size: 2.6rem; }
+h2 { font-size: 1.75rem; }
+h3 { font-size: 1.4rem; }
+h4 { font-size: 1.15rem; }
+
+p, ul, ol { margin: 0 0 1em; }
+ul, ol { padding-left: 1.4em; }
+li + li { margin-top: 0.3em; }
+
+a { color: var(--ink); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+a:hover { color: #8A3A00; }
+:focus-visible { outline: 3px solid var(--warn); outline-offset: 2px; }
+
+code, kbd, samp, time { font-family: var(--font-mono); font-size: 0.9em; }
+
+img, svg { max-width: 100%; }
+
+hr { border: 0; height: 10px; border-radius: var(--radius-pill); background: var(--stripe-fine); margin: 2em 0; }
+
+/* Tables: any plain table in the content gets the status-board look. */
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--paper);
+  border: var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin: 0 0 1.5em;
+  font-size: 16px;
+}
+th {
+  background: var(--asphalt);
+  color: var(--ink-light);
+  font-family: var(--font-sign);
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 12px 16px;
+}
+td { padding: 12px 16px; border-top: 1px solid var(--line); vertical-align: middle; }
+tr:first-child td { border-top: 0; }
+caption { text-align: left; font-family: var(--font-sign); font-weight: 800; font-size: 1.4rem; text-transform: uppercase; padding-bottom: 8px; }
+
+/* Wide tables scroll inside their own box on phones. */
+.so-table-wrap, .views-table-wrap { overflow-x: auto; margin: 0 0 1.5em; }
+.so-table-wrap > table { margin: 0; min-width: 720px; }
+
+.visually-hidden {
+  position: absolute !important; clip: rect(1px, 1px, 1px, 1px); overflow: hidden;
+  height: 1px; width: 1px; word-wrap: normal;
+}
+.visually-hidden.focusable:focus { position: static !important; clip: auto; overflow: visible; height: auto; width: auto; }
+
+/* Skip link from stable9's html.html.twig. */
+.skip-link.focusable:focus {
+  position: absolute !important; top: 8px; left: 8px; z-index: 100;
+  background: var(--hazard); color: var(--ink); padding: 10px 16px;
+  border-radius: var(--radius-inner); font-weight: 600;
+}
+
+/* Drupal status messages. */
+.messages {
+  border: var(--border);
+  border-radius: var(--radius);
+  background: var(--paper);
+  padding: 14px 18px 14px 18px;
+  margin: 0 0 1.25em;
+}
+.messages--status { background: #E6F2EA; }
+.messages--warning { background: var(--warn-pale); }
+.messages--error { background: #FBE6E7; border-color: var(--stop); }
+.messages ul { margin: 0; }
+
+/* Local task tabs (Log in / Reset password, View / Edit). */
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; margin: 0 0 1.25em; }
+.tabs li { margin: 0; }
+.tabs a {
+  display: inline-flex; align-items: center; min-height: var(--tap);
+  padding: 8px 14px; border-radius: var(--radius-inner);
+  font-family: var(--font-sign); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+  text-decoration: none; background: var(--idle); color: var(--idle-ink);
+}
+.tabs a.is-active { background: var(--asphalt); color: var(--hazard); }

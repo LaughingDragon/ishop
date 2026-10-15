@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Preview: site office status board</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/layout.css">
+<link rel="stylesheet" href="../css/forms.css">
+<link rel="stylesheet" href="../css/site-office.css">
+</head>
+<body>
+<!-- Static preview of page.html.twig plus the site office markup contract.
+     Open in a browser to check the theme without Drupal. -->
+<div class="hazard-stripe" aria-hidden="true"></div>
+<header class="site-header" role="banner">
+  <div class="container site-header__inner">
+    <a class="brand" href="#" rel="home">
+      <span class="brand__tile"><svg class="hard-hat" width="40" height="40" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 35h38"/><path d="M9 35v-5a15 15 0 0 1 30 0v5"/><path d="M19 16.5V12h10v4.5"/><path d="M24 12v11"/></svg></span>
+      <span class="brand__text"><span class="brand__title">Site office</span><span class="brand__sub">I Shop on Amazon Way Too Much · build in progress</span></span>
+    </a>
+    <div class="site-header__user"><span class="site-header__crew">Crew: <strong>webmaster</strong></span><a class="button button--hazard" href="#">Log out</a></div>
+  </div>
+</header>
+
+<main id="main-content" class="container site-main" role="main">
+  <nav class="so-nav" aria-label="Site office">
+    <a href="#" aria-current="page">Status board</a><a href="#">Plans</a><a href="#">Build reports</a><a href="#">Punch list</a><a href="#">Decision log</a>
+  </nav>
+
+  <section class="so-sign" aria-labelledby="wip">
+    <div class="so-sign__inner">
+      <div class="so-sign__text">
+        <h1 id="wip">Work in progress</h1>
+        <p>20 of 55 checklist items finished across 11 phases. Last report filed 2026-10-15.</p>
+      </div>
+      <div class="so-stats">
+        <div class="so-stat"><span class="so-stat__value">36%</span><span class="so-stat__label">of the plan built</span></div>
+        <div class="so-stat"><span class="so-stat__value">1</span><span class="so-stat__label">punch item open</span></div>
+      </div>
+    </div>
+  </section>
+
+  <h2>Status board</h2>
+  <div class="so-table-wrap">
+    <table>
+      <thead><tr><th>Phase</th><th>Status</th><th>Progress</th><th>Items</th><th>Latest report</th></tr></thead>
+      <tbody>
+        <tr><td><b>Foundation: server, stack, HTTPS, hardening</b></td><td><span class="so-pill so-pill--done">Done</span></td>
+          <td><div class="so-progress-row"><progress class="so-progress is-done" value="100" max="100">100%</progress><span class="so-progress-row__pct">100%</span></div></td><td><code>6 / 6</code></td><td><a href="#"><time>2026-10-15</time></a></td></tr>
+        <tr><td><b>Phase 0: safety net</b></td><td><span class="so-pill so-pill--progress">In progress</span></td>
+          <td><div class="so-progress-row"><progress class="so-progress" value="75" max="100">75%</progress><span class="so-progress-row__pct">75%</span></div></td><td><code>6 / 8</code></td><td><a href="#"><time>2026-10-15</time></a></td></tr>
+        <tr><td><b>Phase 1: item model and phone app</b></td><td><span class="so-pill so-pill--blocked">Blocked</span></td>
+          <td><div class="so-progress-row"><progress class="so-progress" value="0" max="100">0%</progress><span class="so-progress-row__pct">0%</span></div></td><td><code>0 / 4</code></td><td>None yet</td></tr>
+        <tr><td><b>Phase 2: fresh start</b></td><td><span class="so-pill so-pill--idle">Not started</span></td>
+          <td><div class="so-progress-row"><progress class="so-progress" value="0" max="100">0%</progress><span class="so-progress-row__pct">0%</span></div></td><td><code>0 / 3</code></td><td>None yet</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <section class="so-callout" aria-labelledby="punch">
+    <span class="so-diamond"><span>1</span></span>
+    <div class="so-callout__body">
+      <h2 id="punch">Punch list: waiting on someone</h2>
+      <p>Switch Security Kit's content security policy to enforced. <strong>Waiting on Claude</strong> · Phase 0 · opened <time>2026-10-15</time></p>
+    </div>
+    <a class="button button--hazard" href="#">Answer it</a>
+  </section>
+
+  <h2>Latest build reports</h2>
+  <a class="so-card so-card--link" href="#">
+    <span class="so-date"><span class="so-date__month">Oct</span><span class="so-date__day">15</span></span>
+    <span>
+      <span class="so-card__title">Phase 0 safety net, first pass</span>
+      <span class="so-card__meta">Phase 0: safety net · 7 commits</span>
+    </span>
+  </a>
+
+  <article class="so-report">
+    <header class="so-report__band">
+      <div><div class="so-report__kicker">Daily build report · Phase 0</div><h1>Safety net, first pass</h1></div>
+      <div class="so-report__facts"><div class="so-report__fact"><b>Filed</b><span>2026-10-15</span></div><div class="so-report__fact"><b>By</b><span>site-foreman</span></div></div>
+    </header>
+    <div class="so-report__body">
+      <section><h2>Summary</h2><p>Most of the safety net is in.</p></section>
+      <section class="so-report__blockers"><span class="so-diamond so-diamond--small"><span>!</span></span><div class="so-callout__body"><h2>Blockers</h2><p>Disk snapshots wait on Liam.</p></div></section>
+      <section><h2>Git commits</h2><ul class="so-hashes"><li><code class="so-hash">e9fdb1f</code></li><li><code class="so-hash">3a4c38e</code></li></ul></section>
+    </div>
+  </article>
+</main>
+
+<footer class="container site-footer" role="contentinfo">
+  <div class="site-footer__box"><div class="hazard-stripe hazard-stripe--thick" aria-hidden="true"></div>
+  <div class="site-footer__bar"><span class="site-footer__motto">Hard hats required · authorized crew only</span><a href="#">status.json</a></div></div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,39 @@
+/* Construction theme design tokens. Change a value here and it changes
+   everywhere. */
+:root {
+  --hazard: #FFC20E;       /* safety yellow: signs, active tabs, buttons */
+  --asphalt: #1C1C1A;      /* header, text, borders */
+  --asphalt-2: #2B2A27;    /* nav bar, logo tile */
+  --concrete: #E9E5DC;     /* page background */
+  --paper: #FFFFFF;        /* cards */
+  --paper-warm: #FFFDF6;   /* form fields */
+  --line: #D9D5CC;         /* row dividers */
+  --track: #ECE8E0;        /* empty progress track */
+  --ink: #1C1C1A;
+  --ink-soft: #57544D;     /* secondary text on light */
+  --ink-light: #F4F1EA;    /* text on dark */
+  --ink-muted: #CFCAC0;    /* secondary text on dark */
+
+  --warn: #F26A1B;         /* in progress, warnings: dark text on it */
+  --warn-pale: #FFF1E6;
+  --done: #1F6B3A;         /* done: white text on it */
+  --idle: #DDD8CE;         /* not started background */
+  --idle-ink: #3A3833;     /* not started text */
+  --stop: #C1272D;         /* blocked: white text on it */
+
+  --radius: 14px;
+  --radius-inner: calc(var(--radius) - 4px);
+  --radius-pill: 999px;
+  --border: 2px solid var(--asphalt);
+
+  --page-max: 960px;
+  --gutter: 20px;
+  --tap: 44px;             /* minimum touch target */
+
+  --font-sign: "Barlow Condensed", "Arial Narrow", sans-serif-condensed, sans-serif;
+  --font-body: "Barlow", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Menlo, monospace;
+
+  --stripe: repeating-linear-gradient(-45deg, var(--hazard) 0 18px, var(--asphalt) 18px 36px);
+  --stripe-fine: repeating-linear-gradient(-45deg, var(--hazard) 0 8px, var(--asphalt) 8px 16px);
+}
