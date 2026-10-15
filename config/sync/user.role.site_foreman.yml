@@ -1,0 +1,74 @@
+uuid: ff6df79d-0a61-43aa-8a67-d0a5679bf212
+langcode: en
+status: true
+dependencies:
+  config:
+    - filter.format.basic_html
+    - filter.format.full_html
+  module:
+    - block
+    - block_content
+    - config
+    - contextual
+    - field_ui
+    - file
+    - filter
+    - help
+    - image
+    - layout_builder
+    - navigation
+    - node
+    - path
+    - system
+    - taxonomy
+    - views_ui
+id: site_foreman
+label: 'Site foreman'
+weight: 4
+is_admin: false
+permissions:
+  - 'access administration pages'
+  - 'access block library'
+  - 'access content overview'
+  - 'access contextual links'
+  - 'access files overview'
+  - 'access help pages'
+  - 'access navigation'
+  - 'access site reports'
+  - 'access taxonomy overview'
+  - 'administer block content'
+  - 'administer block types'
+  - 'administer blocks'
+  - 'administer content types'
+  - 'administer display modes'
+  - 'administer filters'
+  - 'administer image styles'
+  - 'administer menu'
+  - 'administer modules'
+  - 'administer node display'
+  - 'administer node fields'
+  - 'administer node form display'
+  - 'administer nodes'
+  - 'administer site configuration'
+  - 'administer taxonomy'
+  - 'administer taxonomy_term display'
+  - 'administer taxonomy_term fields'
+  - 'administer taxonomy_term form display'
+  - 'administer themes'
+  - 'administer url aliases'
+  - 'administer views'
+  - 'bypass node access'
+  - 'configure any layout'
+  - 'configure navigation layout'
+  - 'create url aliases'
+  - 'delete all revisions'
+  - 'delete any file'
+  - 'export configuration'
+  - 'import configuration'
+  - 'revert all revisions'
+  - 'synchronize configuration'
+  - 'use text format basic_html'
+  - 'use text format full_html'
+  - 'view all revisions'
+  - 'view own unpublished content'
+  - 'view the administration theme'

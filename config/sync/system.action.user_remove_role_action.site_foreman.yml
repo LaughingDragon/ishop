@@ -1,0 +1,14 @@
+uuid: 5f93b329-c727-44dc-b53b-92d90b96c20b
+langcode: en
+status: true
+dependencies:
+  config:
+    - user.role.site_foreman
+  module:
+    - user
+id: user_remove_role_action.site_foreman
+label: 'Remove the Site foreman role from the selected user(s)'
+type: user
+plugin: user_remove_role_action
+configuration:
+  rid: site_foreman
