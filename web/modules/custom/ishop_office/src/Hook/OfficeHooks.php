@@ -16,6 +16,8 @@ use Drupal\ishop_office\Controller\OfficeController;
 use Drupal\ishop_office\Form\AnswerPunchForm;
 use Drupal\ishop_office\OfficeStructure;
 use Drupal\node\NodeInterface;
+use Drupal\user\Entity\Role;
+use Drupal\user\RoleInterface;
 
 /**
  * Keeps the site office private and readable.
@@ -218,6 +220,31 @@ final class OfficeHooks {
     $is_report = $this->routeMatch->getRouteName() === 'entity.node.canonical'
       && $node instanceof NodeInterface && $node->bundle() === 'office_report';
     return AccessResult::forbiddenIf($is_report)->addCacheContexts(['route']);
+  }
+
+  /**
+   * Implements hook_modules_installed().
+   *
+   * The site is private: visitors who are not logged in get no permissions.
+   * Some modules grant some on install (Media grants "view media", which
+   * exposed private item photos on 2026-10-15), so anything granted to the
+   * anonymous role is revoked straight away and logged.
+   */
+  #[Hook('modules_installed')]
+  public function modulesInstalled(array $modules, bool $is_syncing): void {
+    $role = Role::load(RoleInterface::ANONYMOUS_ID);
+    $granted = $role ? $role->getPermissions() : [];
+    if (!$granted) {
+      return;
+    }
+    foreach ($granted as $permission) {
+      $role->revokePermission($permission);
+    }
+    $role->save();
+    \Drupal::logger('ishop_office')->warning('Installing @modules granted anonymous visitors: @perms. Revoked; the site stays private.', [
+      '@modules' => implode(', ', $modules),
+      '@perms' => implode(', ', $granted),
+    ]);
   }
 
   /**
