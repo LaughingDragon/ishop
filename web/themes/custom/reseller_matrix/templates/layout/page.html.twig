@@ -17,6 +17,7 @@
           {{ 'Add item'|t }}
         </a>
         <a class="rm-button rm-button--ghost-light" href="{{ path('user.page') }}">{{ 'Account'|t }}</a>
+        {% if admin_url %}<a class="rm-button rm-button--ghost-light" href="{{ admin_url }}">{{ 'Admin'|t }}</a>{% endif %}
       </div>
     {% endif %}
   </div>
