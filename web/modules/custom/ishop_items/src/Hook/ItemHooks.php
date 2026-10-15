@@ -40,6 +40,31 @@ final class ItemHooks {
   ) {}
 
   /**
+   * Implements hook_page_attachments(): the home-screen app tags.
+   *
+   * On every page, the login gate included, so "Add to Home Screen" works
+   * from wherever Cody is: the manifest, the 180 px Apple touch icon that
+   * iPhone uses for the home-screen icon, and the app title and colours.
+   */
+  #[Hook('page_attachments')]
+  public function pageAttachments(array &$attachments): void {
+    $icons = '/' . \Drupal::moduleHandler()->getModule('ishop_items')->getPath() . '/icons';
+    $tags = [
+      'ishop_manifest' => ['link', ['rel' => 'manifest', 'href' => '/manifest.webmanifest']],
+      'ishop_apple_touch_icon' => ['link', ['rel' => 'apple-touch-icon', 'sizes' => '180x180', 'href' => "$icons/apple-touch-icon.png"]],
+      'ishop_icon_192' => ['link', ['rel' => 'icon', 'type' => 'image/png', 'sizes' => '192x192', 'href' => "$icons/icon-192.png"]],
+      'ishop_theme_color' => ['meta', ['name' => 'theme-color', 'content' => '#161312']],
+      'ishop_apple_capable' => ['meta', ['name' => 'apple-mobile-web-app-capable', 'content' => 'yes']],
+      'ishop_mobile_capable' => ['meta', ['name' => 'mobile-web-app-capable', 'content' => 'yes']],
+      'ishop_apple_title' => ['meta', ['name' => 'apple-mobile-web-app-title', 'content' => 'Reseller Matrix']],
+      'ishop_apple_status' => ['meta', ['name' => 'apple-mobile-web-app-status-bar-style', 'content' => 'black']],
+    ];
+    foreach ($tags as $key => [$tag, $attributes]) {
+      $attachments['#attached']['html_head'][] = [['#tag' => $tag, '#attributes' => $attributes], $key];
+    }
+  }
+
+  /**
    * Implements hook_cron(): deletes abandoned item photos.
    *
    * Photos uploaded on /add but never saved with an item are deleted after a
