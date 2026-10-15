@@ -18,3 +18,15 @@ function ishop_items_update_11001(): string {
   }
   return 'Platform listing entity type installed.';
 }
+
+/**
+ * Adds "Date sold" to platform listings (Phase 4 step 2).
+ */
+function ishop_items_update_11002(): string {
+  $manager = \Drupal::entityDefinitionUpdateManager();
+  if (!$manager->getFieldStorageDefinition('date_sold', 'platform_listing')) {
+    $definition = \Drupal::service('entity_field.manager')->getFieldStorageDefinitions('platform_listing')['date_sold'];
+    $manager->installFieldStorageDefinition('date_sold', 'platform_listing', 'ishop_items', $definition);
+  }
+  return 'Date sold added to platform listings.';
+}

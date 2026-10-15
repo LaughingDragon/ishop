@@ -99,11 +99,20 @@ final class PlatformListing extends ContentEntityBase implements RevisionLogInte
    *
    * A listing that goes live gets today's date as "Date posted" if it has
    * none, so "Listed this season" counts every way of marking it Posted.
+   * "Sold here" sets "Date sold" (Phase 4: days to sell, the Money page, the
+   * tax export); un-marking the sale clears it.
    */
   public function preSave(EntityStorageInterface $storage): void {
     parent::preSave($storage);
+    $today = \Drupal::service('date.formatter')->format(\Drupal::time()->getRequestTime(), 'custom', 'Y-m-d');
     if (in_array($this->getStatus(), [Platforms::POSTED, Platforms::AT_RISK], TRUE) && $this->get('date_posted')->isEmpty()) {
-      $this->set('date_posted', \Drupal::service('date.formatter')->format(\Drupal::time()->getRequestTime(), 'custom', 'Y-m-d'));
+      $this->set('date_posted', $today);
+    }
+    if ($this->getStatus() === Platforms::SOLD_HERE && $this->get('date_sold')->isEmpty()) {
+      $this->set('date_sold', $today);
+    }
+    elseif ($this->getStatus() !== Platforms::SOLD_HERE && !$this->get('date_sold')->isEmpty()) {
+      $this->set('date_sold', NULL);
     }
   }
 
@@ -169,6 +178,19 @@ final class PlatformListing extends ContentEntityBase implements RevisionLogInte
         ->setDisplayOptions('view', ['label' => 'inline', 'type' => 'number_decimal', 'weight' => $weight + 2]);
       $weight++;
     }
+
+    $fields['date_sold'] = BaseFieldDefinition::create('datetime')
+      ->setLabel(t('Date sold'))
+      ->setDescription(t('Filled in when the listing is marked "Sold here"; cleared if the sale is un-marked.'))
+      ->setRevisionable(TRUE)
+      ->setSetting('datetime_type', 'date')
+      ->setDisplayOptions('form', ['type' => 'datetime_default', 'weight' => 11])
+      ->setDisplayOptions('view', [
+        'label' => 'inline',
+        'type' => 'datetime_custom',
+        'settings' => ['date_format' => 'Y-m-d'],
+        'weight' => 11,
+      ]);
 
     $fields['date_posted'] = BaseFieldDefinition::create('datetime')
       ->setLabel(t('Date posted'))
