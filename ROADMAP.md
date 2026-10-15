@@ -196,8 +196,9 @@ reference project is used only for its rules and formatting logic.
 
 ## Phase 4: tracking
 
-- [ ] Storage locations with printable QR labels (Barcodes, Entity Print); a scan
-  page that opens the item. Phone camera scanning via the browser.
+- [ ] Storage locations: a plain field on each item, shown as a path ("Game room > Table"),
+  and one of the Stockroom filters. ~~QR labels, tagging and scanning~~: not doing (Liam,
+  2026-10-15).
 - [ ] Search API (database backend) + Facets: brand, size, status, platform,
   location, price.
 - [ ] Money page (Charts): sold by platform, profit after fees using the son's fee
