@@ -28,6 +28,7 @@ module:
   image: 0
   imagemagick: 0
   ishop_items: 0
+  ishop_matrix: 0
   ishop_office: 0
   ishop_ui: 0
   key: 0
@@ -69,4 +70,5 @@ theme:
   gin: 0
   stable9: 0
   construction: 0
+  reseller_matrix: 0
 profile: standard

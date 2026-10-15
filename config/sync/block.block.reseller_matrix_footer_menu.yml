@@ -1,0 +1,25 @@
+uuid: 48b7cd88-785a-4c26-8c78-99197c7b148b
+langcode: en
+status: true
+dependencies:
+  config:
+    - system.menu.footer
+  module:
+    - system
+  theme:
+    - reseller_matrix
+id: reseller_matrix_footer_menu
+theme: reseller_matrix
+region: footer
+weight: 0
+provider: null
+plugin: 'system_menu_block:footer'
+settings:
+  id: 'system_menu_block:footer'
+  label: Footer
+  label_display: '0'
+  provider: system
+  level: 1
+  depth: 1
+  expand_all_items: false
+visibility: {  }

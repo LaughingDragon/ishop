@@ -1,0 +1,4 @@
+matrix:
+  css:
+    component:
+      css/matrix.css: {}

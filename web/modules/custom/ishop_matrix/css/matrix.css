@@ -1,0 +1,2 @@
+/* Coming soon room pages: space under the room icon tile. */
+.rm-coming-soon .rm-room__icon { display: inline-flex; margin-bottom: 16px; }

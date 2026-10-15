@@ -20,8 +20,9 @@ function reseller_matrix_preprocess_page(array &$variables): void {
   $variables['wordmark'] = RESELLER_MATRIX_WORDMARK;
   $variables['site_name'] = \Drupal::config('system.site')->get('name');
   $variables['user_name'] = $account->isAuthenticated() ? $account->getDisplayName() : '';
-  // "Add item" lives at /add once Phase 1 builds it.
-  $variables['add_item_url'] = '/add';
+  // "Add item" will be /add (the phone flow) once Phase 1 step 4 is verified;
+  // until then the standard item form (punch item 103, step 6).
+  $variables['add_item_url'] = '/node/add/item';
   $variables['#cache']['contexts'][] = 'user';
   $variables['#cache']['tags'][] = 'config:system.site';
 }

@@ -1,0 +1,18 @@
+ishop_matrix.dashboard:
+  path: '/reseller-matrix'
+  defaults:
+    _controller: '\Drupal\ishop_matrix\Controller\MatrixController::dashboard'
+    _title: 'Reseller Matrix'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+
+ishop_matrix.room:
+  path: '/room/{room}'
+  defaults:
+    _controller: '\Drupal\ishop_matrix\Controller\MatrixController::room'
+    _title_callback: '\Drupal\ishop_matrix\Controller\MatrixController::roomTitle'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+    room: '[a-z-]+'

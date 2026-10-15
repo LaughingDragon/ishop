@@ -1,0 +1,7 @@
+name: 'iShop Reseller Matrix'
+type: module
+description: "The front of house in Cody's Reseller Matrix theme: the dashboard (/), the seven rooms in the main menu, and Coming soon pages for rooms not built yet."
+package: iShop
+core_version_requirement: ^11.4
+dependencies:
+  - ishop_items:ishop_items

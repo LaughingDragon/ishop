@@ -1,0 +1,41 @@
+ishop_matrix.front_desk:
+  title: 'Front desk'
+  route_name: ishop_matrix.dashboard
+  menu_name: main
+  weight: 0
+ishop_matrix.stockroom:
+  title: 'Stockroom'
+  route_name: ishop_matrix.room
+  route_parameters: { room: 'stockroom' }
+  menu_name: main
+  weight: 1
+ishop_matrix.shipping:
+  title: 'Shipping room'
+  route_name: ishop_matrix.room
+  route_parameters: { room: 'shipping-room' }
+  menu_name: main
+  weight: 2
+ishop_matrix.my_office:
+  title: 'My office'
+  route_name: ishop_matrix.room
+  route_parameters: { room: 'my-office' }
+  menu_name: main
+  weight: 3
+ishop_matrix.mailroom:
+  title: 'Mailroom'
+  route_name: ishop_matrix.room
+  route_parameters: { room: 'mailroom' }
+  menu_name: main
+  weight: 4
+ishop_matrix.calendar:
+  title: 'Calendar wall'
+  route_name: ishop_matrix.room
+  route_parameters: { room: 'calendar-wall' }
+  menu_name: main
+  weight: 5
+ishop_matrix.break_room:
+  title: 'Break room'
+  route_name: ishop_matrix.room
+  route_parameters: { room: 'break-room' }
+  menu_name: main
+  weight: 6

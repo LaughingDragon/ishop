@@ -7,3 +7,9 @@ definitions:
     weight: 0
     expanded: false
     enabled: false
+  ishop_office__board:
+    menu_name: footer
+    parent: ''
+    weight: 0
+    expanded: false
+    enabled: true

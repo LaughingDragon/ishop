@@ -4,3 +4,7 @@ services:
   Drupal\ishop_office\OfficeManager: ~
   ishop_office.manager:
     alias: Drupal\ishop_office\OfficeManager
+  ishop_office.theme_negotiator:
+    class: Drupal\ishop_office\Theme\OfficeThemeNegotiator
+    tags:
+      - { name: theme_negotiator, priority: 10 }
