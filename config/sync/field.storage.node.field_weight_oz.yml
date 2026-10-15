@@ -1,0 +1,20 @@
+uuid: e84dd558-1b0f-4e5d-848a-afd871df2b88
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_weight_oz
+field_name: field_weight_oz
+entity_type: node
+type: decimal
+settings:
+  precision: 8
+  scale: 1
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

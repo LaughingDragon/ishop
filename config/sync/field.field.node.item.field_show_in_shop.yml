@@ -1,0 +1,23 @@
+uuid: 24b7c8d0-e2c4-4b11-8237-50c0bdb62dae
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_show_in_shop
+    - node.type.item
+id: node.item.field_show_in_shop
+field_name: field_show_in_shop
+entity_type: node
+bundle: item
+label: 'Show in shop'
+description: 'For the public catalog (Phase 8, switched off).'
+required: false
+translatable: true
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean

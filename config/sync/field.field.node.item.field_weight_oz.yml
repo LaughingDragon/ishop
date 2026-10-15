@@ -1,0 +1,23 @@
+uuid: 30cbea30-0bab-4513-a975-1a746f53c0d9
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_weight_oz
+    - node.type.item
+id: node.item.field_weight_oz
+field_name: field_weight_oz
+entity_type: node
+bundle: item
+label: 'Weight (oz, packed)'
+description: '16 oz = 1 lb.'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0.0
+  max: null
+  prefix: ''
+  suffix: ' oz'
+field_type: decimal

@@ -1,0 +1,20 @@
+uuid: efb41b57-0f95-4a2d-b5a9-13745199292a
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_package_width
+field_name: field_package_width
+entity_type: node
+type: decimal
+settings:
+  precision: 6
+  scale: 1
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -1,0 +1,23 @@
+uuid: fa13cab0-844d-46a1-885f-7976a4fdd726
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_item_status
+    - node.type.item
+  module:
+    - options
+id: node.item.field_item_status
+field_name: field_item_status
+entity_type: node
+bundle: item
+label: Status
+description: ''
+required: true
+translatable: true
+default_value:
+  -
+    value: draft
+default_value_callback: ''
+settings: {  }
+field_type: list_string

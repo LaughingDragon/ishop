@@ -1,0 +1,29 @@
+uuid: d054b675-57a4-4b7a-9611-d76485588a29
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.media.item_photo.field_media_image_1
+    - image.style.thumbnail
+    - media.type.item_photo
+  module:
+    - image
+id: media.item_photo.default
+targetEntityType: media
+bundle: item_photo
+mode: default
+content:
+  field_media_image_1:
+    type: image_image
+    weight: 0
+    region: content
+    settings:
+      progress_indicator: throbber
+      preview_image_style: thumbnail
+    third_party_settings: {  }
+hidden:
+  created: true
+  name: true
+  path: true
+  status: true
+  uid: true

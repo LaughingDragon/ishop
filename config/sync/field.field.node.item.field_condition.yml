@@ -1,0 +1,27 @@
+uuid: cc966623-0990-4a40-a0cb-818797ea57bb
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_condition
+    - node.type.item
+    - taxonomy.vocabulary.condition
+id: node.item.field_condition
+field_name: field_condition
+entity_type: node
+bundle: item
+label: Condition
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      condition: condition
+    sort:
+      field: weight
+      direction: ASC
+field_type: entity_reference

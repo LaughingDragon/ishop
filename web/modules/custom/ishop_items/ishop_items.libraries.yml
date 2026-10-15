@@ -1,0 +1,9 @@
+item_form:
+  js:
+    js/counters.js: {}
+  css:
+    component:
+      css/items.css: {}
+  dependencies:
+    - core/drupal
+    - core/once

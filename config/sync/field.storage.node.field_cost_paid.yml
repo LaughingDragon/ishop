@@ -1,0 +1,20 @@
+uuid: f3471a22-9ff5-4b67-a476-ad0752ed26f9
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_cost_paid
+field_name: field_cost_paid
+entity_type: node
+type: decimal
+settings:
+  precision: 10
+  scale: 2
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

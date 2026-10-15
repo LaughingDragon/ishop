@@ -1,0 +1,9 @@
+uuid: c779199d-c2b3-4801-82f7-f8dbf0aa0d45
+langcode: en
+status: true
+dependencies: {  }
+name: 'Storage location'
+vid: storage_location
+description: 'Where an item is kept (from Cody, 2026-10-15).'
+weight: 0
+new_revision: false

@@ -1,0 +1,24 @@
+uuid: b3d0ecc4-8f35-448d-9d8d-d61bde6fc332
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_photos
+    - media.type.item_photo
+    - node.type.item
+id: node.item.field_photos
+field_name: field_photos
+entity_type: node
+bundle: item
+label: Photos
+description: 'The first photo is the cover.'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:media'
+  handler_settings:
+    target_bundles:
+      item_photo: item_photo
+field_type: entity_reference

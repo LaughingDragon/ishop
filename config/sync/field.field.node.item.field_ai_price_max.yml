@@ -1,0 +1,23 @@
+uuid: 65bdc413-cff6-495c-97e7-33c50831cb2d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_ai_price_max
+    - node.type.item
+id: node.item.field_ai_price_max
+field_name: field_ai_price_max
+entity_type: node
+bundle: item
+label: 'AI price range: high'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0.0
+  max: null
+  prefix: $
+  suffix: ''
+field_type: decimal

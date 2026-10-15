@@ -1,0 +1,9 @@
+uuid: 244b2614-97e2-4575-ab05-13eea1f37619
+langcode: en
+status: true
+dependencies: {  }
+name: Brand
+vid: brand
+description: 'Grows as brands are typed on items.'
+weight: 0
+new_revision: false

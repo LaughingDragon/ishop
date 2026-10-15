@@ -1,0 +1,9 @@
+uuid: a43a84d9-b9da-4507-b33f-482789ecb6f3
+langcode: en
+status: true
+dependencies: {  }
+name: Category
+vid: category
+description: 'Two levels at most. Second-level terms are added as items need them.'
+weight: 0
+new_revision: false

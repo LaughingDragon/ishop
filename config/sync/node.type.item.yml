@@ -1,0 +1,11 @@
+uuid: 584a88fe-9bf0-4107-9471-b5352533bbfb
+langcode: en
+status: true
+dependencies: {  }
+name: Item
+type: item
+description: 'Something for sale. Only photos are needed to start; the item page shows what is still missing before listing.'
+help: null
+new_revision: true
+preview_mode: 0
+display_submitted: false

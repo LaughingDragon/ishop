@@ -1,0 +1,355 @@
+uuid: e7ce0766-198d-4f03-9743-1436c07bf61b
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.item.field_ai_price_max
+    - field.field.node.item.field_ai_price_min
+    - field.field.node.item.field_asin
+    - field.field.node.item.field_asking_price
+    - field.field.node.item.field_brand
+    - field.field.node.item.field_category
+    - field.field.node.item.field_color
+    - field.field.node.item.field_condition
+    - field.field.node.item.field_cost_paid
+    - field.field.node.item.field_description
+    - field.field.node.item.field_flaws
+    - field.field.node.item.field_internal_notes
+    - field.field.node.item.field_item_status
+    - field.field.node.item.field_order_id
+    - field.field.node.item.field_original_price
+    - field.field.node.item.field_package_height
+    - field.field.node.item.field_package_length
+    - field.field.node.item.field_package_width
+    - field.field.node.item.field_photos
+    - field.field.node.item.field_purchase_date
+    - field.field.node.item.field_purchase_source
+    - field.field.node.item.field_quantity
+    - field.field.node.item.field_return_by
+    - field.field.node.item.field_show_in_shop
+    - field.field.node.item.field_size
+    - field.field.node.item.field_storage_location
+    - field.field.node.item.field_weight_oz
+    - node.type.item
+  module:
+    - datetime
+    - field_group
+    - media_library
+third_party_settings:
+  field_group:
+    group_listing:
+      children:
+        - title
+        - field_photos
+        - field_description
+        - field_flaws
+        - field_brand
+        - field_size
+        - field_color
+        - field_category
+        - field_condition
+        - field_quantity
+        - field_item_status
+      label: Listing
+      region: content
+      parent_name: ''
+      weight: 100
+      format_type: details
+      format_settings:
+        classes: ishop-item-group
+        id: ''
+        open: true
+        description: ''
+        required_fields: true
+    group_prices:
+      children:
+        - field_asking_price
+        - field_ai_price_min
+        - field_ai_price_max
+        - field_original_price
+      label: Prices
+      region: content
+      parent_name: ''
+      weight: 101
+      format_type: details
+      format_settings:
+        classes: ishop-item-group
+        id: ''
+        open: true
+        description: ''
+        required_fields: true
+    group_shipping:
+      children:
+        - field_weight_oz
+        - field_package_length
+        - field_package_width
+        - field_package_height
+      label: Shipping
+      region: content
+      parent_name: ''
+      weight: 102
+      format_type: details
+      format_settings:
+        classes: ishop-item-group
+        id: ''
+        open: false
+        description: ''
+        required_fields: true
+    group_purchase:
+      children:
+        - field_cost_paid
+        - field_purchase_date
+        - field_purchase_source
+        - field_order_id
+        - field_asin
+        - field_return_by
+      label: 'Money and purchase'
+      region: content
+      parent_name: ''
+      weight: 103
+      format_type: details
+      format_settings:
+        classes: ishop-item-group
+        id: ''
+        open: false
+        description: ''
+        required_fields: true
+    group_storage:
+      children:
+        - field_storage_location
+        - field_internal_notes
+        - field_show_in_shop
+      label: 'Storage and notes'
+      region: content
+      parent_name: ''
+      weight: 104
+      format_type: details
+      format_settings:
+        classes: ishop-item-group
+        id: ''
+        open: false
+        description: ''
+        required_fields: true
+id: node.item.default
+targetEntityType: node
+bundle: item
+mode: default
+content:
+  field_ai_price_max:
+    type: number
+    weight: 13
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  field_ai_price_min:
+    type: number
+    weight: 12
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  field_asin:
+    type: string_textfield
+    weight: 19
+    region: content
+    settings:
+      size: 12
+      placeholder: ''
+    third_party_settings: {  }
+  field_asking_price:
+    type: number
+    weight: 11
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  field_brand:
+    type: entity_reference_autocomplete
+    weight: 4
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 40
+      placeholder: ''
+    third_party_settings: {  }
+  field_category:
+    type: options_select
+    weight: 7
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_color:
+    type: string_textfield
+    weight: 6
+    region: content
+    settings:
+      size: 20
+      placeholder: ''
+    third_party_settings: {  }
+  field_condition:
+    type: options_buttons
+    weight: 8
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_cost_paid:
+    type: number
+    weight: 15
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  field_description:
+    type: string_textarea
+    weight: 2
+    region: content
+    settings:
+      rows: 6
+      placeholder: ''
+    third_party_settings: {  }
+  field_flaws:
+    type: string_textarea
+    weight: 3
+    region: content
+    settings:
+      rows: 3
+      placeholder: ''
+    third_party_settings: {  }
+  field_internal_notes:
+    type: string_textarea
+    weight: 26
+    region: content
+    settings:
+      rows: 3
+      placeholder: ''
+    third_party_settings: {  }
+  field_item_status:
+    type: options_select
+    weight: 10
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_order_id:
+    type: string_textfield
+    weight: 18
+    region: content
+    settings:
+      size: 30
+      placeholder: ''
+    third_party_settings: {  }
+  field_original_price:
+    type: number
+    weight: 14
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  field_package_height:
+    type: number
+    weight: 24
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  field_package_length:
+    type: number
+    weight: 22
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  field_package_width:
+    type: number
+    weight: 23
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  field_photos:
+    type: media_library_widget
+    weight: 1
+    region: content
+    settings:
+      media_types:
+        - item_photo
+    third_party_settings: {  }
+  field_purchase_date:
+    type: datetime_default
+    weight: 16
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_purchase_source:
+    type: entity_reference_autocomplete
+    weight: 17
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 30
+      placeholder: ''
+    third_party_settings: {  }
+  field_quantity:
+    type: number
+    weight: 9
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  field_return_by:
+    type: datetime_default
+    weight: 20
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_show_in_shop:
+    type: boolean_checkbox
+    weight: 27
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  field_size:
+    type: string_textfield
+    weight: 5
+    region: content
+    settings:
+      size: 20
+      placeholder: ''
+    third_party_settings: {  }
+  field_storage_location:
+    type: options_select
+    weight: 25
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_weight_oz:
+    type: number
+    weight: 21
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  status:
+    type: boolean_checkbox
+    weight: 200
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  title:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  created: true
+  path: true
+  promote: true
+  sticky: true
+  uid: true

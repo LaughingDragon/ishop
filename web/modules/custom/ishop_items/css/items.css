@@ -1,0 +1,15 @@
+/* Item form counters and the ready-to-list checklist. */
+.ishop-counter {
+  margin-top: 4px;
+  font-size: 0.9rem;
+  color: var(--ink-soft, #57544D);
+}
+.ishop-counter--warn {
+  color: #9A3A00;
+  font-weight: 600;
+}
+.ishop-ready--ok {
+  padding: 10px 14px;
+  border-left: 6px solid var(--done, #1F6B3A);
+  background: #EAF4EE;
+}

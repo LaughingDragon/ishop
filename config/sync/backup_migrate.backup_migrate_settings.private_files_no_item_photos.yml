@@ -9,3 +9,4 @@ config:
     exclude_filepaths:
       - backup_migrate
       - items
+      - styles

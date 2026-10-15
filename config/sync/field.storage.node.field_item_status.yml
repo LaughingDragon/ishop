@@ -1,0 +1,42 @@
+uuid: ba9fce59-8a65-4bd8-83d2-7e4df328037a
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_item_status
+field_name: field_item_status
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: draft
+      label: Draft
+    -
+      value: ready
+      label: Ready
+    -
+      value: listed
+      label: Listed
+    -
+      value: sold
+      label: Sold
+    -
+      value: returned
+      label: 'Returned to Amazon'
+    -
+      value: donated
+      label: Donated
+    -
+      value: kept
+      label: Kept
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

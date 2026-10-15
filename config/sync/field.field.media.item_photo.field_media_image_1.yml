@@ -1,0 +1,38 @@
+uuid: 0cb31968-7e13-4cea-a632-5d5c5b218ac4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.media.field_media_image_1
+    - media.type.item_photo
+  module:
+    - image
+id: media.item_photo.field_media_image_1
+field_name: field_media_image_1
+entity_type: media
+bundle: item_photo
+label: Photo
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings: {  }
+  file_directory: 'items/[date:custom:Y-m]'
+  file_extensions: 'jpg jpeg png webp heic heif'
+  max_filesize: '32 MB'
+  max_resolution: ''
+  min_resolution: ''
+  alt_field: false
+  alt_field_required: false
+  title_field: false
+  title_field_required: false
+  default_image:
+    uuid: null
+    alt: ''
+    title: ''
+    width: null
+    height: null
+field_type: image

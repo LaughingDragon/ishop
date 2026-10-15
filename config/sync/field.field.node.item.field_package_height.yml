@@ -1,0 +1,23 @@
+uuid: cd180f78-251a-4e7d-ab0c-d21f5ce8cd1e
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_package_height
+    - node.type.item
+id: node.item.field_package_height
+field_name: field_package_height
+entity_type: node
+bundle: item
+label: 'Package height (in)'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0.0
+  max: null
+  prefix: ''
+  suffix: ' in'
+field_type: decimal

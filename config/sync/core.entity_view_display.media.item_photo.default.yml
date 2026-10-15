@@ -1,0 +1,31 @@
+uuid: b4d7b412-07f8-4342-9a90-10df4fbc3708
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.media.item_photo.field_media_image_1
+    - image.style.large
+    - media.type.item_photo
+  module:
+    - image
+id: media.item_photo.default
+targetEntityType: media
+bundle: item_photo
+mode: default
+content:
+  field_media_image_1:
+    type: image
+    label: hidden
+    settings:
+      image_link: file
+      image_style: large
+      image_loading:
+        attribute: lazy
+    third_party_settings: {  }
+    weight: 6
+    region: content
+hidden:
+  created: true
+  name: true
+  thumbnail: true
+  uid: true

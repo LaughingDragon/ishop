@@ -1,0 +1,13 @@
+uuid: c81b8a50-15ef-45a4-a646-195d2e780d11
+langcode: en
+status: true
+dependencies: {  }
+id: item_photo
+label: 'Item photo'
+description: 'Photos of items for sale. Private; prepared on upload (JPEG, upright, no metadata, at most 2560 px).'
+source: image
+queue_thumbnail_downloads: false
+new_revision: false
+source_configuration:
+  source_field: field_media_image_1
+field_map: {  }

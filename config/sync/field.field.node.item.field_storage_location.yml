@@ -1,0 +1,28 @@
+uuid: 472f3ff8-b1fd-4e29-97a9-10584df8046c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_storage_location
+    - node.type.item
+    - taxonomy.vocabulary.storage_location
+  content:
+    - 'taxonomy_term:storage_location:e42dbb23-8d3a-45b0-a71e-bdde70a636e9'
+id: node.item.field_storage_location
+field_name: field_storage_location
+entity_type: node
+bundle: item
+label: 'Storage location'
+description: ''
+required: false
+translatable: true
+default_value:
+  -
+    target_uuid: e42dbb23-8d3a-45b0-a71e-bdde70a636e9
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      storage_location: storage_location
+field_type: entity_reference

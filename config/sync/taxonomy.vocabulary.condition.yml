@@ -1,0 +1,9 @@
+uuid: da09823e-49a5-447f-b47b-7cf127050c21
+langcode: en
+status: true
+dependencies: {  }
+name: Condition
+vid: condition
+description: "Item condition. Mapped to each platform's own words in Phase 3."
+weight: 0
+new_revision: false

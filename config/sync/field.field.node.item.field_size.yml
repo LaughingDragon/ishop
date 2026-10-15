@@ -1,0 +1,19 @@
+uuid: 39f5075a-ab74-41ca-b4dd-a92c93f1c49c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_size
+    - node.type.item
+id: node.item.field_size
+field_name: field_size
+entity_type: node
+bundle: item
+label: Size
+description: 'As on the tag, for example L, 2XLT, 32 x 30, 10.5.'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -1,0 +1,23 @@
+uuid: 66c98915-e0e1-4eb2-9f9e-27c2a5bf9ffe
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_ai_price_min
+    - node.type.item
+id: node.item.field_ai_price_min
+field_name: field_ai_price_min
+entity_type: node
+bundle: item
+label: 'AI price range: low'
+description: 'Filled by the AI listing helper (Phase 7).'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0.0
+  max: null
+  prefix: $
+  suffix: ''
+field_type: decimal

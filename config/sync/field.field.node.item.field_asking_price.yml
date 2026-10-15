@@ -1,0 +1,23 @@
+uuid: 03c662ec-2ca1-499c-8a91-1b64dd5cf460
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_asking_price
+    - node.type.item
+id: node.item.field_asking_price
+field_name: field_asking_price
+entity_type: node
+bundle: item
+label: 'Asking price'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0.0
+  max: null
+  prefix: $
+  suffix: ''
+field_type: decimal
