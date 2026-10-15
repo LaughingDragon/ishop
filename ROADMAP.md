@@ -178,7 +178,9 @@ reference project is used only for its rules and formatting logic.
   platform's limits, copy buttons, photos resized per platform (image styles),
   ZIP download, Previous/Next through the to-post queue. (/item/N/post; fields
   ported from the old formatters and matched against them; plus "Save photos to phone".)
-- [ ] Depop and Vinted bulk CSV exports (Views Data Export).
+- [x] Depop bulk CSV export (/post/depop-bulk: CSV + photos ZIP for Depop's bulk drafts upload).
+  ~~Vinted bulk CSV~~ dropped: Vinted has no bulk upload (Liam, item 154, "drop it"); the
+  Post this item page covers Vinted.
 - [x] **Sold-elsewhere alarm (built in Phase 1 without ECA: confirmed cascade + "Needs you now"):** marking a platform "Sold here" sets every
   other Posted platform to "Take down" and puts it at the top of his dashboard.
 - [ ] Stale nudges (ECA + cron): Posted 30+ days without selling, flag with a
