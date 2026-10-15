@@ -1,0 +1,12 @@
+# ishop site services overrides (2026-10-15).
+# Sessions last 90 days (Cody's pet peeve: logging in more than once). Both the
+# cookie and the server-side session: the default server-side lifetime is
+# about 2.3 days of inactivity.
+parameters:
+  session.storage.options:
+    gc_probability: 1
+    gc_divisor: 100
+    gc_maxlifetime: 7776000
+    cookie_lifetime: 7776000
+    cookie_samesite: Lax
+    name_suffix: ''
