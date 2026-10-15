@@ -183,8 +183,10 @@ reference project is used only for its rules and formatting logic.
   Post this item page covers Vinted.
 - [x] **Sold-elsewhere alarm (built in Phase 1 without ECA: confirmed cascade + "Needs you now"):** marking a platform "Sold here" sets every
   other Posted platform to "Take down" and puts it at the top of his dashboard.
-- [ ] Stale nudges (ECA + cron): Posted 30+ days without selling, flag with a
-  suggested price drop or "consider donating."
+- [x] Stale nudges: Posted 30+ days without selling, flag with a
+  suggested price drop or "consider donating." (Built without ECA or cron, worked out from
+  "Date posted" on each page: 30+ days 10% off, 60+ days 20% off, 90+ days consider donating;
+  /post/stale, a "Needs you now" row, and a line on the item's listings.)
 - [ ] Views Bulk Operations on the inventory list.
 
 ## Phase 4: tracking

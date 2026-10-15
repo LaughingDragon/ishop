@@ -99,3 +99,13 @@ ishop_items.depop_bulk_photos:
     _permission: 'manage platform listings'
   options:
     no_cache: TRUE
+
+ishop_items.stale:
+  path: '/post/stale'
+  defaults:
+    _controller: '\Drupal\ishop_items\Controller\StaleController::page'
+    _title: 'Stale listings'
+  requirements:
+    _permission: 'manage platform listings'
+  options:
+    no_cache: TRUE

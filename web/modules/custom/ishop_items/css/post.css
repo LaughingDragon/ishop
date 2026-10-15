@@ -62,3 +62,10 @@
 .ishop-bulk table { width: 100%; border-collapse: collapse; }
 .ishop-bulk th, .ishop-bulk td { padding: 8px 10px 8px 0; text-align: left; border-bottom: 1px solid var(--rm-line, #3D302D); }
 .ishop-bulk__note { margin-top: 22px; font-size: 0.9rem; color: var(--rm-text-soft, #D3C6B2); }
+
+/* Stale listings page. */
+.ishop-stale-card { margin: 0 0 14px; padding: 16px 20px; border-left: 6px solid var(--rm-gold, #F2C14E); }
+.ishop-stale-card--donate { border-left-color: var(--rm-red, #C8312B); }
+.ishop-stale-card h2 { margin: 0 0 4px; font-size: 1.2rem; }
+.ishop-stale-card__meta { margin: 0; font-size: 0.95rem; color: var(--rm-text-soft, #D3C6B2); }
+.ishop-stale-card__line { margin: 6px 0 0; }

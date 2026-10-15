@@ -41,3 +41,6 @@
 .ishop-chip--no summary { background: #5C5552; color: #F4EFE8; }
 .ishop-chip p { margin: 6px 0 0; font-size: 0.95rem; font-weight: 400; color: var(--rm-text-soft, #57544D); }
 .ishop-chip[open] { display: block; margin: 6px 0 0; }
+
+/* Stale-listing nudge under a listing's platform name. */
+.ishop-stale { margin: 4px 0 0; font-size: 0.9rem; font-weight: 600; color: var(--rm-gold, #F2C14E); }

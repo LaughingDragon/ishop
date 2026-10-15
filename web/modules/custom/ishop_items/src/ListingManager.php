@@ -73,6 +73,48 @@ final class ListingManager {
   }
 
   /**
+   * The stale-listing nudge for one listing, or NULL.
+   *
+   * Only live listings with a "Date posted", on items not finished.
+   */
+  public function nudge(PlatformListing $listing): ?array {
+    $item = $listing->getItem();
+    $posted = (string) $listing->get('date_posted')->value;
+    if (!$item || $posted === '' || !in_array($listing->getStatus(), Stale::LIVE, TRUE)
+      || in_array((string) $item->get('field_item_status')->value, Stale::ITEM_DONE, TRUE)) {
+      return NULL;
+    }
+    $number = fn ($value) => $value === NULL || $value === '' ? NULL : (float) $value;
+    $listed = $number($listing->get('listed_price')->value);
+    $asking = $number($item->get('field_asking_price')->value);
+    return Stale::nudge($posted, Stale::today(), $asking ?? $listed, $listed);
+  }
+
+  /**
+   * Every stale listing the current user can see, longest-waiting first.
+   *
+   * @return array<int, array{listing: \Drupal\ishop_items\Entity\PlatformListing, item: \Drupal\node\NodeInterface, nudge: array}>
+   *   One row per listing.
+   */
+  public function staleListings(): array {
+    $cutoff = (new \DateTimeImmutable(Stale::today()))->modify('-' . Stale::FIRST_DAYS . ' days')->format('Y-m-d');
+    $storage = $this->entityTypeManager->getStorage('platform_listing');
+    $ids = $storage->getQuery()->accessCheck(FALSE)
+      ->condition('status', Stale::LIVE, 'IN')
+      ->condition('date_posted', $cutoff, '<=')
+      ->execute();
+    $rows = [];
+    foreach ($storage->loadMultiple($ids) as $listing) {
+      $item = $listing->getItem();
+      if ($item && $item->access('view') && ($nudge = $this->nudge($listing))) {
+        $rows[] = ['listing' => $listing, 'item' => $item, 'nudge' => $nudge];
+      }
+    }
+    usort($rows, fn ($a, $b) => [$b['nudge']['days'], $a['item']->id()] <=> [$a['nudge']['days'], $b['item']->id()]);
+    return $rows;
+  }
+
+  /**
    * Creates the missing "To post" listings for an item (one per platform).
    *
    * @return int

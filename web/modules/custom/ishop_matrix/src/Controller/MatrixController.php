@@ -9,6 +9,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Url;
 use Drupal\Core\Cache\Cache;
+use Drupal\ishop_items\ListingManager;
 use Drupal\ishop_items\Platforms;
 use Drupal\ishop_matrix\Birthday;
 use Drupal\ishop_matrix\Form\SeasonForm;
@@ -30,6 +31,7 @@ final class MatrixController extends ControllerBase {
     private readonly TimeInterface $time,
     private readonly Birthday $birthday,
     private readonly Season $season,
+    private readonly ListingManager $listings,
   ) {}
 
   /**
@@ -63,6 +65,21 @@ final class MatrixController extends ControllerBase {
     ] : NULL;
     // On the birthday, birthday mode replaces the football accents.
     $game = $party ? NULL : $this->season->todaysGame();
+    // Stale listings can wait on the birthday.
+    if (!$party && ($stale = count(array_filter($this->listings->staleListings(), fn ($row) => !$row['nudge']['lowered'])))) {
+      $needs[] = [
+        'text' => $this->formatPlural($stale, '1 listing has been up 30+ days without selling.', '@count listings have been up 30+ days without selling.'),
+        'url' => Url::fromRoute('ishop_items.stale')->toString(),
+        'action' => $this->t('See the nudges'),
+        'ghost' => TRUE,
+      ];
+      foreach ($rooms as &$room) {
+        if ($room['icon'] === 'front_desk') {
+          $room['glance'] = $this->glances($needs, $now)['front-desk'];
+        }
+      }
+      unset($room);
+    }
     return [
       '#type' => 'inline_template',
       '#template' => '{% if party %}<section class="rm-greeting rm-party-sign"><div class="rm-confetti" aria-hidden="true"></div><div class="rm-greeting__text"><span class="rm-badge rm-badge--party">{{ party.badge }}</span><h1>{{ party.hello }}</h1><p>{{ party.line }}</p><button type="button" class="rm-button rm-button--gold rm-party-toggle" hidden>{{ party.start }}</button></div></section>

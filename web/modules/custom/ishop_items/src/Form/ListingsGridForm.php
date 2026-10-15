@@ -10,6 +10,7 @@ use Drupal\ishop_items\Eligibility;
 use Drupal\ishop_items\Entity\PlatformListing;
 use Drupal\ishop_items\ListingManager;
 use Drupal\ishop_items\Platforms;
+use Drupal\ishop_items\Stale;
 use Drupal\node\NodeInterface;
 
 /**
@@ -78,8 +79,13 @@ final class ListingsGridForm extends FormBase {
       $row = [];
       $row['platform'] = [
         '#type' => 'inline_template',
-        '#template' => '<strong>{{ name }}</strong> <details class="ishop-chip ishop-chip--{{ e.verdict }}"><summary>{{ e.label }}{% if e.overridden %} ({{ by_hand }}){% endif %}</summary><p>{{ e.reason }}</p></details>',
-        '#context' => ['name' => $name, 'e' => $eligibility, 'by_hand' => $this->t('set by hand')],
+        '#template' => '<strong>{{ name }}</strong> <details class="ishop-chip ishop-chip--{{ e.verdict }}"><summary>{{ e.label }}{% if e.overridden %} ({{ by_hand }}){% endif %}</summary><p>{{ e.reason }}</p></details>{% if stale %}<p class="ishop-stale">{{ stale }}</p>{% endif %}',
+        '#context' => [
+          'name' => $name,
+          'e' => $eligibility,
+          'by_hand' => $this->t('set by hand'),
+          'stale' => ($nudge = $this->listings->nudge($listing)) ? Stale::line($nudge) : NULL,
+        ],
         '#wrapper_attributes' => ['data-label' => (string) $this->t('Platform')],
       ];
       $row['status'] = [
