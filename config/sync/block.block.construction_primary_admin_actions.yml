@@ -1,0 +1,20 @@
+uuid: cca1ed22-d0ed-474f-aa77-a8ed77ada81e
+langcode: en
+status: true
+dependencies:
+  theme:
+    - construction
+_core:
+  default_config_hash: Q9_2whdOj1YIomfvsIfopROW4FT_X5pY0DjdOiOaQ5U
+id: construction_primary_admin_actions
+theme: construction
+region: highlighted
+weight: -5
+provider: null
+plugin: local_actions_block
+settings:
+  id: local_actions_block
+  label: 'Primary admin actions'
+  label_display: '0'
+  provider: core
+visibility: {  }
