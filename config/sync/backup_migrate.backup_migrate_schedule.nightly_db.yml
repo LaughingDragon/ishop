@@ -1,0 +1,15 @@
+uuid: f370eb96-ac71-4be4-81ed-25878d098727
+langcode: en
+status: true
+dependencies: {  }
+id: nightly_db
+label: 'Nightly database'
+enabled: true
+keep: 14
+encrypt: null
+encrypt_password: null
+period: 3600
+cron: false
+source_id: default_db
+destination_id: private_files
+settings_profile_id: null
