@@ -161,10 +161,11 @@ Cody's existing inventory is already posted on the marketplaces. The site
 starts from today; do NOT build a migration of the son's database. The
 reference project is used only for its rules and formatting logic.
 
-- [ ] Make adding an item fast enough that entering one he's already selling
+- [x] Make adding an item fast enough that entering one he's already selling
   takes under a minute: photos optional, platforms pre-ticked "Posted,"
-  listing URL paste field per platform.
-- [ ] "Quick add from a live listing" form: paste a Poshmark/Mercari/etc. URL,
+  listing URL paste field per platform. (Built 2026-10-15 as /add?listed=1: one paste box that
+  recognises each link's platform, checkboxes remembered from last time.)
+- [x] "Quick add from a live listing" form: paste a Poshmark/Mercari/etc. URL,
   enter title and price, done. No scraping of marketplace pages.
 - [ ] Only if Liam later asks: a one-off import of the son's 112 items as
   "Posted" records so the sold-elsewhere alarm covers them.

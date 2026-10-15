@@ -43,6 +43,67 @@ final class Platforms {
   ];
 
   /**
+   * Hostnames (and suffixes) of each platform's listing and share links.
+   *
+   * Includes the short links the apps share (posh.mk, merc.li, ...).
+   */
+  public const HOSTS = [
+    'poshmark' => ['poshmark.com', 'posh.mk'],
+    'mercari' => ['mercari.com', 'merc.li'],
+    'depop' => ['depop.com', 'depop.app.link'],
+    'grailed' => ['grailed.com', 'grailed.app.link'],
+    'vinted' => ['vinted.com', 'vinted.co.uk', 'vinted.fr', 'vinted.de', 'vinted.ca'],
+    'facebook' => ['facebook.com', 'fb.com', 'fb.me', 'm.me'],
+  ];
+
+  /**
+   * The platform a listing link belongs to, or NULL.
+   *
+   * Only http(s) links; www. and m. subdomains count.
+   */
+  public static function fromUrl(string $url): ?string {
+    $parts = parse_url(trim($url));
+    if (!$parts || !in_array(strtolower($parts['scheme'] ?? ''), ['http', 'https'], TRUE) || empty($parts['host'])) {
+      return NULL;
+    }
+    $host = strtolower($parts['host']);
+    foreach (self::HOSTS as $platform => $hosts) {
+      foreach ($hosts as $known) {
+        if ($host === $known || str_ends_with($host, '.' . $known)) {
+          return $platform;
+        }
+      }
+    }
+    return NULL;
+  }
+
+  /**
+   * Splits pasted text into listing links by platform.
+   *
+   * @return array{links: array<string, string>, unknown: string[], duplicates: string[]}
+   *   One link per platform (the first one), lines that are not a known
+   *   listing link, and platforms that had more than one link.
+   */
+  public static function parseLinks(string $text): array {
+    $links = [];
+    $unknown = [];
+    $duplicates = [];
+    foreach (preg_split('/[\s,]+/', $text, -1, PREG_SPLIT_NO_EMPTY) as $candidate) {
+      $platform = self::fromUrl($candidate);
+      if ($platform === NULL) {
+        $unknown[] = $candidate;
+      }
+      elseif (isset($links[$platform])) {
+        $duplicates[] = $platform;
+      }
+      else {
+        $links[$platform] = $candidate;
+      }
+    }
+    return ['links' => $links, 'unknown' => $unknown, 'duplicates' => array_values(array_unique($duplicates))];
+  }
+
+  /**
    * Manual eligibility overrides (empty means "use the rule", Phase 3).
    */
   public const ELIGIBILITY = [

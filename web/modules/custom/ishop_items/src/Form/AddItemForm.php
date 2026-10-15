@@ -10,10 +10,13 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\ishop_items\Controller\AddController;
 use Drupal\ishop_items\Hook\ItemHooks;
+use Drupal\ishop_items\ListingManager;
+use Drupal\ishop_items\Platforms;
 use Drupal\ishop_items\ReadyCheck;
 use Drupal\ishop_office\DiskStatus;
 use Drupal\media\Entity\Media;
 use Drupal\node\Entity\Node;
+use Drupal\user\UserDataInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
@@ -23,12 +26,30 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  * (/add/photo), with "Take another" / "Done" after a camera shot, and
  * "Make cover", up/down and remove on each photo. Without it, the photos
  * picked in the plain file field upload when the form is saved.
+ *
+ * "Already selling it?" mode (/add?listed=1, Phase 2): paste the listing
+ * links, tick where it's posted, type title and price, save; photos are
+ * optional. The ticked and linked platforms become Posted.
  */
 final class AddItemForm extends FormBase {
 
   public function __construct(
     private readonly DateFormatterInterface $dateFormatter,
+    private readonly ListingManager $listings,
+    private readonly UserDataInterface $userData,
   ) {}
+
+  /**
+   * Whether the form is in "already selling it" mode.
+   */
+  private function listedMode(FormStateInterface $form_state): bool {
+    if ($form_state->has('listed_mode')) {
+      return (bool) $form_state->get('listed_mode');
+    }
+    $mode = (bool) $this->getRequest()->query->get('listed');
+    $form_state->set('listed_mode', $mode);
+    return $mode;
+  }
 
   /**
    * {@inheritdoc}
@@ -45,13 +66,57 @@ final class AddItemForm extends FormBase {
     $form['#attributes']['enctype'] = 'multipart/form-data';
     $form['#cache']['max-age'] = 0;
     $online = DiskStatus::photosOnline();
+    $listed = $this->listedMode($form_state);
+
+    $form['mode'] = [
+      '#type' => 'inline_template',
+      '#template' => '<p class="ia-mode">{% if listed %}{{ listed_intro }} <a href="{{ new_url }}">{{ new_label }}</a>{% else %}<a href="{{ listed_url }}">{{ listed_label }}</a>{% endif %}</p>',
+      '#context' => [
+        'listed' => $listed,
+        'listed_intro' => $this->t('Already selling it: paste the listing links, check where it is posted, type the title and price, and save. Photos are optional.'),
+        'new_url' => Url::fromRoute('ishop_items.add')->toString(),
+        'new_label' => $this->t('Adding a new item instead?'),
+        'listed_url' => Url::fromRoute('ishop_items.add', [], ['query' => ['listed' => 1]])->toString(),
+        'listed_label' => $this->t('Already selling it somewhere? Add it in under a minute'),
+      ],
+      '#weight' => -100,
+    ];
+
+    if ($listed) {
+      $remembered = $this->userData->get('ishop_items', (int) $this->currentUser()->id(), 'posted_on');
+      $form['listed'] = [
+        '#type' => 'container',
+        '#attributes' => ['class' => ['ia-listed']],
+        '#weight' => -50,
+        'links' => [
+          '#type' => 'textarea',
+          '#title' => $this->t('Listing links'),
+          '#rows' => 3,
+          '#description' => $this->t('Paste the links from Poshmark, Mercari, Depop, Grailed, Vinted or Facebook, one per line. Share links work too.'),
+          '#attributes' => ['autocapitalize' => 'off', 'spellcheck' => 'false', 'inputmode' => 'url'],
+        ],
+        'posted_on' => [
+          '#type' => 'checkboxes',
+          '#title' => $this->t('Posted on'),
+          '#options' => Platforms::PLATFORMS,
+          '#default_value' => is_array($remembered) ? $remembered : array_keys(Platforms::PLATFORMS),
+          '#description' => $this->t("Uncheck where it isn't posted. A pasted link checks its platform for you."),
+        ],
+      ];
+    }
 
     if (!$online) {
       $form['offline'] = ItemHooks::offlineNotice();
-      return $form;
+      if (!$listed) {
+        return $form;
+      }
     }
 
     $form['#attached']['library'][] = 'ishop_items/add';
+    if (!$online) {
+      // "Already selling it" mode works without photo storage.
+      return $this->detailsAndActions($form, $listed);
+    }
     $form['#attached']['drupalSettings']['ishopAdd'] = [
       'uploadUrl' => Url::fromRoute('ishop_items.add_photo')->toString(),
       'tokenUrl' => Url::fromRoute('system.csrftoken')->toString(),
@@ -104,14 +169,26 @@ final class AddItemForm extends FormBase {
       ],
     ];
 
+    if ($listed) {
+      $form['photos']['heading']['#value'] = $this->t('Photos (optional)');
+    }
+    return $this->detailsAndActions($form, $listed);
+  }
+
+  /**
+   * The details section (title, price, condition, category) and Save.
+   */
+  private function detailsAndActions(array $form, bool $listed): array {
     $form['details'] = [
       '#type' => 'details',
-      '#title' => $this->t('Details (optional, add them later if you like)'),
-      '#open' => FALSE,
+      '#title' => $listed ? $this->t('Details') : $this->t('Details (optional, add them later if you like)'),
+      '#open' => $listed,
+      '#weight' => $listed ? -40 : 0,
       '#attributes' => ['class' => ['ia-details']],
       'title' => [
         '#type' => 'textfield',
         '#title' => $this->t('Title'),
+        '#required' => $listed,
         '#maxlength' => ItemHooks::TITLE_MAX,
         '#attributes' => ['data-ishop-counter' => '60,70,80', 'autocomplete' => 'off'],
       ],
@@ -136,7 +213,7 @@ final class AddItemForm extends FormBase {
       ],
     ];
 
-    $form['actions'] = ['#type' => 'actions'];
+    $form['actions'] = ['#type' => 'actions', '#weight' => 100];
     $form['actions']['submit'] = [
       '#type' => 'submit',
       '#value' => $this->t('Save item'),
@@ -150,7 +227,27 @@ final class AddItemForm extends FormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state): void {
+    $listed = $this->listedMode($form_state);
+    if ($listed) {
+      $parsed = Platforms::parseLinks((string) $form_state->getValue('links'));
+      if ($parsed['unknown']) {
+        $form_state->setErrorByName('links', $this->t("These aren't listing links from Poshmark, Mercari, Depop, Grailed, Vinted or Facebook: @list", ['@list' => implode(' ', $parsed['unknown'])]));
+      }
+      if ($parsed['duplicates']) {
+        $form_state->setErrorByName('links', $this->t('Paste one link per platform. More than one for: @list', [
+          '@list' => implode(', ', array_map(fn ($p) => Platforms::PLATFORMS[$p], $parsed['duplicates'])),
+        ]));
+      }
+      $ticked = array_keys(array_filter((array) $form_state->getValue('posted_on')));
+      if (!$ticked && !$parsed['links']) {
+        $form_state->setErrorByName('posted_on', $this->t('Check where it is posted, or paste a listing link.'));
+      }
+      $form_state->set('listing_links', $parsed['links']);
+    }
     if (!DiskStatus::photosOnline()) {
+      if ($listed) {
+        return;
+      }
       $form_state->setErrorByName('', $this->t("Photo storage is offline, so items with photos can't be added right now."));
       return;
     }
@@ -163,7 +260,7 @@ final class AddItemForm extends FormBase {
     }
     $files = $this->getRequest()->files->get('files', [])['fallback'] ?? [];
     $files = array_filter(is_array($files) ? $files : [$files], fn ($f) => $f instanceof UploadedFile);
-    if (!$mids && !$files) {
+    if (!$mids && !$files && !$listed) {
       $form_state->setErrorByName('photo_ids', $this->t('Add at least one photo. Everything else can wait.'));
     }
     $form_state->set('fallback_files', $files);
@@ -184,7 +281,8 @@ final class AddItemForm extends FormBase {
       }
       $mids[] = (int) $media->id();
     }
-    if (!$mids) {
+    $listed = $this->listedMode($form_state);
+    if (!$mids && !$listed) {
       $this->messenger()->addError($this->t('No photo could be saved, so the item was not created.'));
       $form_state->setRebuild();
       return;
@@ -197,6 +295,7 @@ final class AddItemForm extends FormBase {
       'uid' => $this->currentUser()->id(),
       'status' => 1,
       'field_photos' => array_map(fn ($mid) => ['target_id' => $mid], $mids),
+      'field_item_status' => $listed ? 'listed' : 'draft',
     ];
     if (($price = $form_state->getValue('price')) !== '' && $price !== NULL) {
       $values['field_asking_price'] = $price;
@@ -207,10 +306,47 @@ final class AddItemForm extends FormBase {
       }
     }
     $item = Node::create($values);
-    $item->setRevisionLogMessage('Added on the phone (/add).');
+    $item->setRevisionLogMessage($listed ? 'Added as already selling (/add?listed=1).' : 'Added on the phone (/add).');
     $item->save();
-    $this->messenger()->addStatus($this->t('Saved with @n photo(s). Below is what it still needs before listing.', ['@n' => count($mids)]));
+    if ($listed) {
+      $posted = $this->markPosted($item, $form_state, $price);
+      $this->messenger()->addStatus($this->t('Saved as posted on @list.', ['@list' => implode(', ', $posted)]));
+    }
+    else {
+      $this->messenger()->addStatus($this->t('Saved with @n photo(s). Below is what it still needs before listing.', ['@n' => count($mids)]));
+    }
     $form_state->setRedirectUrl($item->toUrl());
+  }
+
+  /**
+   * Marks the checked and linked platforms Posted; remembers the checks.
+   *
+   * @return string[]
+   *   Names of the platforms marked Posted.
+   */
+  private function markPosted(Node $item, FormStateInterface $form_state, mixed $price): array {
+    $links = $form_state->get('listing_links') ?? [];
+    $ticked = array_keys(array_filter((array) $form_state->getValue('posted_on')));
+    $this->userData->set('ishop_items', (int) $this->currentUser()->id(), 'posted_on', $ticked);
+    $platforms = array_unique(array_merge($ticked, array_keys($links)));
+    $today = $this->dateFormatter->format(\Drupal::time()->getRequestTime(), 'custom', 'Y-m-d');
+    $names = [];
+    foreach ($this->listings->forItem($item) as $platform => $listing) {
+      if (!in_array($platform, $platforms, TRUE)) {
+        continue;
+      }
+      $listing->set('status', Platforms::POSTED);
+      $listing->set('date_posted', $today);
+      if (isset($links[$platform])) {
+        $listing->set('url', $links[$platform]);
+      }
+      if ($price !== '' && $price !== NULL) {
+        $listing->set('listed_price', $price);
+      }
+      $this->listings->saveRevision($listing, 'Posted (added as already selling).');
+      $names[] = Platforms::PLATFORMS[$platform];
+    }
+    return $names;
   }
 
   /**
