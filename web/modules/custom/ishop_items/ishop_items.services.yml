@@ -9,3 +9,4 @@ services:
   Drupal\ishop_items\EventSubscriber\WebpTypeSubscriber:
     tags:
       - { name: event_subscriber }
+  Drupal\ishop_items\OffsiteReminder: ~
