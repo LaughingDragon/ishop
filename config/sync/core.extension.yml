@@ -33,6 +33,7 @@ module:
   page_cache: 0
   path: 0
   path_alias: 0
+  seckit: 0
   system: 0
   taxonomy: 0
   text: 0
