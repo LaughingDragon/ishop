@@ -57,7 +57,8 @@ final class ListingManager {
     $queue = [];
     foreach ($storage->loadMultiple($ids) as $listing) {
       $item = $listing->getItem();
-      if (!$item || !$item->access('view')) {
+      // Finished items (sold, donated, kept, returned) are not posted anywhere.
+      if (!$item || !$item->access('view') || in_array((string) $item->get('field_item_status')->value, Stale::ITEM_DONE, TRUE)) {
         continue;
       }
       $verdict = Eligibility::evaluate(ListingsGridForm::eligibilityFacts($item) + [
@@ -88,6 +89,50 @@ final class ListingManager {
     $listed = $number($listing->get('listed_price')->value);
     $asking = $number($item->get('field_asking_price')->value);
     return Stale::nudge($posted, Stale::today(), $asking ?? $listed, $listed);
+  }
+
+  /**
+   * Of the given listing IDs, the ones that exist and are still live.
+   *
+   * @return int[]
+   *   Listing IDs.
+   */
+  public function liveListingIds(array $ids): array {
+    if (!$ids) {
+      return [];
+    }
+    return array_map('intval', array_values($this->entityTypeManager->getStorage('platform_listing')->getQuery()
+      ->accessCheck(FALSE)
+      ->condition('id', $ids, 'IN')
+      ->condition('status', Stale::LIVE, 'IN')
+      ->execute()));
+  }
+
+  /**
+   * Finishes an item without a sale: Donated, Kept or Returned to Amazon.
+   *
+   * Its live listings become "Take down" (so "Needs you now" asks for them
+   * to come down); unposted ones stay as they are, and the to-post queues
+   * leave finished items out.
+   *
+   * @return string[]
+   *   Platform names set to "Take down".
+   */
+  public function finishItem(NodeInterface $item, string $status, string $why): array {
+    $taken_down = [];
+    foreach ($this->forItem($item) as $platform => $listing) {
+      if (in_array($listing->getStatus(), Stale::LIVE, TRUE)) {
+        $listing->set('status', Platforms::TAKE_DOWN);
+        $this->saveRevision($listing, $why);
+        $taken_down[] = Platforms::PLATFORMS[$platform];
+      }
+    }
+    $item->set('field_item_status', $status);
+    $item->setNewRevision(TRUE);
+    $item->setRevisionUserId($this->currentUser->id());
+    $item->setRevisionLogMessage($why);
+    $item->save();
+    return $taken_down;
   }
 
   /**

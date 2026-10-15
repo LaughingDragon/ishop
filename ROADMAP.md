@@ -184,9 +184,10 @@ reference project is used only for its rules and formatting logic.
 - [x] **Sold-elsewhere alarm (built in Phase 1 without ECA: confirmed cascade + "Needs you now"):** marking a platform "Sold here" sets every
   other Posted platform to "Take down" and puts it at the top of his dashboard.
 - [x] Stale nudges: Posted 30+ days without selling, flag with a
-  suggested price drop or "consider donating." (Built without ECA or cron, worked out from
-  "Date posted" on each page: 30+ days 10% off, 60+ days 20% off, 90+ days consider donating;
-  /post/stale, a "Needs you now" row, and a line on the item's listings.)
+  suggested price drop or "consider donating." (Built without ECA: worked out per platform from
+  "Date posted": 30+ days about 10% off shown as the new price, 90+ days consider donating. The
+  3 most overdue appear in "Needs you now" with Done / Snooze 2 weeks / Keep as is; all on
+  /post/stale; a line on the item's listings; daily cron clean-up of old answers.)
 - [ ] Views Bulk Operations on the inventory list.
 
 ## Phase 4: tracking

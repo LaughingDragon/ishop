@@ -9,7 +9,8 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Url;
 use Drupal\Core\Cache\Cache;
-use Drupal\ishop_items\ListingManager;
+use Drupal\ishop_items\Controller\StaleController;
+use Drupal\ishop_items\StaleNudges;
 use Drupal\ishop_items\Platforms;
 use Drupal\ishop_matrix\Birthday;
 use Drupal\ishop_matrix\Form\SeasonForm;
@@ -31,7 +32,7 @@ final class MatrixController extends ControllerBase {
     private readonly TimeInterface $time,
     private readonly Birthday $birthday,
     private readonly Season $season,
-    private readonly ListingManager $listings,
+    private readonly StaleNudges $nudges,
   ) {}
 
   /**
@@ -67,14 +68,25 @@ final class MatrixController extends ControllerBase {
     ] : NULL;
     // On the birthday, birthday mode replaces the football accents.
     $game = $party ? NULL : $this->season->todaysGame();
-    // Stale listings can wait on the birthday.
-    if (!$party && ($stale = count(array_filter($this->listings->staleListings(), fn ($row) => !$row['nudge']['lowered'])))) {
+    // Stale-listing nudges: only the few most overdue, each with Done /
+    // Snooze 2 weeks / Keep as is. They can wait on the birthday.
+    $due = $party ? [] : $this->nudges->due();
+    $return = Url::fromRoute('ishop_matrix.dashboard')->toString();
+    foreach (array_slice($due, 0, StaleNudges::DASHBOARD_LIMIT) as $row) {
       $needs[] = [
-        'text' => $this->formatPlural($stale, '1 listing has been up 30+ days without selling.', '@count listings have been up 30+ days without selling.'),
+        'text' => StaleController::text($row),
+        'buttons' => StaleController::buttons($row['listing'], $return),
+      ];
+    }
+    if (count($due) > StaleNudges::DASHBOARD_LIMIT) {
+      $needs[] = [
+        'text' => $this->formatPlural(count($due) - StaleNudges::DASHBOARD_LIMIT, '1 more listing has been up 30+ days.', '@count more listings have been up 30+ days.'),
         'url' => Url::fromRoute('ishop_items.stale')->toString(),
-        'action' => $this->t('See the nudges'),
+        'action' => $this->t('See them all'),
         'ghost' => TRUE,
       ];
+    }
+    if ($due) {
       foreach ($rooms as &$room) {
         if ($room['icon'] === 'front_desk') {
           $room['glance'] = $this->glances($needs, $now)['front-desk'];
@@ -89,7 +101,7 @@ final class MatrixController extends ControllerBase {
 {% else %}<section class="rm-greeting"><div class="rm-greeting__text"><h1>{{ hello }}</h1><p>{{ date }}</p></div>{% if game %}<span class="rm-badge rm-badge--game">{% include "@reseller_matrix/includes/room-icon.html.twig" with { room: "football", size: 22 } only %}{{ game.badge }}</span>{% else %}<span class="rm-badge">{{ badge }}</span>{% endif %}</section>
 {% if score %}<section class="rm-scoreboard" aria-labelledby="rm-season"><h2 id="rm-season">{{ score.title }} <span class="rm-scoreboard__since">{{ score.since }}</span></h2><dl class="rm-scoreboard__cells">{% for c in score.cells %}<div class="rm-scoreboard__cell"><dt>{{ c.label }}</dt><dd>{{ c.value }}</dd></div>{% endfor %}</dl></section>{% endif %}{% endif %}
 <section class="rm-needs" id="needs" aria-labelledby="rm-now"><h2 id="rm-now">{{ needs_title }}</h2>
-{% for n in needs %}<div class="rm-needs__row"><span>{{ n.text }}</span><a class="rm-button{% if n.ghost %} rm-button--ghost{% endif %}" href="{{ n.url }}">{{ n.action }}</a></div>
+{% for n in needs %}<div class="rm-needs__row"><span>{{ n.text }}</span>{% if n.buttons %}<span class="rm-needs__buttons">{% for b in n.buttons %}<a class="rm-button{% if b.ghost %} rm-button--ghost{% endif %}" href="{{ b.url }}">{{ b.label }}</a>{% endfor %}</span>{% else %}<a class="rm-button{% if n.ghost %} rm-button--ghost{% endif %}" href="{{ n.url }}">{{ n.action }}</a>{% endif %}</div>
 {% else %}<p class="rm-needs__empty">{{ nothing }}</p>{% endfor %}</section>
 <h2 class="rm-section-title">{{ building }}</h2><ul class="rm-rooms">
 {% for r in rooms %}<li><a class="rm-room" href="{{ r.url }}"><span class="rm-room__icon">{% include "@reseller_matrix/includes/room-icon.html.twig" with { room: r.icon, size: 30 } only %}<span class="rm-room__word">{{ r.word }}</span></span><span class="rm-room__text"><span class="rm-room__name">{{ r.name }}</span><span class="rm-room__glance">{{ r.glance }}</span></span></a></li>
@@ -112,11 +124,13 @@ final class MatrixController extends ControllerBase {
         'rooms' => $rooms,
         'party' => $party,
       ],
+      '#attached' => ['library' => ['ishop_matrix/matrix']],
       '#cache' => [
         'tags' => Cache::mergeTags(['node_list:item', 'platform_listing_list', Season::CACHE_TAG], $birthday_cache['tags']),
         'contexts' => Cache::mergeContexts(['user.permissions'], $birthday_cache['contexts']),
-        // The date line and "closes in N days" change daily.
-        'max-age' => min(3600, $birthday_cache['max-age']),
+        // The date line and "closes in N days" change daily. Nudge buttons
+        // carry a per-session token: never cache those.
+        'max-age' => $due ? 0 : min(3600, $birthday_cache['max-age']),
       ],
     ];
   }

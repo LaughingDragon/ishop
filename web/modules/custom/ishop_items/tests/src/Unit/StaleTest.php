@@ -15,16 +15,16 @@ use PHPUnit\Framework\Attributes\CoversClass;
 final class StaleTest extends UnitTestCase {
 
   /**
-   * Under 30 days: nothing. Then 10%, 20%, and donate at 90.
+   * Under 30 days: nothing. Then about 10% off, and donate at 90.
    */
   public function testSteps(): void {
     $this->assertNull(Stale::nudge('2026-09-16', '2026-10-15', 30.0));
     $n30 = Stale::nudge('2026-09-15', '2026-10-15', 30.0);
     $this->assertSame([30, 27, FALSE], [$n30['days'], $n30['suggested'], $n30['donate']]);
-    $n60 = Stale::nudge('2026-08-16', '2026-10-15', 30.0);
-    $this->assertSame([60, 24], [$n60['days'], $n60['suggested']]);
+    $n89 = Stale::nudge('2026-07-18', '2026-10-15', 30.0);
+    $this->assertSame([89, 30, 27], [$n89['days'], $n89['step'], $n89['suggested']]);
     $n90 = Stale::nudge('2026-07-17', '2026-10-15', 30.0);
-    $this->assertSame([90, NULL, TRUE], [$n90['days'], $n90['suggested'], $n90['donate']]);
+    $this->assertSame([90, 90, NULL, TRUE], [$n90['days'], $n90['step'], $n90['suggested'], $n90['donate']]);
   }
 
   /**
@@ -42,15 +42,15 @@ final class StaleTest extends UnitTestCase {
   public function testAlreadyLowered(): void {
     $this->assertTrue(Stale::nudge('2026-09-01', '2026-10-15', 30.0, 27.0)['lowered']);
     $this->assertFalse(Stale::nudge('2026-09-01', '2026-10-15', 30.0, 28.0)['lowered']);
-    // At 60 days the next step asks for more.
-    $this->assertFalse(Stale::nudge('2026-08-01', '2026-10-15', 30.0, 27.0)['lowered']);
+    // At 90 days the next step (donate) applies whatever the price.
+    $this->assertFalse(Stale::nudge('2026-07-01', '2026-10-15', 30.0, 27.0)['lowered']);
   }
 
   /**
    * The line people read.
    */
   public function testLine(): void {
-    $this->assertSame('Up 44 days: try 10% off ($27)', Stale::line(Stale::nudge('2026-09-01', '2026-10-15', 30.0)));
+    $this->assertSame('Up 44 days: try about 10% off ($27)', Stale::line(Stale::nudge('2026-09-01', '2026-10-15', 30.0)));
     $this->assertSame('Up 44 days: price already lowered, nothing to do for now', Stale::line(Stale::nudge('2026-09-01', '2026-10-15', 30.0, 25.0)));
     $this->assertSame('Up 100 days: consider donating it', Stale::line(Stale::nudge('2026-07-07', '2026-10-15', 30.0)));
   }

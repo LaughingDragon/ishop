@@ -5,13 +5,16 @@ declare(strict_types=1);
 namespace Drupal\ishop_items\Hook;
 
 use Drupal\Core\Hook\Attribute\Hook;
+use Drupal\Core\State\StateInterface;
 use Drupal\ishop_items\OffsiteReminder;
+use Drupal\ishop_items\Stale;
+use Drupal\ishop_items\StaleNudges;
 use Drupal\node\NodeInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
- * Checks the 10-item off-server backup reminder after items are added.
+ * Cron and item hooks: the 10-item backup reminder, daily nudge clean-up.
  */
 final class OffsiteReminderHooks {
 
@@ -19,6 +22,8 @@ final class OffsiteReminderHooks {
     private readonly OffsiteReminder $reminder,
     #[Autowire(service: 'logger.channel.ishop_items')]
     private readonly LoggerInterface $logger,
+    private readonly StaleNudges $nudges,
+    private readonly StateInterface $state,
   ) {}
 
   /**
@@ -37,6 +42,12 @@ final class OffsiteReminderHooks {
   #[Hook('cron')]
   public function cron(): void {
     $this->check();
+    // Once a day: forget nudge answers for listings no longer live.
+    $today = Stale::today();
+    if ($this->state->get('ishop_items.stale_cleanup') !== $today) {
+      $this->state->set('ishop_items.stale_cleanup', $today);
+      $this->nudges->cleanUp();
+    }
   }
 
   /**

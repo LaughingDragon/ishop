@@ -1,2 +1,5 @@
 /* Coming soon room pages: space under the room icon tile. */
 .rm-coming-soon .rm-room__icon { display: inline-flex; margin-bottom: 16px; }
+
+/* "Needs you now" rows with several buttons (stale-listing nudges). */
+.rm-needs__buttons { display: flex; flex-wrap: wrap; gap: 8px; }

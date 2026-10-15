@@ -16,12 +16,12 @@ final class Stale {
   /**
    * Nudges, most urgent first: [days posted, price cut or NULL, label].
    *
-   * NULL means no price cut: suggest donating instead.
+   * NULL means no price cut: suggest donating instead (Liam, 2026-10-15:
+   * about 10% off at 30 days, "consider donating" after 90).
    */
   public const STEPS = [
     [90, NULL, 'Up 90+ days: consider donating it'],
-    [60, 0.20, 'Up 60+ days: try 20% off'],
-    [30, 0.10, 'Up 30+ days: try 10% off'],
+    [30, 0.10, 'Up 30+ days: try about 10% off'],
   ];
 
   /**
@@ -59,7 +59,7 @@ final class Stale {
    * @param float|null $current
    *   The listing's price now, if known.
    *
-   * @return array{days: int, label: string, cut: ?float, suggested: ?int, donate: bool, lowered: bool}|null
+   * @return array{days: int, step: int, label: string, cut: ?float, suggested: ?int, donate: bool, lowered: bool}|null
    *   Days posted, the nudge, the suggested whole-dollar price, and whether
    *   the price is already at or below it (nothing to do until the next step).
    */
@@ -73,6 +73,7 @@ final class Stale {
         }
         return [
           'days' => $days,
+          'step' => $after,
           'label' => $label,
           'cut' => $cut,
           'suggested' => $suggested,

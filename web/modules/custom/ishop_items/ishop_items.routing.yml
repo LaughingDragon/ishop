@@ -109,3 +109,16 @@ ishop_items.stale:
     _permission: 'manage platform listings'
   options:
     no_cache: TRUE
+
+ishop_items.stale_answer:
+  path: '/post/stale/{platform_listing}/{answer}'
+  defaults:
+    _controller: '\Drupal\ishop_items\Controller\StaleController::answer'
+  requirements:
+    _permission: 'manage platform listings'
+    _csrf_token: 'TRUE'
+    answer: 'done|snooze|keep'
+  options:
+    parameters:
+      platform_listing:
+        type: entity:platform_listing
