@@ -10,6 +10,9 @@ dependencies:
     - field.field.node.expense.field_receipt
     - node.type.expense
   module:
+    - datetime
+    - file
+    - options
     - user
 id: node.expense.default
 targetEntityType: node
@@ -17,32 +20,44 @@ bundle: expense
 mode: default
 content:
   field_amount:
+    type: number_decimal
     label: inline
-    settings: {  }
+    settings:
+      thousand_separator: ''
+      decimal_separator: .
+      scale: 2
+      prefix_suffix: true
     third_party_settings: {  }
     weight: 11
     region: content
   field_expense_category:
+    type: list_default
     label: inline
     settings: {  }
     third_party_settings: {  }
     weight: 12
     region: content
   field_log_date:
+    type: datetime_default
     label: inline
-    settings: {  }
+    settings:
+      timezone_override: ''
+      format_type: medium
     third_party_settings: {  }
     weight: 10
     region: content
   field_log_note:
+    type: basic_string
     label: inline
     settings: {  }
     third_party_settings: {  }
     weight: 14
     region: content
   field_receipt:
+    type: file_default
     label: inline
-    settings: {  }
+    settings:
+      use_description_as_link_text: true
     third_party_settings: {  }
     weight: 13
     region: content

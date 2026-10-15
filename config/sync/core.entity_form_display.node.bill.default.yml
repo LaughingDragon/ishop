@@ -1,0 +1,95 @@
+uuid: f1a6314f-81e1-4569-a34d-bd3d8052f546
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.bill.field_amount
+    - field.field.node.bill.field_bill_business
+    - field.field.node.bill.field_due_date
+    - field.field.node.bill.field_due_day
+    - field.field.node.bill.field_last_paid
+    - field.field.node.bill.field_log_note
+    - field.field.node.bill.field_repeat
+    - node.type.bill
+  module:
+    - path
+id: node.bill.default
+targetEntityType: node
+bundle: bill
+mode: default
+content:
+  created:
+    type: datetime_timestamp
+    weight: 10
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_amount:
+    weight: 10
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_bill_business:
+    weight: 13
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_due_date:
+    weight: 11
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_due_day:
+    weight: 15
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_last_paid:
+    weight: 14
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_log_note:
+    weight: 16
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_repeat:
+    weight: 12
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  path:
+    type: path
+    weight: 30
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  status:
+    type: boolean_checkbox
+    weight: 120
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  title:
+    type: string_textfield
+    weight: -5
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  uid:
+    type: entity_reference_autocomplete
+    weight: 5
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  promote: true
+  sticky: true

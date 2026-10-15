@@ -20,3 +20,29 @@ ishop_life.tax_export:
     kind: 'mileage|expenses'
   options:
     no_cache: TRUE
+
+ishop_life.bills:
+  path: '/room/my-office/bills'
+  defaults:
+    _controller: '\Drupal\ishop_life\Controller\BillsController::page'
+    _title: 'Bills and subscriptions'
+  requirements:
+    _permission: 'manage platform listings'
+    _user_is_logged_in: 'TRUE'
+  options:
+    no_cache: TRUE
+
+ishop_life.bill_paid:
+  path: '/room/my-office/bills/{node}/paid'
+  defaults:
+    _controller: '\Drupal\ishop_life\Controller\BillsController::paid'
+  requirements:
+    _permission: 'manage platform listings'
+    _entity_access: 'node.update'
+    _csrf_token: 'TRUE'
+    node: \d+
+  options:
+    parameters:
+      node:
+        type: entity:node
+        bundle: [bill]

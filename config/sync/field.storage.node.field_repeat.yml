@@ -1,0 +1,33 @@
+uuid: 230bd4b9-02b4-480b-872b-f2c0fc4e2e0d
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_repeat
+field_name: field_repeat
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: monthly
+      label: 'Every month'
+    -
+      value: yearly
+      label: 'Every year'
+    -
+      value: weekly
+      label: 'Every week'
+    -
+      value: once
+      label: 'Just once'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

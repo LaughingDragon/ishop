@@ -1,0 +1,21 @@
+uuid: 8dd58d75-1372-4364-8df8-6ddfa860ab5a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_due_date
+    - node.type.bill
+  module:
+    - datetime
+id: node.bill.field_due_date
+field_name: field_due_date
+entity_type: node
+bundle: bill
+label: 'Next due'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

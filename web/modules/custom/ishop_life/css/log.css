@@ -17,3 +17,11 @@
 .rm-log__links { display: flex; gap: 14px; }
 .rm-log__links a { display: inline-flex; align-items: center; min-height: 44px; }
 .rm-log__note { grid-column: 1 / -1; font-size: 17px; color: var(--rm-text-soft); }
+
+/* Bills. */
+.rm-bills { margin: 0 0 24px; }
+.rm-bills__list { margin: 0; padding: 0; list-style: none; }
+.rm-bills__list li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 14px; padding: 12px 0; border-bottom: 1px solid var(--rm-line); }
+.rm-bills__meta { display: block; font-size: 16px; color: var(--rm-text-soft); }
+.rm-bills__actions { display: flex; align-items: center; gap: 14px; }
+.rm-bills__actions a:not(.rm-button) { display: inline-flex; align-items: center; min-height: 44px; }

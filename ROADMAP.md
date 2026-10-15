@@ -214,7 +214,10 @@ reference project is used only for its rules and formatting logic.
 ## Phase 5: daily life tools and the digest
 
 - [ ] Calendar with recurring events (Smart Date, Calendar View).
-- [ ] Bills and subscriptions with due dates and reminders.
+- [x] Bills and subscriptions with due dates and reminders: My office > Bills and subscriptions;
+  each bill shows in "Needs you now" 3 days before it's due (and while overdue) with a Paid
+  button that rolls it to the next due date (monthly bills keep their day of the month; one-offs
+  are archived); business bills are logged in Expenses when paid.
 - [x] Mileage and expense log (post office runs, supplies; packing materials are supplies, kept in the game room).
   My office > "Log a trip or an expense": quick-add forms ("Same as last time" for the regular
   trip), receipt photos (JPEG, no GPS, private), latest entries; Mileage and Expenses CSVs in the

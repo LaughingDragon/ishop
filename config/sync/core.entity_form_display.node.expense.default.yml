@@ -10,6 +10,8 @@ dependencies:
     - field.field.node.expense.field_receipt
     - node.type.expense
   module:
+    - datetime
+    - file
     - path
 id: node.expense.default
 targetEntityType: node
@@ -23,29 +25,38 @@ content:
     settings: {  }
     third_party_settings: {  }
   field_amount:
+    type: number
     weight: 11
     region: content
-    settings: {  }
+    settings:
+      placeholder: ''
     third_party_settings: {  }
   field_expense_category:
+    type: options_select
     weight: 12
     region: content
     settings: {  }
     third_party_settings: {  }
   field_log_date:
+    type: datetime_default
     weight: 10
     region: content
     settings: {  }
     third_party_settings: {  }
   field_log_note:
+    type: string_textarea
     weight: 14
     region: content
-    settings: {  }
+    settings:
+      rows: 5
+      placeholder: ''
     third_party_settings: {  }
   field_receipt:
+    type: file_generic
     weight: 13
     region: content
-    settings: {  }
+    settings:
+      progress_indicator: throbber
     third_party_settings: {  }
   path:
     type: path

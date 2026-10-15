@@ -1,0 +1,21 @@
+uuid: 81bdec01-76fc-4cf8-80e4-04388706d437
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_last_paid
+    - node.type.bill
+  module:
+    - datetime
+id: node.bill.field_last_paid
+field_name: field_last_paid
+entity_type: node
+bundle: bill
+label: 'Last paid'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

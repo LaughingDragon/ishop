@@ -1,0 +1,23 @@
+uuid: 928acf29-0957-4adc-89c1-2d58525d78a4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_due_day
+    - node.type.bill
+id: node.bill.field_due_day
+field_name: field_due_day
+entity_type: node
+bundle: bill
+label: 'Day of the month it is due'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 1
+  max: 31
+  prefix: ''
+  suffix: ''
+field_type: integer

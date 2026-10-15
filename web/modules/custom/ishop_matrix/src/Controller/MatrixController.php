@@ -11,6 +11,8 @@ use Drupal\Core\Url;
 use Drupal\Core\Cache\Cache;
 use Drupal\ishop_items\Controller\StaleController;
 use Drupal\ishop_items\Money;
+use Drupal\ishop_life\Bills;
+use Drupal\ishop_life\Controller\BillsController;
 use Drupal\ishop_items\TaxExport;
 use Drupal\ishop_items\StaleNudges;
 use Drupal\ishop_items\Platforms;
@@ -37,6 +39,7 @@ final class MatrixController extends ControllerBase {
     private readonly StaleNudges $nudges,
     private readonly Money $money,
     private readonly TaxExport $taxExport,
+    private readonly Bills $bills,
   ) {}
 
   /**
@@ -89,6 +92,19 @@ final class MatrixController extends ControllerBase {
         'action' => $this->t('See them all'),
         'ghost' => TRUE,
       ];
+    }
+    // Bills due within 3 days (or overdue), each with a Paid button.
+    foreach ($this->bills->due() as $bill) {
+      $needs[] = [
+        'text' => $this->bills->lineFor($bill),
+        'buttons' => [[
+          'label' => $this->t('Paid'),
+          'url' => BillsController::paidUrl($bill, $return),
+          'ghost' => FALSE,
+        ],
+        ],
+      ];
+      $due[] = $bill;
     }
     if ($due) {
       foreach ($rooms as &$room) {
@@ -387,10 +403,12 @@ final class MatrixController extends ControllerBase {
     return [
       'log' => [
         '#type' => 'inline_template',
-        '#template' => '<p class="rm-office-links"><a class="rm-button rm-button--gold" href="{{ url }}">{{ label }}</a></p>',
+        '#template' => '<p class="rm-office-links"><a class="rm-button rm-button--gold" href="{{ url }}">{{ label }}</a> <a class="rm-button rm-button--ghost" href="{{ bills }}">{{ bills_label }}</a></p>',
         '#context' => [
           'url' => Url::fromRoute('ishop_life.log')->toString(),
           'label' => $this->t('Log a trip or an expense'),
+          'bills' => Url::fromRoute('ishop_life.bills')->toString(),
+          'bills_label' => $this->t('Bills and subscriptions'),
         ],
       ],
       'money' => $this->moneySection(),

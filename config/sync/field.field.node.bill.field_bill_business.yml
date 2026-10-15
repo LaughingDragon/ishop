@@ -1,0 +1,21 @@
+uuid: 6471fbe6-d5f8-4a13-9c5d-5ea638ef9bf6
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_bill_business
+    - node.type.bill
+id: node.bill.field_bill_business
+field_name: field_bill_business
+entity_type: node
+bundle: bill
+label: 'Business expense (log it in Expenses when paid)'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

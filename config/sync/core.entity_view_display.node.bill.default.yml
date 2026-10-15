@@ -1,0 +1,68 @@
+uuid: 57f13d07-ab58-44e2-95ca-1eb07a6b0bab
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.bill.field_amount
+    - field.field.node.bill.field_bill_business
+    - field.field.node.bill.field_due_date
+    - field.field.node.bill.field_due_day
+    - field.field.node.bill.field_last_paid
+    - field.field.node.bill.field_log_note
+    - field.field.node.bill.field_repeat
+    - node.type.bill
+  module:
+    - user
+id: node.bill.default
+targetEntityType: node
+bundle: bill
+mode: default
+content:
+  field_amount:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 10
+    region: content
+  field_bill_business:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 13
+    region: content
+  field_due_date:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 11
+    region: content
+  field_due_day:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 15
+    region: content
+  field_last_paid:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 14
+    region: content
+  field_log_note:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 16
+    region: content
+  field_repeat:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 12
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden: {  }

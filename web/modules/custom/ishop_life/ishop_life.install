@@ -18,3 +18,11 @@ function ishop_life_install(bool $is_syncing): void {
     LifeStructure::ensure();
   }
 }
+
+/**
+ * Adds bills and subscriptions (Phase 5 step 2).
+ */
+function ishop_life_update_11001(): string {
+  LifeStructure::ensure();
+  return 'Bill content type added.';
+}

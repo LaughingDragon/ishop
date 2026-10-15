@@ -1,0 +1,11 @@
+uuid: 3e996da0-2d17-4409-93eb-d9f8676388c1
+langcode: en
+status: true
+dependencies: {  }
+name: Bill
+type: bill
+description: 'A bill or subscription with a due date. Shown in "Needs you now" before it is due.'
+help: null
+new_revision: true
+preview_mode: 1
+display_submitted: false

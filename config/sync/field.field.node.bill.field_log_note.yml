@@ -1,0 +1,19 @@
+uuid: d05b817e-acb3-46a5-922d-e1bc283fd75f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_log_note
+    - node.type.bill
+id: node.bill.field_log_note
+field_name: field_log_note
+entity_type: node
+bundle: bill
+label: Note
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

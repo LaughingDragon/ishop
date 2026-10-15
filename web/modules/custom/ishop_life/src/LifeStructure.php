@@ -22,6 +22,17 @@ final class LifeStructure {
   public const TYPES = [
     'mileage' => ['Mileage', 'A trip for the business (post office runs and the like). Logged in My office.'],
     'expense' => ['Expense', 'Money spent for the business (supplies, packing materials, fees). Logged in My office.'],
+    'bill' => ['Bill', 'A bill or subscription with a due date. Shown in "Needs you now" before it is due.'],
+  ];
+
+  /**
+   * How often a bill repeats.
+   */
+  public const REPEATS = [
+    'monthly' => 'Every month',
+    'yearly' => 'Every year',
+    'weekly' => 'Every week',
+    'once' => 'Just once',
   ];
 
   /**
@@ -45,6 +56,11 @@ final class LifeStructure {
     'field_expense_category' => ['list_string', ['allowed_values' => self::CATEGORIES]],
     'field_receipt' => ['file', ['uri_scheme' => 'private', 'target_type' => 'file']],
     'field_log_note' => ['string_long', []],
+    'field_due_date' => ['datetime', ['datetime_type' => 'date']],
+    'field_due_day' => ['integer', []],
+    'field_repeat' => ['list_string', ['allowed_values' => self::REPEATS]],
+    'field_last_paid' => ['datetime', ['datetime_type' => 'date']],
+    'field_bill_business' => ['boolean', []],
   ];
 
   /**
@@ -70,6 +86,15 @@ final class LifeStructure {
           'max_filesize' => '32 MB',
         ],
       ],
+      'field_log_note' => ['Note', FALSE, []],
+    ],
+    'bill' => [
+      'field_amount' => ['Amount', FALSE, ['min' => 0, 'prefix' => '$']],
+      'field_due_date' => ['Next due', TRUE, []],
+      'field_repeat' => ['Repeats', TRUE, []],
+      'field_bill_business' => ['Business expense (log it in Expenses when paid)', FALSE, []],
+      'field_last_paid' => ['Last paid', FALSE, []],
+      'field_due_day' => ['Day of the month it is due', FALSE, ['min' => 1, 'max' => 31]],
       'field_log_note' => ['Note', FALSE, []],
     ],
   ];

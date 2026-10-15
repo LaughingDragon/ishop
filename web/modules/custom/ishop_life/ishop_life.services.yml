@@ -5,3 +5,4 @@ services:
   logger.channel.ishop_life:
     parent: logger.channel_base
     arguments: ['ishop_life']
+  Drupal\ishop_life\Bills: ~
