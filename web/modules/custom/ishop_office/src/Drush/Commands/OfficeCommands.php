@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ishop_office\Drush\Commands;
 
+use Drupal\ishop_office\Drush\OptionValues;
 use Drupal\ishop_office\OfficeManager;
 use Drupal\ishop_office\Parser\ReportParser;
 use Drupal\ishop_office\Parser\SecretScanner;
@@ -114,7 +115,7 @@ final class OfficeCommands extends DrushCommands {
       throw new \InvalidArgumentException('--instructions-file is required: anything waiting on Liam or Cody needs full step-by-step instructions.');
     }
     $this->refuseSecrets($question . "\n" . $options['details'] . "\n" . $instructions);
-    $node = $this->office->addPunch($question, $people, $this->phaseOption($options['phase']), (string) $options['details'], $this->date($options['date']), $instructions);
+    $node = $this->office->addPunch($question, $people, OptionValues::phase($options['phase']), (string) $options['details'], $this->date($options['date']), $instructions);
     $this->logger()->success(sprintf('Punch list item %d opened: %s', $node->id(), $node->label()));
     return self::EXIT_SUCCESS;
   }
@@ -167,7 +168,7 @@ final class OfficeCommands extends DrushCommands {
   #[CLI\Option(name: 'date', description: 'Decision date, YYYY-MM-DD. Defaults to today.')]
   public function decision(string $decision, array $options = ['by' => '', 'why' => '', 'phase' => NULL, 'date' => NULL]): int {
     $this->refuseSecrets($decision . "\n" . $options['why']);
-    $node = $this->office->addDecision($decision, $this->people((string) $options['by']), (string) $options['why'], $this->phaseOption($options['phase']), $this->date($options['date']));
+    $node = $this->office->addDecision($decision, $this->people((string) $options['by']), (string) $options['why'], OptionValues::phase($options['phase']), $this->date($options['date']));
     $this->logger()->success(sprintf('Decision %d logged: %s', $node->id(), $node->label()));
     return self::EXIT_SUCCESS;
   }
@@ -235,20 +236,6 @@ final class OfficeCommands extends DrushCommands {
     return array_values(array_unique(array_map(fn ($p) => Vocabulary::normalize(Vocabulary::PEOPLE, $p), $people)));
   }
 
-  /**
-   * Drush hands an option value of "0" over as FALSE; that is phase 0.
-   */
-  private function phaseOption(mixed $value): ?string {
-    return match (TRUE) {
-      $value === FALSE, $value === 0 => '0',
-      $value === NULL, $value === '', $value === TRUE => NULL,
-      default => (string) $value,
-    };
-  }
-
-  /**
-   * Validates an optional YYYY-MM-DD option.
-   */
   private function date(?string $date): ?string {
     if ($date !== NULL && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
       throw new \InvalidArgumentException('Dates are YYYY-MM-DD.');
