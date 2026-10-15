@@ -95,27 +95,27 @@ the plans on the wall and the daily reports. Build it before Phase 1 so every
 later phase reports here. Visible only to webmaster, theowner and
 site-foreman (role "site office"); never public, noindex.
 
-- [ ] **Plans:** ROADMAP.md rendered as a page. The file in git stays the source
+- [x] **Plans:** ROADMAP.md rendered as a page. The file in git stays the source
   of truth; a Drush command re-syncs the page whenever the file changes.
-- [ ] **Status board** (the landing page): one row per phase showing Not started /
+- [x] **Status board** (the landing page): one row per phase showing Not started /
   In progress / Blocked / Done, percent of checklist items done, last update
   date, and a link to that phase's latest report.
-- [ ] **Build reports:** one per work session, written by the agent at the end of
+- [x] **Build reports:** one per work session, written by the agent at the end of
   each session. Fields: date, phase, summary, what was done, what's next,
   blockers, decisions needed from Liam or Cody, tests run and results, git
   commit hashes. Newest first.
-- [ ] **Punch list:** open questions and decisions waiting on a person, with who
+- [x] **Punch list:** open questions and decisions waiting on a person, with who
   it's waiting on. Closing an item records the answer.
-- [ ] **Decision log:** what was decided, by whom, when, why.
-- [ ] Custom Drush command, e.g. `drush ishop:report path/to/report.md`, that
+- [x] **Decision log:** what was decided, by whom, when, why.
+- [x] Custom Drush command, e.g. `drush ishop:report path/to/report.md`, that
   creates a build report from a Markdown file (rendered safely, never raw
   HTML) and updates the status board. The agent runs it as site-foreman.
-- [ ] Pages must read cleanly for a browser-based AI assistant reviewing
+- [x] Pages must read cleanly for a browser-based AI assistant reviewing
   progress: plain semantic HTML, real headings, tables for the status board,
   dates in ISO format, no content hidden behind tabs or JavaScript-only
   widgets. Also provide `/site-office/status.json` (same access rules) with
   each phase's status, percent done, and latest report link.
-- [ ] Reports never contain secrets, passwords, keys, or personal data about
+- [x] Reports never contain secrets, passwords, keys, or personal data about
   customers.
 
 ## Phase 1: the item model and phone app
