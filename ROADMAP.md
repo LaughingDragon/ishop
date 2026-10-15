@@ -149,7 +149,7 @@ Approved 2026-10-15 (punch item 78: proposal plus Claude (review)'s gaps; Liam d
   seller, eligibility override and note.
   - Six "To post" rows on every new item, and a listings grid on the item page.
   - "Sold here" cascade, confirmed before it applies; un-marking restores the previous statuses.
-- [ ] **Phone:** /add with "Take photos" / "Choose photos", "Take another" / "Done" after each camera shot,
+- [x] **Phone:** /add with "Take photos" / "Choose photos", "Take another" / "Done" after each camera shot,
   per-photo "Make cover" and up/down arrows, and optional quick fields. A custom web manifest so it
   installs to the home screen (no PWA beta, no offline cache). Tested on iPhone first: Cody uses
   Safari on an iPhone.
