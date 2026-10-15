@@ -7,6 +7,17 @@ ishop_matrix.dashboard:
     _permission: 'access content'
     _user_is_logged_in: 'TRUE'
 
+ishop_matrix.stockroom:
+  path: '/room/stockroom'
+  defaults:
+    _form: '\Drupal\ishop_items\Form\StockroomForm'
+    _title: 'Stockroom'
+  requirements:
+    _permission: 'manage platform listings'
+    _user_is_logged_in: 'TRUE'
+  options:
+    no_cache: TRUE
+
 ishop_matrix.my_office:
   path: '/room/my-office'
   defaults:

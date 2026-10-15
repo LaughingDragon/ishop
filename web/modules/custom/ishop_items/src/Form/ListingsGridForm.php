@@ -39,8 +39,14 @@ final class ListingsGridForm extends FormBase {
     ];
   }
 
+  /**
+   * Services are protected, not private readonly.
+   *
+   * Multi-step forms are serialized between steps, and Drupal can't restore
+   * private readonly properties afterwards.
+   */
   public function __construct(
-    private readonly ListingManager $listings,
+    protected ListingManager $listings,
   ) {}
 
   /**

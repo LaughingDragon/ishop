@@ -37,3 +37,12 @@ post:
   dependencies:
     - core/drupal
     - core/once
+stockroom:
+  js:
+    js/stockroom.js: {}
+  css:
+    component:
+      css/stockroom.css: {}
+  dependencies:
+    - core/drupal
+    - core/once

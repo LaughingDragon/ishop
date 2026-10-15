@@ -188,7 +188,11 @@ reference project is used only for its rules and formatting logic.
   "Date posted": 30+ days about 10% off shown as the new price, 90+ days consider donating. The
   3 most overdue appear in "Needs you now" with Done / Snooze 2 weeks / Keep as is; all on
   /post/stale; a line on the item's listings; daily cron clean-up of old answers.)
-- [ ] Views Bulk Operations on the inventory list.
+- [x] Bulk actions on the inventory list: the Stockroom (/room/stockroom) lists every item; tick
+  items, then mark posted on a platform, change the asking price (set, or lower by %), move to a
+  storage location, or set the status (Listed, Kept, Donated, Returned to Amazon). Confirm
+  first, then "What changed". Built as a custom form (big touch targets, iPhone first) rather
+  than Views Bulk Operations.
 
 ## Phase 4: tracking
 

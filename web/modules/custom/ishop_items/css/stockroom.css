@@ -1,0 +1,31 @@
+/* Stockroom list and bulk actions: big touch targets, iPhone first. */
+.rm-stock fieldset { margin: 0 0 22px; padding: 18px 20px; border: 1.5px solid var(--rm-line, #3D302D); border-radius: var(--rm-radius, 14px); }
+.rm-stock legend { padding: 0 6px; font-family: var(--rm-font-sign, sans-serif); font-size: 1.15rem; }
+
+/* Radios and checkboxes: 28 px, gold, with the whole row tappable. */
+.rm-stock input[type=checkbox], .rm-stock input[type=radio] { width: 28px; height: 28px; flex: none; margin: 0; accent-color: var(--rm-gold, #F2C14E); }
+.rm-stock .form-type-radio, .rm-stock .form-type--radio, .rm-stock .js-form-type-radio { display: flex; align-items: center; gap: 12px; min-height: 48px; margin: 0; }
+.rm-stock .form-type-radio label, .rm-stock .js-form-type-radio label { margin: 0; font-weight: 600; cursor: pointer; }
+
+.rm-stock__item { display: flex; align-items: center; gap: 12px; margin: 0; padding: 10px 12px; border-bottom: 1px solid var(--rm-line, #3D302D); }
+.rm-stock__item:has(input:checked) { background: var(--rm-raised, #2D2422); }
+.rm-stock__item label { display: flex; flex: 1; align-items: center; gap: 12px; min-height: 56px; margin: 0; cursor: pointer; }
+.rm-stock__item img, .rm-stock__nophoto { width: 56px; height: 56px; flex: none; border-radius: 8px; object-fit: cover; background: var(--rm-raised, #2D2422); }
+.rm-stock__text { display: flex; flex-direction: column; min-width: 0; }
+.rm-stock__title { font-weight: 700; overflow-wrap: anywhere; }
+.rm-stock__meta { font-size: 0.9rem; font-weight: 400; color: var(--rm-text-soft, #D3C6B2); }
+.rm-stock__all { margin: 0 0 8px; }
+
+/* The action bar stays at the bottom of the screen while scrolling. */
+.rm-stock__bar {
+  position: sticky; bottom: 0; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 12px;
+  margin: 18px calc(-1 * var(--rm-gutter, 20px)) 0; padding: 12px var(--rm-gutter, 20px) calc(12px + env(safe-area-inset-bottom, 0px));
+  background: var(--rm-ground, #161312); border-top: 2px solid var(--rm-gold, #F2C14E);
+}
+.rm-stock__count { margin-right: auto; font-weight: 700; }
+.rm-stock__bar input[type=submit] { min-height: 52px; }
+
+.rm-stock__confirm h2 { margin-top: 0; }
+.rm-stock__changes { margin: 0; padding: 0; list-style: none; }
+.rm-stock__changes li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; padding: 10px 0; border-bottom: 1px solid var(--rm-line, #3D302D); }
+.rm-stock__bar input.rm-button--ghost { background: transparent; color: var(--rm-gold, #F2C14E); border: 2px solid var(--rm-gold, #F2C14E); }
