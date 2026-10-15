@@ -15,6 +15,10 @@ The running log with history and locations is ~/ishop/NOTES.md on the VM.
 - Every item waiting on Liam, Cody or Claude (review) carries full step-by-step instructions ending with "How to answer".
   Check facts on the VM before writing steps.
 
+## Who does what
+- **Liam does design and review only.** Punch items for Liam never ask him to add items, take photos or otherwise use
+  the site as a seller. Real-use checks (adding items, the phone flow) go to **Cody**; Liam reads, decides, signs off.
+
 ## Destructive actions
 - Nothing destructive without Liam's OK.
 - **Disks:** any instruction that detaches or deletes a disk starts with a snapshot step, and names the disk by
