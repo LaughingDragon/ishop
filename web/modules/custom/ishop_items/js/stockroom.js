@@ -7,6 +7,15 @@
 ((Drupal, once) => {
   Drupal.behaviors.ishopStockroom = {
     attach(context) {
+      // Filters: leave empty fields out of the link (?size=M, not ?q=&brand=&size=M...).
+      once('ishop-stock-filters', '.rm-stock-filters__form', context).forEach((filters) => {
+        filters.addEventListener('submit', () => {
+          filters.querySelectorAll('input, select').forEach((field) => {
+            field.disabled = field.value === '';
+          });
+        });
+      });
+
       once('ishop-stockroom', '.rm-stock', context).forEach((form) => {
         const boxes = [...form.querySelectorAll('.rm-stock__item input[type=checkbox]')];
         const all = form.querySelector('.rm-stock__all');

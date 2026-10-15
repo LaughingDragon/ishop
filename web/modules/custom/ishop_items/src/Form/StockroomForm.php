@@ -13,6 +13,7 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\image\Entity\ImageStyle;
 use Drupal\ishop_items\BulkActions;
 use Drupal\ishop_items\Platforms;
+use Drupal\ishop_items\StockroomFilters;
 
 /**
  * The Stockroom: every item, with bulk actions (Phase 3).
@@ -31,6 +32,7 @@ final class StockroomForm extends FormBase {
   public function __construct(
     protected BulkActions $bulk,
     protected EntityTypeManagerInterface $entityTypeManager,
+    protected StockroomFilters $filters,
   ) {}
 
   /**
@@ -59,7 +61,8 @@ final class StockroomForm extends FormBase {
    */
   private function chooseStep(array $form, FormStateInterface $form_state): array {
     $saved = $form_state->get('choice') ?? [];
-    $items = $this->items();
+    $active = StockroomFilters::parse($this->getRequest()->query->all());
+    $items = $this->items(NULL, $active);
 
     $form['what'] = [
       '#type' => 'fieldset',
@@ -118,8 +121,19 @@ final class StockroomForm extends FormBase {
       '#title' => $this->t('2. Which items'),
       '#attributes' => ['class' => ['rm-stock__which']],
     ];
+    if ($active) {
+      $form['which']['showing'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'p',
+        '#value' => $this->t('Showing @shown of @total items (filtered).', [
+          '@shown' => count($items),
+          '@total' => $this->total(),
+        ]),
+        '#attributes' => ['class' => ['rm-stock__showing']],
+      ];
+    }
     if (!$items) {
-      $form['which']['empty'] = ['#markup' => '<p>' . $this->t('No items yet.') . '</p>'];
+      $form['which']['empty'] = ['#markup' => '<p>' . ($active ? $this->t('No items match these filters.') : $this->t('No items yet.')) . '</p>'];
       return $form;
     }
     $form['which']['select_all'] = [
@@ -345,7 +359,7 @@ final class StockroomForm extends FormBase {
    * @return array<int, \Drupal\node\NodeInterface>
    *   Keyed by node ID.
    */
-  private function items(?array $nids = NULL): array {
+  private function items(?array $nids = NULL, array $filters = []): array {
     $storage = $this->entityTypeManager->getStorage('node');
     $query = $storage->getQuery()->accessCheck(TRUE)->condition('type', 'item')->sort('created', 'DESC')->sort('nid', 'DESC');
     if ($nids !== NULL) {
@@ -354,7 +368,17 @@ final class StockroomForm extends FormBase {
       }
       $query->condition('nid', $nids, 'IN');
     }
+    if ($filters && !$this->filters->apply($query, $filters)) {
+      return [];
+    }
     return $storage->loadMultiple($query->execute());
+  }
+
+  /**
+   * How many items there are in all.
+   */
+  private function total(): int {
+    return (int) $this->entityTypeManager->getStorage('node')->getQuery()->accessCheck(TRUE)->condition('type', 'item')->count()->execute();
   }
 
 }

@@ -29,3 +29,12 @@
 .rm-stock__changes { margin: 0; padding: 0; list-style: none; }
 .rm-stock__changes li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; padding: 10px 0; border-bottom: 1px solid var(--rm-line, #3D302D); }
 .rm-stock__bar input.rm-button--ghost { background: transparent; color: var(--rm-gold, #F2C14E); border: 2px solid var(--rm-gold, #F2C14E); }
+
+/* Search and filters (Phase 4): folded on the phone, open when in use. */
+.rm-stock-filters { margin: 0 0 22px; padding: 0; }
+.rm-stock-filters summary { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 0 20px; font-family: var(--rm-font-sign, sans-serif); font-size: 1.1rem; cursor: pointer; }
+.rm-stock-filters__form { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0 16px; padding: 4px 20px 20px; }
+.rm-stock-filters__price { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+.rm-stock-filters__actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 10px; }
+.rm-stock-filters__actions .rm-button { min-height: 52px; }
+.rm-stock__showing { margin: 0 0 8px; font-weight: 600; color: var(--rm-text-soft, #D3C6B2); }

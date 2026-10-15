@@ -196,11 +196,12 @@ reference project is used only for its rules and formatting logic.
 
 ## Phase 4: tracking
 
-- [ ] Storage locations: a plain field on each item, shown as a path ("Game room > Table"),
+- [x] Storage locations: a plain field on each item, shown as a path ("Game room > Table"),
   and one of the Stockroom filters. ~~QR labels, tagging and scanning~~: not doing (Liam,
   2026-10-15).
-- [ ] Search API (database backend) + Facets: brand, size, status, platform,
-  location, price.
+- [x] Stockroom search and filters: title search, brand, size, status, posted on a platform,
+  location (including everything inside it), price range. Built in, no Search API or Facets
+  (Liam, decision 178); each filtered view has its own link.
 - [ ] Money page (Charts): sold by platform, profit after fees using the son's fee
   math, average days to sell, longest-sitting items.
 - [ ] Year-end tax export: sales, cost, fees, profit per item, plus mileage and
