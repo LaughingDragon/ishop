@@ -1,0 +1,11 @@
+uuid: 9bcc8eae-774f-44f3-98a3-e8a9dbcb0e91
+langcode: en
+status: true
+dependencies: {  }
+id: private_files_no_item_photos
+label: 'Private files without item photos'
+config:
+  private_files_exclude:
+    exclude_filepaths:
+      - backup_migrate
+      - items

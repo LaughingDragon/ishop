@@ -12,4 +12,4 @@ period: 3600
 cron: false
 source_id: private_files
 destination_id: private_files
-settings_profile_id: null
+settings_profile_id: private_files_no_item_photos
