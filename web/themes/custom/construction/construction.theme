@@ -25,13 +25,15 @@ function construction_preprocess_page(array &$variables): void {
  * Implements hook_theme_suggestions_page_alter().
  *
  * The "gate" layout (work-zone sign + login box) is used for the login and
- * password-reset pages and for any access-denied page shown to visitors.
+ * password-reset pages, and for access-denied pages shown to visitors who
+ * are not logged in. Logged-in crew get the normal page with the message.
  */
 function construction_theme_suggestions_page_alter(array &$suggestions, array $variables): void {
   $route = \Drupal::routeMatch()->getRouteName();
   $gate_routes = ['user.login', 'user.pass', 'user.reset.form', 'user.reset.login'];
   $exception = \Drupal::requestStack()->getCurrentRequest()->attributes->get('exception');
-  if (in_array($route, $gate_routes, TRUE) || $exception instanceof AccessDeniedHttpException) {
+  $anonymous = \Drupal::currentUser()->isAnonymous();
+  if (in_array($route, $gate_routes, TRUE) || ($anonymous && $exception instanceof AccessDeniedHttpException)) {
     $suggestions[] = 'page__gate';
   }
 }

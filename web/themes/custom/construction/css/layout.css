@@ -35,17 +35,19 @@
 
 /* Primary nav (menu block) */
 .site-nav { background: var(--asphalt-2); }
-.site-nav ul { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 0; padding: 10px 0; }
-.site-nav li { margin: 0; }
-.site-nav a {
+/* Only the menu's own list: contextual links (ul.contextual-links, added by
+   JavaScript inside the block) must keep their own hidden/open styles. */
+.site-nav nav > ul { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 0; padding: 10px 0; }
+.site-nav nav > ul > li { margin: 0; }
+.site-nav nav > ul > li > a {
   display: inline-flex; align-items: center; min-height: var(--tap);
   padding: 10px 16px; border-radius: var(--radius);
   font-family: var(--font-sign); font-weight: 700; font-size: 18px;
   letter-spacing: 0.05em; text-transform: uppercase; text-decoration: none;
   color: var(--ink-light);
 }
-.site-nav a:hover { background: #3A3833; color: var(--ink-light); }
-.site-nav a.is-active, .site-nav a[aria-current="page"] { background: var(--hazard); color: var(--ink); }
+.site-nav nav > ul > li > a:hover { background: #3A3833; color: var(--ink-light); }
+.site-nav nav > ul > li > a.is-active, .site-nav nav > ul > li > a[aria-current="page"] { background: var(--hazard); color: var(--ink); }
 
 /* Main */
 .site-main { padding-top: 28px; padding-bottom: 12px; }
