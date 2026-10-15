@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * @file
+ * Install and update hooks for iShop items.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Adds the platform listing entity type (Phase 1 step 3).
+ */
+function ishop_items_update_11001(): string {
+  $manager = \Drupal::entityDefinitionUpdateManager();
+  if (!$manager->getEntityType('platform_listing')) {
+    $type = \Drupal::entityTypeManager()->getDefinition('platform_listing');
+    $manager->installEntityType($type);
+  }
+  return 'Platform listing entity type installed.';
+}

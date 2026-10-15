@@ -13,3 +13,21 @@
   border-left: 6px solid var(--done, #1F6B3A);
   background: #EAF4EE;
 }
+
+/* Listings grid. On phones each platform becomes a stacked card. */
+.ishop-listings__table td { vertical-align: middle; }
+.ishop-listings__table input[type="url"] { width: 100%; min-width: 12em; }
+.ishop-listings__table input[type="number"] { width: 6.5em; }
+.ishop-status--sold_here { font-weight: 700; }
+@media (max-width: 720px) {
+  .ishop-listings__table thead { display: none; }
+  .ishop-listings__table, .ishop-listings__table tbody, .ishop-listings__table tr, .ishop-listings__table td { display: block; width: 100%; }
+  .ishop-listings__table tr { margin: 0 0 14px; padding: 10px 12px; border: 2px solid var(--line, #D9D5CC); border-radius: var(--radius-inner, 10px); background: var(--paper, #fff); }
+  .ishop-listings__table td { padding: 4px 0; border: 0; }
+  .ishop-listings__table td[data-label]::before { content: attr(data-label); display: block; font-size: 0.85rem; font-weight: 600; color: var(--ink-soft, #57544D); }
+  .ishop-listings__table select, .ishop-listings__table input { min-height: 44px; }
+  /* The four money fields (columns 4-7), two per row. */
+  .ishop-listings__table td:nth-child(n+4) { display: inline-block; width: 48%; vertical-align: top; }
+  .ishop-listings__table td:nth-child(n+4) input { width: 100%; }
+  .ishop-listings__table td:nth-child(n+4) .form-item { display: flex; align-items: center; gap: 4px; }
+}

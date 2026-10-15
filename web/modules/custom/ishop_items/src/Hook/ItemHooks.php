@@ -10,6 +10,10 @@ use Drupal\Core\Hook\Attribute\Hook;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\file\FileInterface;
+use Drupal\Core\Form\FormBuilderInterface;
+use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\ishop_items\Form\ListingsGridForm;
+use Drupal\ishop_items\ListingManager;
 use Drupal\ishop_items\PhotoPrep;
 use Drupal\ishop_office\DiskStatus;
 use Drupal\ishop_items\ReadyCheck;
@@ -30,7 +34,30 @@ final class ItemHooks {
   public function __construct(
     private readonly PhotoPrep $photoPrep,
     private readonly MessengerInterface $messenger,
+    private readonly ListingManager $listings,
+    private readonly FormBuilderInterface $formBuilder,
+    private readonly AccountProxyInterface $currentUser,
   ) {}
+
+  /**
+   * Implements hook_ENTITY_TYPE_insert() for nodes: six "To post" listings.
+   */
+  #[Hook('node_insert')]
+  public function nodeInsert(NodeInterface $node): void {
+    if ($node->bundle() === 'item') {
+      $this->listings->createDefaults($node);
+    }
+  }
+
+  /**
+   * Implements hook_ENTITY_TYPE_predelete() for nodes: listings go too.
+   */
+  #[Hook('node_predelete')]
+  public function nodePredelete(NodeInterface $node): void {
+    if ($node->bundle() === 'item') {
+      $this->listings->deleteForItem($node);
+    }
+  }
 
   /**
    * Implements hook_ENTITY_TYPE_presave() for files.
@@ -74,6 +101,16 @@ final class ItemHooks {
       return;
     }
     $build['ishop_storage'] = self::offlineNotice() + ['#weight' => -100];
+    if ($view_mode === 'full' && $this->currentUser->hasPermission('manage platform listings')) {
+      $build['ishop_listings'] = [
+        '#type' => 'container',
+        '#attributes' => ['id' => 'listings'],
+        '#weight' => 90,
+        'form' => $this->formBuilder->getForm(ListingsGridForm::class, $node),
+        '#attached' => ['library' => ['ishop_items/item_form']],
+      ];
+      $build['#cache']['max-age'] = 0;
+    }
     $missing = ReadyCheck::missing(self::checkValues($node));
     $build['ishop_ready'] = [
       '#type' => 'inline_template',

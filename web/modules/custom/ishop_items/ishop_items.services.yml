@@ -5,3 +5,4 @@ services:
   logger.channel.ishop_items:
     parent: logger.channel_base
     arguments: ['ishop_items']
+  Drupal\ishop_items\ListingManager: ~

@@ -16,6 +16,7 @@ dependencies:
     - filter
     - help
     - image
+    - ishop_items
     - layout_builder
     - media
     - navigation
@@ -75,6 +76,7 @@ permissions:
   - 'edit any item_photo media'
   - 'export configuration'
   - 'import configuration'
+  - 'manage platform listings'
   - 'revert all revisions'
   - 'synchronize configuration'
   - 'use text format basic_html'
