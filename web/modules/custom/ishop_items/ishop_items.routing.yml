@@ -1,0 +1,26 @@
+ishop_items.add:
+  path: '/add'
+  defaults:
+    _form: '\Drupal\ishop_items\Form\AddItemForm'
+    _title: 'Add item'
+  requirements:
+    _entity_create_access: 'node:item'
+  options:
+    no_cache: TRUE
+
+ishop_items.add_photo:
+  path: '/add/photo'
+  defaults:
+    _controller: '\Drupal\ishop_items\Controller\AddController::uploadPhoto'
+  methods: [POST]
+  requirements:
+    _entity_create_access: 'node:item'
+    _csrf_request_header_token: 'TRUE'
+
+ishop_items.manifest:
+  path: '/manifest.webmanifest'
+  defaults:
+    _controller: '\Drupal\ishop_items\Controller\AddController::manifest'
+  methods: [GET]
+  requirements:
+    _access: 'TRUE'

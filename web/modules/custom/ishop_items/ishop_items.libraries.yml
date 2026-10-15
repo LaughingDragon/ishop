@@ -7,3 +7,15 @@ item_form:
   dependencies:
     - core/drupal
     - core/once
+add:
+  js:
+    js/add.js: {}
+    js/counters.js: {}
+  css:
+    component:
+      css/add.css: {}
+      css/items.css: {}
+  dependencies:
+    - core/drupal
+    - core/drupalSettings
+    - core/once
