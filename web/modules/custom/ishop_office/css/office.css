@@ -52,6 +52,9 @@
     display: block;
     width: 100%;
   }
+  .ishop-office-table caption {
+    display: block;
+  }
   .ishop-office-table tr {
     padding: 0.5rem 0;
     border-bottom: 2px solid #8a8a8a;
@@ -64,4 +67,13 @@
     content: attr(data-label) ": ";
     font-weight: bold;
   }
+}
+/* The answer box on an open punch list item: big enough for a thumb. */
+.ishop-office-answer textarea {
+  width: 100%;
+  font-size: 1.125rem;
+}
+.ishop-office-answer .button {
+  min-height: 3rem;
+  font-size: 1.125rem;
 }

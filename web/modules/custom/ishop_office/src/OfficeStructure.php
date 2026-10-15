@@ -55,6 +55,7 @@ final class OfficeStructure {
     'field_punch_status' => ['list_string', ['allowed_values' => Vocabulary::PUNCH_STATUS], 1],
     'field_closed_date' => ['datetime', ['datetime_type' => 'date'], 1],
     'field_answer' => ['text_long', [], 1],
+    'field_answered_by' => ['list_string', ['allowed_values' => Vocabulary::PEOPLE], 1],
     'field_decided_by' => ['list_string', ['allowed_values' => Vocabulary::PEOPLE], -1],
     'field_why' => ['text_long', [], 1],
   ];
@@ -93,6 +94,7 @@ final class OfficeStructure {
       'field_office_phase' => ['Phase', FALSE],
       'field_details' => ['Details', FALSE],
       'field_answer' => ['Answer', FALSE],
+      'field_answered_by' => ['Answered by', FALSE],
       'field_closed_date' => ['Closed', FALSE],
     ],
     'office_decision' => [
@@ -123,6 +125,9 @@ final class OfficeStructure {
     self::ensureDisplays();
   }
 
+  /**
+   * Creates the Markdown text format used by every long text field.
+   */
   private static function ensureFormat(): void {
     if (FilterFormat::load(self::FORMAT)) {
       return;
@@ -156,6 +161,9 @@ final class OfficeStructure {
     ])->save();
   }
 
+  /**
+   * Creates the site office role, or tops up its permissions.
+   */
   private static function ensureRole(): void {
     $role = Role::load(self::ROLE) ?? Role::create(['id' => self::ROLE, 'label' => 'Site office']);
     foreach (['access site office', 'access content', 'use text format ' . self::FORMAT] as $permission) {
@@ -164,6 +172,9 @@ final class OfficeStructure {
     $role->save();
   }
 
+  /**
+   * Creates the content types, with revisions on and no front page promotion.
+   */
   private static function ensureTypes(): void {
     foreach (self::BUNDLES as $id => [$label, $description]) {
       if (NodeType::load($id)) {
@@ -183,6 +194,9 @@ final class OfficeStructure {
     }
   }
 
+  /**
+   * Creates field storages and per-bundle fields.
+   */
   private static function ensureFields(): void {
     foreach (self::STORAGE as $name => [$type, $settings, $cardinality]) {
       if (!FieldStorageConfig::loadByName('node', $name)) {
@@ -234,6 +248,9 @@ final class OfficeStructure {
     }
   }
 
+  /**
+   * Puts every field on the edit form and the page, in order.
+   */
   private static function ensureDisplays(): void {
     /** @var \Drupal\Core\Entity\EntityDisplayRepositoryInterface $repository */
     $repository = \Drupal::service('entity_display.repository');

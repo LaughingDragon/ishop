@@ -16,6 +16,9 @@ use PHPUnit\Framework\Attributes\Group;
 #[Group('ishop_office')]
 final class VocabularyTest extends UnitTestCase {
 
+  /**
+   * Tests matching by key and by label.
+   */
   public function testKeysAndLabelsMatch(): void {
     $this->assertSame('in_progress', Vocabulary::normalize(Vocabulary::PHASE_STATUS, 'In progress'));
     $this->assertSame('in_progress', Vocabulary::normalize(Vocabulary::PHASE_STATUS, 'in-progress'));
@@ -23,6 +26,9 @@ final class VocabularyTest extends UnitTestCase {
     $this->assertSame('cody', Vocabulary::normalize(Vocabulary::PEOPLE, 'Cody'));
   }
 
+  /**
+   * Tests that unknown values are rejected.
+   */
   public function testUnknownValueThrows(): void {
     $this->expectException(\InvalidArgumentException::class);
     Vocabulary::normalize(Vocabulary::PEOPLE, 'Bob');

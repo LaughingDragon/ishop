@@ -1,0 +1,21 @@
+uuid: 04f6dad9-67ac-44b4-9856-e901bdccba18
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_answered_by
+    - node.type.office_punch
+  module:
+    - options
+id: node.office_punch.field_answered_by
+field_name: field_answered_by
+entity_type: node
+bundle: office_punch
+label: 'Answered by'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

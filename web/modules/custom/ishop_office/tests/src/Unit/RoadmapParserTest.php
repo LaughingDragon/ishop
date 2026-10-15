@@ -53,6 +53,9 @@ final class RoadmapParserTest extends UnitTestCase {
   - [ ] Not a phase either.
   MD;
 
+  /**
+   * Tests phase keys, order and headings.
+   */
   public function testParsesPhasesInOrder(): void {
     $result = RoadmapParser::parse(self::ROADMAP);
     $this->assertSame('Build roadmap', $result['title']);
@@ -63,6 +66,9 @@ final class RoadmapParserTest extends UnitTestCase {
     $this->assertSame('the site office', $result['phases'][2]['name']);
   }
 
+  /**
+   * Tests that only checkboxes inside phases count.
+   */
   public function testCountsCheckboxesPerPhaseOnly(): void {
     $phases = RoadmapParser::parse(self::ROADMAP)['phases'];
     $this->assertSame(['done' => 1, 'total' => 1], array_intersect_key($phases[0], ['done' => 0, 'total' => 0]));
@@ -71,6 +77,9 @@ final class RoadmapParserTest extends UnitTestCase {
     $this->assertSame(['done' => 0, 'total' => 1], array_intersect_key($phases[3], ['done' => 0, 'total' => 0]));
   }
 
+  /**
+   * Tests that only the title line is removed from the body.
+   */
   public function testBodyDropsTitleLineOnly(): void {
     $body = RoadmapParser::parse(self::ROADMAP)['body'];
     $this->assertStringNotContainsString('# Build roadmap', $body);
@@ -78,6 +87,9 @@ final class RoadmapParserTest extends UnitTestCase {
     $this->assertStringContainsString('## Later', $body);
   }
 
+  /**
+   * Tests per-phase sections and the done/to do words.
+   */
   public function testSectionsAndAnnotation(): void {
     $result = RoadmapParser::parse(self::ROADMAP);
     $section = $result['phases'][1]['markdown'];
@@ -90,6 +102,9 @@ final class RoadmapParserTest extends UnitTestCase {
     $this->assertStringContainsString('- [x] (done) Not a phase', $result['body']);
   }
 
+  /**
+   * Tests rounding down and phases without a checklist.
+   */
   public function testPercent(): void {
     $this->assertSame(60, RoadmapParser::percent(3, 5));
     $this->assertSame(66, RoadmapParser::percent(2, 3));
@@ -97,21 +112,33 @@ final class RoadmapParserTest extends UnitTestCase {
     $this->assertNull(RoadmapParser::percent(0, 0));
   }
 
+  /**
+   * Tests that a repeated phase is rejected.
+   */
   public function testDuplicatePhaseIsAnError(): void {
     $this->expectException(ParseException::class);
     RoadmapParser::parse("# T\n## Phase 1: a\n## Phase 1: b\n");
   }
 
+  /**
+   * Tests that a roadmap needs a title.
+   */
   public function testMissingTitleIsAnError(): void {
     $this->expectException(ParseException::class);
     RoadmapParser::parse("## Phase 1: a\n");
   }
 
+  /**
+   * Tests that a roadmap needs phases.
+   */
   public function testNoPhasesIsAnError(): void {
     $this->expectException(ParseException::class);
     RoadmapParser::parse("# T\n## Notes\n");
   }
 
+  /**
+   * Tests the real ROADMAP.md.
+   */
   public function testRealRoadmapParses(): void {
     $file = dirname(__DIR__, 7) . '/ROADMAP.md';
     if (!is_file($file)) {

@@ -12,6 +12,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\ishop_office\Controller\OfficeController;
+use Drupal\ishop_office\Form\AnswerPunchForm;
 use Drupal\ishop_office\OfficeStructure;
 use Drupal\node\NodeInterface;
 
@@ -52,7 +53,8 @@ final class OfficeHooks {
       'grant_view' => (int) $node->isPublished(),
       'grant_update' => 0,
       'grant_delete' => 0,
-    ]];
+    ],
+    ];
   }
 
   /**
@@ -106,6 +108,17 @@ final class OfficeHooks {
           '#weight' => $build[$field]['#weight'] ?? 0,
         ];
       }
+    }
+    if ($node->bundle() === 'office_punch' && $node->get('field_punch_status')->value === 'open') {
+      $build['ishop_office_answer'] = [
+        '#type' => 'container',
+        '#attributes' => ['id' => 'answer', 'class' => ['ishop-office-answer']],
+        '#weight' => -50,
+        'heading' => ['#type' => 'html_tag', '#tag' => 'h2', '#value' => $this->t('Answer this')],
+        'form' => \Drupal::formBuilder()->getForm(AnswerPunchForm::class, $node),
+      ];
+      // The form carries a per-user token, so this page is never cached.
+      $build['#cache']['max-age'] = 0;
     }
     $build['#attached']['library'][] = 'ishop_office/office';
   }

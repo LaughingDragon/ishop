@@ -22,6 +22,15 @@ final class Vocabulary {
     'claude' => 'Claude',
   ];
 
+  /**
+   * Which person each site office account belongs to.
+   */
+  public const ACCOUNTS = [
+    'webmaster' => 'liam',
+    'theowner' => 'cody',
+    'site-foreman' => 'claude',
+  ];
+
   public const PUNCH_STATUS = [
     'open' => 'Open',
     'closed' => 'Closed',
@@ -32,6 +41,8 @@ final class Vocabulary {
    *
    * @param array<string, string> $list
    *   One of the constants above.
+   * @param string $value
+   *   What the user typed.
    *
    * @throws \InvalidArgumentException
    *   When the value is in neither the keys nor the labels.

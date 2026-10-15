@@ -1,0 +1,30 @@
+uuid: 231ef040-97a1-4647-9ba5-ffc973c079fd
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_answered_by
+field_name: field_answered_by
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: liam
+      label: Liam
+    -
+      value: cody
+      label: Cody
+    -
+      value: claude
+      label: Claude
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

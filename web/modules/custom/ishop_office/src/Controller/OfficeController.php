@@ -128,7 +128,11 @@ final class OfficeController extends ControllerBase {
       '#type' => 'html_tag',
       '#tag' => 'p',
       '#value' => $total
-        ? $this->t('Done: @percent% (@done of @total checklist items ticked in ROADMAP.md).', ['@percent' => (int) floor(100 * $done / $total), '@done' => $done, '@total' => $total])
+        ? $this->t('Done: @percent% (@done of @total checklist items ticked in ROADMAP.md).', [
+          '@percent' => (int) floor(100 * $done / $total),
+          '@done' => $done,
+          '@total' => $total,
+        ])
         : $this->t('Done: this phase has no checklist items in ROADMAP.md.'),
       '#weight' => 1,
     ];
@@ -178,9 +182,14 @@ final class OfficeController extends ControllerBase {
    * Office pages change whenever any node changes, and differ by permission.
    */
   private function cacheability(): CacheableMetadata {
-    return (new CacheableMetadata())->setCacheTags(['node_list'])->setCacheContexts(['user.permissions', 'user.node_grants:view']);
+    return (new CacheableMetadata())
+      ->setCacheTags(['node_list'])
+      ->setCacheContexts(['user.permissions', 'user.node_grants:view']);
   }
 
+  /**
+   * An <h2> followed by its content.
+   */
   private function section($title, array $content): array {
     return [
       'heading' => ['#type' => 'html_tag', '#tag' => 'h2', '#value' => $title],
@@ -212,6 +221,9 @@ final class OfficeController extends ControllerBase {
     ];
   }
 
+  /**
+   * Build reports as a table.
+   */
   private function reportTable(array $reports): array {
     $rows = [];
     foreach ($reports as $report) {
@@ -226,6 +238,9 @@ final class OfficeController extends ControllerBase {
     return $this->table($this->t('Newest first.'), ['Date', 'Report', 'Phase', 'Summary', 'Commits'], $rows, $this->t('No build reports yet.'));
   }
 
+  /**
+   * Punch list items as a table; closed items add closed date and answer.
+   */
   private function punchTable(array $items, bool $closed): array {
     $rows = [];
     foreach ($items as $item) {
@@ -238,12 +253,19 @@ final class OfficeController extends ControllerBase {
       if ($closed) {
         $row[] = (string) $item->get('field_closed_date')->value;
         $row[] = $this->markdown($item, 'field_answer');
+        $row[] = $this->people($item, 'field_answered_by');
+      }
+      else {
+        $row[] = Link::fromTextAndUrl($this->t('Answer it'), $item->toUrl('canonical', ['fragment' => 'answer']))->toString();
       }
       $rows[] = $row;
     }
     $header = ['Question', 'Waiting on', 'Opened', 'Phase'];
     if ($closed) {
-      array_push($header, 'Closed', 'Answer');
+      array_push($header, 'Closed', 'Answer', 'Answered by');
+    }
+    else {
+      $header[] = 'Answer';
     }
     return $this->table(
       $closed ? $this->t('Newest closed first.') : $this->t('Oldest first.'),
@@ -253,6 +275,9 @@ final class OfficeController extends ControllerBase {
     );
   }
 
+  /**
+   * Decisions as a table, with or without the why and phase columns.
+   */
   private function decisionTable(array $decisions, bool $why): array {
     $rows = [];
     foreach ($decisions as $decision) {
@@ -271,11 +296,17 @@ final class OfficeController extends ControllerBase {
     return $this->table($this->t('Newest first.'), $header, $rows, $this->t('No decisions logged yet.'));
   }
 
+  /**
+   * A link to the node's phase, or a dash.
+   */
   private function phaseLink(NodeInterface $node) {
     $phase = $node->get('field_office_phase')->entity;
     return $phase && $phase->access('view') ? $phase->toLink()->toString() : '-';
   }
 
+  /**
+   * Labels of the people in a list field, comma separated.
+   */
   private function people(NodeInterface $node, string $field): string {
     $keys = array_column($node->get($field)->getValue(), 'value');
     return implode(', ', array_map(fn ($key) => Vocabulary::PEOPLE[$key] ?? $key, $keys)) ?: '-';

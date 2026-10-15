@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - field.field.node.office_punch.field_answer
+    - field.field.node.office_punch.field_answered_by
     - field.field.node.office_punch.field_closed_date
     - field.field.node.office_punch.field_details
     - field.field.node.office_punch.field_office_date
@@ -28,6 +29,13 @@ content:
     third_party_settings: {  }
     weight: 15
     region: content
+  field_answered_by:
+    type: list_default
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 16
+    region: content
   field_closed_date:
     type: datetime_custom
     label: inline
@@ -35,7 +43,7 @@ content:
       timezone_override: ''
       date_format: Y-m-d
     third_party_settings: {  }
-    weight: 16
+    weight: 17
     region: content
   field_details:
     type: text_default

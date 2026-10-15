@@ -7,6 +7,7 @@ namespace Drupal\ishop_office;
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Session\AccountSwitcherInterface;
 use Drupal\ishop_office\Parser\ParseException;
 use Drupal\ishop_office\Parser\RoadmapParser;
@@ -93,7 +94,10 @@ final class OfficeManager {
           }
         }
         foreach ($values as $field => $value) {
-          $phase->set($field, $field === 'field_office_markdown' ? ['value' => $value, 'format' => OfficeStructure::FORMAT] : $value);
+          if ($field === 'field_office_markdown') {
+            $value = ['value' => $value, 'format' => OfficeStructure::FORMAT];
+          }
+          $phase->set($field, $value);
         }
         $this->saveRevision($phase, $foreman, sprintf('Checklist %d/%d. %s', $row['done'], $row['total'], $message));
         $result[$bucket][] = $row['key'];
@@ -109,6 +113,8 @@ final class OfficeManager {
    *
    * @param array $report
    *   The output of ReportParser::parse().
+   * @param string $source
+   *   The report's file name, for the revision log.
    */
   public function fileReport(array $report, string $source): NodeInterface {
     $phase = $this->phase($report['phase']);
@@ -161,8 +167,16 @@ final class OfficeManager {
   /**
    * Adds an open punch list item.
    *
+   * @param string $question
+   *   The question, up to 255 characters.
    * @param list<string> $waiting_on
    *   Vocabulary::PEOPLE keys.
+   * @param string|null $phase_key
+   *   The phase it belongs to, if any.
+   * @param string $details
+   *   Longer explanation in Markdown, or ''.
+   * @param string|null $date
+   *   Opened date (YYYY-MM-DD), or NULL for today.
    */
   public function addPunch(string $question, array $waiting_on, ?string $phase_key, string $details, ?string $date): NodeInterface {
     $phase = $phase_key === NULL ? NULL : ($this->phase($phase_key) ?? throw new \InvalidArgumentException(sprintf('No phase "%s".', $phase_key)));
@@ -183,7 +197,7 @@ final class OfficeManager {
   /**
    * Closes a punch list item, recording the answer.
    */
-  public function closePunch(int $nid, string $answer, ?string $date): NodeInterface {
+  public function closePunch(int $nid, string $answer, string $answered_by, ?string $date, ?AccountInterface $account = NULL): NodeInterface {
     $node = $this->entityTypeManager->getStorage('node')->load($nid);
     if (!$node instanceof NodeInterface || $node->bundle() !== 'office_punch') {
       throw new \InvalidArgumentException(sprintf('Node %d is not a punch list item.', $nid));
@@ -191,10 +205,20 @@ final class OfficeManager {
     if ($node->get('field_punch_status')->value === 'closed') {
       throw new \InvalidArgumentException(sprintf('Punch list item %d is already closed.', $nid));
     }
-    return $this->asForeman(function (UserInterface $foreman) use ($node, $answer, $date): NodeInterface {
-      $node->set('field_punch_status', 'closed');
-      $node->set('field_answer', ['value' => $answer, 'format' => OfficeStructure::FORMAT]);
-      $node->set('field_closed_date', $date ?? $this->today());
+    $node->set('field_punch_status', 'closed');
+    $node->set('field_answer', ['value' => $answer, 'format' => OfficeStructure::FORMAT]);
+    $node->set('field_answered_by', $answered_by);
+    $node->set('field_closed_date', $date ?? $this->today());
+    if ($account) {
+      // Answered on the site: the revision belongs to whoever answered.
+      $node->setNewRevision(TRUE);
+      $node->setRevisionUserId((int) $account->id());
+      $node->setRevisionCreationTime($this->time->getRequestTime());
+      $node->setRevisionLogMessage('Answered and closed on the site.');
+      $node->save();
+      return $node;
+    }
+    return $this->asForeman(function (UserInterface $foreman) use ($node): NodeInterface {
       $this->saveRevision($node, $foreman, 'Closed with drush ishop:punch-close.');
       return $node;
     });
@@ -203,8 +227,16 @@ final class OfficeManager {
   /**
    * Adds a decision to the decision log.
    *
+   * @param string $decision
+   *   What was decided, up to 255 characters.
    * @param list<string> $decided_by
    *   Vocabulary::PEOPLE keys.
+   * @param string $why
+   *   Why, in Markdown, or ''.
+   * @param string|null $phase_key
+   *   The phase it belongs to, if any.
+   * @param string|null $date
+   *   Decision date (YYYY-MM-DD), or NULL for today.
    */
   public function addDecision(string $decision, array $decided_by, string $why, ?string $phase_key, ?string $date): NodeInterface {
     $phase = $phase_key === NULL ? NULL : ($this->phase($phase_key) ?? throw new \InvalidArgumentException(sprintf('No phase "%s".', $phase_key)));
@@ -264,7 +296,9 @@ final class OfficeManager {
    *   Keyed by node ID.
    */
   public function punchItems(string $status, bool $access_check = TRUE): array {
-    $sort = $status === 'open' ? ['field_office_date' => 'ASC', 'nid' => 'ASC'] : ['field_closed_date' => 'DESC', 'nid' => 'DESC'];
+    $sort = $status === 'open'
+      ? ['field_office_date' => 'ASC', 'nid' => 'ASC']
+      : ['field_closed_date' => 'DESC', 'nid' => 'DESC'];
     return $this->load('office_punch', ['field_punch_status' => $status], $sort, $access_check);
   }
 
@@ -342,6 +376,9 @@ final class OfficeManager {
     }
   }
 
+  /**
+   * A new, published, unpromoted node owned by site-foreman.
+   */
   private function newNode(string $bundle, string $title, UserInterface $owner): NodeInterface {
     return $this->entityTypeManager->getStorage('node')->create([
       'type' => $bundle,
@@ -352,6 +389,9 @@ final class OfficeManager {
     ]);
   }
 
+  /**
+   * Saves a node as a new revision by site-foreman with a log message.
+   */
   private function saveRevision(NodeInterface $node, UserInterface $foreman, string $message): void {
     $node->setNewRevision(TRUE);
     $node->setRevisionUserId((int) $foreman->id());
@@ -381,8 +421,11 @@ final class OfficeManager {
     return $storage->loadMultiple($query->execute());
   }
 
+  /**
+   * The first free alias of the form <base>-1, <base>-2, ...
+   */
   private function uniqueAlias(string $base): string {
-    for ($n = 1; ; $n++) {
+    for ($n = 1;; $n++) {
       $alias = $base . '-' . $n;
       if (!$this->aliasRepository->lookupByAlias($alias, 'und') && !$this->aliasRepository->lookupByAlias($alias, 'en')) {
         return $alias;
@@ -390,6 +433,9 @@ final class OfficeManager {
     }
   }
 
+  /**
+   * Cleans up text used as a node title.
+   */
   private function title(string $text): string {
     $text = trim(preg_replace('/\s+/', ' ', $text));
     if ($text === '' || mb_strlen($text) > 255) {
@@ -398,6 +444,9 @@ final class OfficeManager {
     return $text;
   }
 
+  /**
+   * Today's date in the site's time zone.
+   */
   private function today(): string {
     return (new DrupalDateTime('now'))->format('Y-m-d');
   }

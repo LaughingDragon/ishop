@@ -43,7 +43,10 @@ final class ReportParserTest extends UnitTestCase {
   12 unit tests pass.
   MD;
 
-  public function testParsesAFullReport(): void {
+  /**
+   * Tests a complete report.
+   */
+  public function testParsesCompleteReport(): void {
     $r = ReportParser::parse(self::REPORT);
     $this->assertSame('2026-10-15', $r['date']);
     $this->assertSame('0.5', $r['phase']);
@@ -58,6 +61,9 @@ final class ReportParserTest extends UnitTestCase {
     $this->assertSame('12 unit tests pass.', $r['sections']['tests']);
   }
 
+  /**
+   * Tests YAML values that arrive as numbers.
+   */
   public function testUnquotedDateAndNumericPhaseAreAccepted(): void {
     $r = ReportParser::parse("---\ndate: 2026-01-31\nphase: 1\ncommits: abc1234 def5678\n---\n## Summary\nS\n## Done\nD\n## Tests run and results\nT\n");
     $this->assertSame('2026-01-31', $r['date']);
@@ -67,11 +73,17 @@ final class ReportParserTest extends UnitTestCase {
     $this->assertNull($r['phase_status']);
   }
 
+  /**
+   * Tests that "Foundation" is accepted as a phase.
+   */
   public function testFoundationPhase(): void {
     $r = ReportParser::parse("---\ndate: 2026-01-31\nphase: Foundation\n---\n## Summary\nS\n## Done\nD\n## Tests\nT\n");
     $this->assertSame('foundation', $r['phase']);
   }
 
+  /**
+   * Tests that a front matter title beats a "# " heading.
+   */
   public function testFrontMatterTitleWinsOverHeading(): void {
     $r = ReportParser::parse("---\ndate: 2026-01-31\nphase: '1'\ntitle: From YAML\n---\n# From heading\n## Summary\nS\n## Done\nD\n## Tests\nT\n");
     $this->assertSame('From YAML', $r['title']);
@@ -98,6 +110,9 @@ final class ReportParserTest extends UnitTestCase {
     ];
   }
 
+  /**
+   * Tests that each broken report is rejected.
+   */
   #[DataProvider('brokenReports')]
   public function testBrokenReportsAreRejected(string $markdown, string $message): void {
     $this->expectException(ParseException::class);

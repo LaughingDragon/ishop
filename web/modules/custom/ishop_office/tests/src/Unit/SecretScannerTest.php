@@ -36,6 +36,9 @@ final class SecretScannerTest extends UnitTestCase {
     ];
   }
 
+  /**
+   * Tests that each secret is flagged.
+   */
   #[DataProvider('secrets')]
   public function testSecretsAreFlagged(string $line): void {
     $findings = SecretScanner::scan("Fine line.\n" . $line);
@@ -43,6 +46,9 @@ final class SecretScannerTest extends UnitTestCase {
     $this->assertStringStartsWith('line 2: ', $findings[0]);
   }
 
+  /**
+   * Tests that findings never repeat the secret.
+   */
   public function testFindingsNeverEchoTheValue(): void {
     $findings = SecretScanner::scan('password: Tr0ub4dor&3');
     $this->assertStringNotContainsString('Tr0ub4dor', implode(' ', $findings));
@@ -63,6 +69,9 @@ final class SecretScannerTest extends UnitTestCase {
     ];
   }
 
+  /**
+   * Tests that ordinary text passes.
+   */
   #[DataProvider('harmless')]
   public function testHarmlessTextPasses(string $line): void {
     $this->assertSame([], SecretScanner::scan($line));
