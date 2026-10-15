@@ -26,6 +26,7 @@
         "drupal/flood_control": "^3.0",
         "drupal/gin": "^5.0",
         "drupal/gin_toolbar": "^3.0",
+        "drupal/image_effects": "^4.0",
         "drupal/imagemagick": "^5",
         "drupal/key": "^1.22",
         "drupal/markdown_easy": "^2.0",

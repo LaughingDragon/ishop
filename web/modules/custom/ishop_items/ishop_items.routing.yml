@@ -24,3 +24,50 @@ ishop_items.manifest:
   methods: [GET]
   requirements:
     _access: 'TRUE'
+
+ishop_items.post_start:
+  path: '/item/{node}/post'
+  defaults:
+    _controller: '\Drupal\ishop_items\Controller\PostController::start'
+  requirements:
+    _permission: 'manage platform listings'
+    _entity_access: 'node.view'
+    node: \d+
+  options:
+    parameters:
+      node:
+        type: entity:node
+        bundle: [item]
+
+ishop_items.post:
+  path: '/item/{node}/post/{platform}'
+  defaults:
+    _controller: '\Drupal\ishop_items\Controller\PostController::page'
+    _title_callback: '\Drupal\ishop_items\Controller\PostController::title'
+  requirements:
+    _permission: 'manage platform listings'
+    _entity_access: 'node.view'
+    node: \d+
+    platform: '[a-z]+'
+  options:
+    no_cache: TRUE
+    parameters:
+      node:
+        type: entity:node
+        bundle: [item]
+
+ishop_items.post_zip:
+  path: '/item/{node}/post/{platform}/photos.zip'
+  defaults:
+    _controller: '\Drupal\ishop_items\Controller\PostController::zip'
+  requirements:
+    _permission: 'manage platform listings'
+    _entity_access: 'node.view'
+    node: \d+
+    platform: '[a-z]+'
+  options:
+    no_cache: TRUE
+    parameters:
+      node:
+        type: entity:node
+        bundle: [item]

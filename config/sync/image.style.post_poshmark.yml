@@ -1,0 +1,52 @@
+uuid: 021f0e88-39b8-4b3b-9717-824d1f70d6ba
+langcode: en
+status: true
+dependencies:
+  module:
+    - image_effects
+name: post_poshmark
+label: 'Post: Poshmark (1200px square)'
+effects:
+  81b8208a-132a-482f-abe7-014c50179e65:
+    uuid: 81b8208a-132a-482f-abe7-014c50179e65
+    id: image_effects_auto_orient
+    weight: 0
+    data:
+      scan_exif: true
+  e22c4621-5637-4391-b5d6-ac0ba79d4289:
+    uuid: e22c4621-5637-4391-b5d6-ac0ba79d4289
+    id: image_scale
+    weight: 1
+    data:
+      width: 1200
+      height: 1200
+      upscale: false
+  0efaf122-2ebd-4e72-a02a-e967dfba8975:
+    uuid: 0efaf122-2ebd-4e72-a02a-e967dfba8975
+    id: image_effects_set_canvas
+    weight: 2
+    data:
+      canvas_size: exact
+      canvas_color: '#FFFFFFFF'
+      exact:
+        width: '1200'
+        height: '1200'
+        placement: center-center
+        x_offset: 0
+        y_offset: 0
+      relative:
+        left: 0
+        right: 0
+        top: 0
+        bottom: 0
+  359647e2-9c31-4251-bb31-0313ca11ed0e:
+    uuid: 359647e2-9c31-4251-bb31-0313ca11ed0e
+    id: image_effects_strip_metadata
+    weight: 3
+    data: {  }
+  b345b7fc-456a-4700-b61e-3cda1cf813c5:
+    uuid: b345b7fc-456a-4700-b61e-3cda1cf813c5
+    id: image_convert
+    weight: 4
+    data:
+      extension: jpg

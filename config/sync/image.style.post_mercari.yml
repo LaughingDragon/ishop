@@ -1,0 +1,52 @@
+uuid: d3afe639-872a-48d6-b367-3e1b136d33b2
+langcode: en
+status: true
+dependencies:
+  module:
+    - image_effects
+name: post_mercari
+label: 'Post: Mercari (1080px square)'
+effects:
+  c0ecb573-c6e8-427d-aa36-3cd7977d0266:
+    uuid: c0ecb573-c6e8-427d-aa36-3cd7977d0266
+    id: image_effects_auto_orient
+    weight: 0
+    data:
+      scan_exif: true
+  9af3f016-5dc8-43db-b1b5-f3690f955ac2:
+    uuid: 9af3f016-5dc8-43db-b1b5-f3690f955ac2
+    id: image_scale
+    weight: 1
+    data:
+      width: 1080
+      height: 1080
+      upscale: false
+  4967c1ae-326c-43c2-af87-8d14a8205a0f:
+    uuid: 4967c1ae-326c-43c2-af87-8d14a8205a0f
+    id: image_effects_set_canvas
+    weight: 2
+    data:
+      canvas_size: exact
+      canvas_color: '#FFFFFFFF'
+      exact:
+        width: '1080'
+        height: '1080'
+        placement: center-center
+        x_offset: 0
+        y_offset: 0
+      relative:
+        left: 0
+        right: 0
+        top: 0
+        bottom: 0
+  b0d1b4f2-a86d-42fa-b255-1a9587151b27:
+    uuid: b0d1b4f2-a86d-42fa-b255-1a9587151b27
+    id: image_effects_strip_metadata
+    weight: 3
+    data: {  }
+  13735356-7736-47c7-b32f-264f4863639f:
+    uuid: 13735356-7736-47c7-b32f-264f4863639f
+    id: image_convert
+    weight: 4
+    data:
+      extension: jpg

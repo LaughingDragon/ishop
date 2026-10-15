@@ -173,9 +173,10 @@ reference project is used only for its rules and formatting logic.
 
 - [x] Port eligibility rules: green/amber/grey chip per platform on every item,
   hover or tap for the reason. (Rules and reasons ported word for word; chips on each listing card.)
-- [ ] "Post this item" page: one tab per platform, every field cut to that
+- [x] "Post this item" page: one tab per platform, every field cut to that
   platform's limits, copy buttons, photos resized per platform (image styles),
-  ZIP download, Previous/Next through the to-post queue.
+  ZIP download, Previous/Next through the to-post queue. (/item/N/post; fields
+  ported from the old formatters and matched against them; plus "Save photos to phone".)
 - [ ] Depop and Vinted bulk CSV exports (Views Data Export).
 - [x] **Sold-elsewhere alarm (built in Phase 1 without ECA: confirmed cascade + "Needs you now"):** marking a platform "Sold here" sets every
   other Posted platform to "Take down" and puts it at the top of his dashboard.

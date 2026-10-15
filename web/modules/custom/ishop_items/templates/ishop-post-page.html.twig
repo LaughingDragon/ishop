@@ -1,0 +1,109 @@
+{#
+/**
+ * @file
+ * "Post this item": one platform's paste-ready fields and photos.
+ *
+ * Reseller Matrix markup (rm-*), status always in words.
+ */
+#}
+<div class="ishop-post">
+  <p class="ishop-post__back"><a href="{{ item.url }}">&larr; {{ 'Back to the item'|t }}</a></p>
+
+  <nav class="ishop-post__tabs" aria-label="{{ 'Platforms'|t }}">
+    <ul>
+      {% for tab in tabs %}
+        <li>
+          <a href="{{ tab.url }}" class="ishop-post__tab ishop-post__tab--{{ tab.verdict }}{{ tab.current ? ' is-current' }}"{% if tab.current %} aria-current="page"{% endif %}>
+            <span class="ishop-post__tab-name">{{ tab.name }}</span>
+            <span class="ishop-post__tab-status">{{ tab.status }}</span>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </nav>
+
+  <div class="ishop-post__head">
+    <h2>{{ platform.display_name }}</h2>
+    {% if platform.status %}<span class="rm-chip{{ platform.chip ? ' rm-chip--' ~ platform.chip }}">{{ platform.status }}</span>{% endif %}
+  </div>
+
+  {% if eligibility.verdict == 'no' %}
+    <div class="rm-card ishop-post__callout ishop-post__callout--no" role="note">
+      <strong>{{ eligibility.label }}{% if eligibility.overridden %} ({{ 'set by hand'|t }}){% endif %}:</strong> {{ eligibility.reason }}
+    </div>
+  {% elseif eligibility.verdict == 'check' %}
+    <div class="rm-card ishop-post__callout ishop-post__callout--check" role="note">
+      <strong>{{ eligibility.label }}{% if eligibility.overridden %} ({{ 'set by hand'|t }}){% endif %}:</strong> {{ eligibility.reason }}
+    </div>
+  {% endif %}
+
+  {% if missing %}
+    <div class="rm-card ishop-post__callout ishop-post__callout--check" role="note">
+      <strong>{{ 'This item still needs:'|t }}</strong> {{ missing|join(', ') }}.
+      <a href="{{ item.url }}">{{ 'Fill it in on the item'|t }}</a>
+    </div>
+  {% endif %}
+
+  <section class="ishop-post__fields" aria-label="{{ 'Fields to paste'|t }}">
+    {% for field in fields %}
+      {% set id = 'ishop-post-field-' ~ loop.index %}
+      <div class="ishop-post__field{{ field.over ? ' is-over' }}">
+        <div class="ishop-post__field-top">
+          <label for="{{ id }}">{{ field.label }}</label>
+          {% if field.limit %}
+            <span class="ishop-post__count">{{ field.length }} / {{ field.limit }}{% if field.over %} &middot; <strong>{{ 'too long, shorten it'|t }}</strong>{% endif %}</span>
+          {% endif %}
+        </div>
+        {% if field.multiline %}
+          <textarea id="{{ id }}" readonly rows="{{ min(max((field.length / 45)|round(0, 'ceil') + field.value|split("\n")|length, 3), 12) }}">{{ field.value }}</textarea>
+        {% else %}
+          <input id="{{ id }}" type="text" readonly value="{{ field.value }}">
+        {% endif %}
+        <div class="ishop-post__field-bottom">
+          {% if field.value is not empty %}
+            <button type="button" class="rm-button rm-button--ghost ishop-post__copy" data-copy="{{ id }}" hidden>{{ 'Copy'|t }}</button>
+          {% else %}
+            <span class="ishop-post__empty">{{ 'Nothing filled in'|t }}</span>
+          {% endif %}
+          {% if field.note %}<p class="ishop-post__note">{{ field.note }}</p>{% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </section>
+
+  <section class="ishop-post__photos" aria-labelledby="ishop-post-photos-title">
+    <h2 id="ishop-post-photos-title">{{ 'Photos'|t }}</h2>
+    <p class="ishop-post__note">{{ photo_note }}</p>
+    {% if photos_left_out %}
+      <p class="ishop-post__note"><strong>{{ 'Left out:'|t }}</strong> {{ '@count more photo(s) than @platform allows.'|t({'@count': photos_left_out, '@platform': platform.name}) }}</p>
+    {% endif %}
+    {% if photos %}
+      <ol class="ishop-post__photo-list">
+        {% for photo in photos %}
+          <li><a href="{{ photo.url }}" download="{{ photo.name }}"><img src="{{ photo.url }}" alt="{{ 'Photo @n'|t({'@n': loop.index}) }}" loading="lazy"></a></li>
+        {% endfor %}
+      </ol>
+      <div class="ishop-post__photo-actions">
+        <button type="button" class="rm-button rm-button--gold ishop-post__share" data-photos="{{ photos|column('url')|json_encode }}" data-platform="{{ platform.key }}" hidden>{{ 'Save photos to phone'|t }}</button>
+        <a class="rm-button rm-button--ghost" href="{{ zip_url }}">{{ 'Download all (ZIP)'|t }}</a>
+      </div>
+    {% else %}
+      <p>{{ 'No photos yet.'|t }}</p>
+    {% endif %}
+  </section>
+
+  {% if tips %}
+    <section class="ishop-post__tips" aria-labelledby="ishop-post-tips-title">
+      <h2 id="ishop-post-tips-title">{{ 'Tips'|t }}</h2>
+      <ul>{% for tip in tips %}<li>{{ tip }}</li>{% endfor %}</ul>
+    </section>
+  {% endif %}
+
+  <p class="ishop-post__done">{{ 'Posted it? Paste the listing link into the item\'s Listings and set it to Posted.'|t }} <a href="{{ item.listings_url }}">{{ 'Go to Listings'|t }}</a></p>
+
+  <nav class="ishop-post__queue" aria-label="{{ 'To-post queue'|t }}">
+    {% if queue.previous %}<a class="rm-button rm-button--ghost" href="{{ queue.previous }}" rel="prev">&larr; {{ 'Previous'|t }}</a>{% else %}<span></span>{% endif %}
+    <span class="ishop-post__queue-size">{{ queue.size == 1 ? '1 item to post on @platform'|t({'@platform': platform.name}) : '@count items to post on @platform'|t({'@count': queue.size, '@platform': platform.name}) }}</span>
+    {% if queue.next %}<a class="rm-button rm-button--gold" href="{{ queue.next }}" rel="next">{{ 'Next'|t }} &rarr;</a>{% else %}<span></span>{% endif %}
+  </nav>
+</div>

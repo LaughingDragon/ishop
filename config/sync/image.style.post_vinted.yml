@@ -1,0 +1,34 @@
+uuid: 22d40227-a9aa-47b5-8567-9229aed4f89f
+langcode: en
+status: true
+dependencies:
+  module:
+    - image_effects
+name: post_vinted
+label: 'Post: Vinted (1600px)'
+effects:
+  e0fc700f-da0a-4eda-8ebc-f569bf73bb1b:
+    uuid: e0fc700f-da0a-4eda-8ebc-f569bf73bb1b
+    id: image_effects_auto_orient
+    weight: 0
+    data:
+      scan_exif: true
+  9d54fa38-9e8f-41f0-bb59-a452172abfc6:
+    uuid: 9d54fa38-9e8f-41f0-bb59-a452172abfc6
+    id: image_scale
+    weight: 1
+    data:
+      width: 1600
+      height: 1600
+      upscale: false
+  96c9a482-f984-4e24-9b86-7bf92321c78b:
+    uuid: 96c9a482-f984-4e24-9b86-7bf92321c78b
+    id: image_effects_strip_metadata
+    weight: 3
+    data: {  }
+  7c3644c6-d638-4d0b-8fe1-e700a40f849f:
+    uuid: 7c3644c6-d638-4d0b-8fe1-e700a40f849f
+    id: image_convert
+    weight: 4
+    data:
+      extension: jpg

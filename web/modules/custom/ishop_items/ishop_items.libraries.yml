@@ -28,3 +28,12 @@ item_page:
   dependencies:
     - core/drupal
     - core/once
+post:
+  js:
+    js/post.js: {}
+  css:
+    component:
+      css/post.css: {}
+  dependencies:
+    - core/drupal
+    - core/once

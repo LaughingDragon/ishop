@@ -1,0 +1,52 @@
+uuid: 8beb5637-0191-47b6-9efa-a30ac16906af
+langcode: en
+status: true
+dependencies:
+  module:
+    - image_effects
+name: post_depop
+label: 'Post: Depop (1280px square)'
+effects:
+  a9c82ba3-4de2-4c49-abf3-08d5d509704c:
+    uuid: a9c82ba3-4de2-4c49-abf3-08d5d509704c
+    id: image_effects_auto_orient
+    weight: 0
+    data:
+      scan_exif: true
+  43627baf-309a-4d25-98f0-aac4f78e04a2:
+    uuid: 43627baf-309a-4d25-98f0-aac4f78e04a2
+    id: image_scale
+    weight: 1
+    data:
+      width: 1280
+      height: 1280
+      upscale: false
+  20d36a93-14b2-4e9b-a2b8-b0f970163d97:
+    uuid: 20d36a93-14b2-4e9b-a2b8-b0f970163d97
+    id: image_effects_set_canvas
+    weight: 2
+    data:
+      canvas_size: exact
+      canvas_color: '#FFFFFFFF'
+      exact:
+        width: '1280'
+        height: '1280'
+        placement: center-center
+        x_offset: 0
+        y_offset: 0
+      relative:
+        left: 0
+        right: 0
+        top: 0
+        bottom: 0
+  ecf50328-7346-4c6c-896f-eb4e2569c21c:
+    uuid: ecf50328-7346-4c6c-896f-eb4e2569c21c
+    id: image_effects_strip_metadata
+    weight: 3
+    data: {  }
+  d0d1b4ee-93bd-4c77-88bc-f4d513f68235:
+    uuid: d0d1b4ee-93bd-4c77-88bc-f4d513f68235
+    id: image_convert
+    weight: 4
+    data:
+      extension: jpg

@@ -18,6 +18,7 @@ use Drupal\ishop_items\PhotoPrep;
 use Drupal\ishop_office\DiskStatus;
 use Drupal\ishop_items\ReadyCheck;
 use Drupal\image\Entity\ImageStyle;
+use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
 use Drupal\taxonomy\TermInterface;
 
@@ -52,6 +53,31 @@ final class ItemHooks {
     $variables['#cache']['contexts'][] = 'user.permissions';
     $access = \Drupal::entityTypeManager()->getAccessControlHandler('node')->createAccess('item');
     $variables['ishop_add_item_url'] = $access ? '/add' : NULL;
+  }
+
+  /**
+   * Implements hook_theme(): the "Post this item" page.
+   */
+  #[Hook('theme')]
+  public function theme(): array {
+    return [
+      'ishop_post_page' => [
+        'variables' => [
+          'item' => [],
+          'platform' => [],
+          'tabs' => [],
+          'eligibility' => [],
+          'missing' => [],
+          'fields' => [],
+          'photos' => [],
+          'photo_note' => '',
+          'photos_left_out' => 0,
+          'zip_url' => NULL,
+          'tips' => [],
+          'queue' => [],
+        ],
+      ],
+    ];
   }
 
   /**
@@ -195,6 +221,12 @@ final class ItemHooks {
         '#type' => 'container',
         '#attributes' => ['id' => 'listings'],
         '#weight' => 90,
+        'post' => [
+          '#type' => 'link',
+          '#title' => $this->t('Post this item'),
+          '#url' => Url::fromRoute('ishop_items.post_start', ['node' => $node->id()]),
+          '#attributes' => ['class' => ['rm-button', 'rm-button--gold', 'ishop-post-link']],
+        ],
         'form' => $this->formBuilder->getForm(ListingsGridForm::class, $node),
         '#attached' => ['library' => ['ishop_items/item_form']],
       ];
