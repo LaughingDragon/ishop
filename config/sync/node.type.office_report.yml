@@ -1,0 +1,11 @@
+uuid: df75ef5a-1c48-4312-a5b7-9c9e16f813f9
+langcode: en
+status: true
+dependencies: {  }
+name: 'Office: build report'
+type: office_report
+description: 'One per work session, filed with drush ishop:report.'
+help: null
+new_revision: true
+preview_mode: 0
+display_submitted: true

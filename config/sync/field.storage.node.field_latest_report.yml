@@ -1,0 +1,19 @@
+uuid: 09122421-c70d-4f47-b7e2-86d613f32e15
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_latest_report
+field_name: field_latest_report
+entity_type: node
+type: entity_reference
+settings:
+  target_type: node
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

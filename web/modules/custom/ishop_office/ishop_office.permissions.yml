@@ -1,0 +1,4 @@
+access site office:
+  title: 'Access the site office'
+  description: 'View the site office pages, its content and /site-office/status.json.'
+  restrict access: true

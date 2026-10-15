@@ -1,0 +1,24 @@
+uuid: d2a19e98-a6bd-4a40-9f7a-42de86ed05a4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_why
+    - filter.format.office_markdown
+    - node.type.office_decision
+  module:
+    - text
+id: node.office_decision.field_why
+field_name: field_why
+entity_type: node
+bundle: office_decision
+label: Why
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats:
+    - office_markdown
+field_type: text_long

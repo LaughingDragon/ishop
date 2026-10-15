@@ -1,0 +1,11 @@
+uuid: e6b0e1bb-7057-4863-8c54-19e3374d8750
+langcode: en
+status: true
+dependencies: {  }
+name: 'Office: plan'
+type: office_plan
+description: 'The roadmap, synced from ROADMAP.md by drush ishop:plans.'
+help: null
+new_revision: true
+preview_mode: 0
+display_submitted: false

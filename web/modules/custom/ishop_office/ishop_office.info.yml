@@ -1,0 +1,14 @@
+name: 'iShop site office'
+type: module
+description: 'Private project office at /site-office: plans, status board, build reports, punch list and decision log.'
+package: iShop
+core_version_requirement: ^11.4
+dependencies:
+  - drupal:datetime
+  - drupal:filter
+  - drupal:node
+  - drupal:options
+  - drupal:path
+  - drupal:text
+  - drupal:user
+  - markdown_easy:markdown_easy

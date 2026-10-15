@@ -1,0 +1,20 @@
+uuid: 89a6db37-1c30-48bb-9664-44de9717d83f
+langcode: en
+status: true
+dependencies:
+  module:
+    - datetime
+    - node
+id: node.field_office_date
+field_name: field_office_date
+entity_type: node
+type: datetime
+settings:
+  datetime_type: date
+module: datetime
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

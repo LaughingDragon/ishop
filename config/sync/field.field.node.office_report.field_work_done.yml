@@ -1,0 +1,24 @@
+uuid: 47fe6931-8dd0-414d-82ac-944098dd572e
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_work_done
+    - filter.format.office_markdown
+    - node.type.office_report
+  module:
+    - text
+id: node.office_report.field_work_done
+field_name: field_work_done
+entity_type: node
+bundle: office_report
+label: 'What was done'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats:
+    - office_markdown
+field_type: text_long

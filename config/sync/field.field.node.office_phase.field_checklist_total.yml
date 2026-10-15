@@ -1,0 +1,23 @@
+uuid: bfe6a789-e05c-4ea3-b032-7359569d84eb
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_checklist_total
+    - node.type.office_phase
+id: node.office_phase.field_checklist_total
+field_name: field_checklist_total
+entity_type: node
+bundle: office_phase
+label: 'Checklist items'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

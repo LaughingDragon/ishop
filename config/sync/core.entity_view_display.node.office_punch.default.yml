@@ -1,0 +1,79 @@
+uuid: ce3fff7d-c5d8-4dc6-86a8-b35e509eab91
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.office_punch.field_answer
+    - field.field.node.office_punch.field_closed_date
+    - field.field.node.office_punch.field_details
+    - field.field.node.office_punch.field_office_date
+    - field.field.node.office_punch.field_office_phase
+    - field.field.node.office_punch.field_punch_status
+    - field.field.node.office_punch.field_waiting_on
+    - node.type.office_punch
+  module:
+    - datetime
+    - options
+    - text
+    - user
+id: node.office_punch.default
+targetEntityType: node
+bundle: office_punch
+mode: default
+content:
+  field_answer:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 15
+    region: content
+  field_closed_date:
+    type: datetime_custom
+    label: inline
+    settings:
+      timezone_override: ''
+      date_format: Y-m-d
+    third_party_settings: {  }
+    weight: 16
+    region: content
+  field_details:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 14
+    region: content
+  field_office_date:
+    type: datetime_custom
+    label: inline
+    settings:
+      timezone_override: ''
+      date_format: Y-m-d
+    third_party_settings: {  }
+    weight: 12
+    region: content
+  field_office_phase:
+    type: entity_reference_label
+    label: inline
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 13
+    region: content
+  field_punch_status:
+    type: list_default
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 10
+    region: content
+  field_waiting_on:
+    type: list_default
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 11
+    region: content
+hidden:
+  links: true

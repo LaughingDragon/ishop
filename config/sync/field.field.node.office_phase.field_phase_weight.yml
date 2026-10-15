@@ -1,0 +1,23 @@
+uuid: f3b6fdcb-2649-4b41-aaa5-cffa0bb6df96
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_phase_weight
+    - node.type.office_phase
+id: node.office_phase.field_phase_weight
+field_name: field_phase_weight
+entity_type: node
+bundle: office_phase
+label: Order
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

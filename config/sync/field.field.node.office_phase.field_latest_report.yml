@@ -1,0 +1,26 @@
+uuid: 232cb1bc-ce3e-4825-84b2-17cde6e961ca
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_latest_report
+    - node.type.office_phase
+    - node.type.office_report
+id: node.office_phase.field_latest_report
+field_name: field_latest_report
+entity_type: node
+bundle: office_phase
+label: 'Latest report'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      office_report: office_report
+    sort:
+      field: _none
+field_type: entity_reference

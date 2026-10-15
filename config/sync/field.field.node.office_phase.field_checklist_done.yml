@@ -1,0 +1,23 @@
+uuid: f092f6b4-0fd8-4a02-b988-fefd0ecd7353
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_checklist_done
+    - node.type.office_phase
+id: node.office_phase.field_checklist_done
+field_name: field_checklist_done
+entity_type: node
+bundle: office_phase
+label: 'Checklist items done'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

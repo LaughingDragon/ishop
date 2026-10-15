@@ -1,0 +1,19 @@
+uuid: 171e0c12-6257-4ecc-975c-e828e30c3202
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_phase_key
+    - node.type.office_phase
+id: node.office_phase.field_phase_key
+field_name: field_phase_key
+entity_type: node
+bundle: office_phase
+label: 'Phase number'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

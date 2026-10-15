@@ -1,0 +1,39 @@
+ishop_office.board:
+  path: '/site-office'
+  defaults:
+    _controller: '\Drupal\ishop_office\Controller\OfficeController::board'
+    _title: 'Site office'
+  requirements:
+    _permission: 'access site office'
+
+ishop_office.reports:
+  path: '/site-office/reports'
+  defaults:
+    _controller: '\Drupal\ishop_office\Controller\OfficeController::reports'
+    _title: 'Build reports'
+  requirements:
+    _permission: 'access site office'
+
+ishop_office.punch_list:
+  path: '/site-office/punch-list'
+  defaults:
+    _controller: '\Drupal\ishop_office\Controller\OfficeController::punchList'
+    _title: 'Punch list'
+  requirements:
+    _permission: 'access site office'
+
+ishop_office.decisions:
+  path: '/site-office/decisions'
+  defaults:
+    _controller: '\Drupal\ishop_office\Controller\OfficeController::decisions'
+    _title: 'Decision log'
+  requirements:
+    _permission: 'access site office'
+
+ishop_office.status_json:
+  path: '/site-office/status.json'
+  defaults:
+    _controller: '\Drupal\ishop_office\Controller\OfficeController::statusJson'
+  methods: [GET]
+  requirements:
+    _permission: 'access site office'

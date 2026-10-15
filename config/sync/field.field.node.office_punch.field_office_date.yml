@@ -1,0 +1,24 @@
+uuid: cad15496-f14b-4d49-ad98-48951f47f9e9
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_office_date
+    - node.type.office_punch
+  module:
+    - datetime
+id: node.office_punch.field_office_date
+field_name: field_office_date
+entity_type: node
+bundle: office_punch
+label: Opened
+description: ''
+required: true
+translatable: true
+default_value:
+  -
+    default_date_type: now
+    default_date: now
+default_value_callback: ''
+settings: {  }
+field_type: datetime

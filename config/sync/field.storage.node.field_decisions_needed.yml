@@ -1,0 +1,19 @@
+uuid: 7567c6e1-f14a-4d2c-8db1-fec88be50094
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - text
+id: node.field_decisions_needed
+field_name: field_decisions_needed
+entity_type: node
+type: text_long
+settings: {  }
+module: text
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

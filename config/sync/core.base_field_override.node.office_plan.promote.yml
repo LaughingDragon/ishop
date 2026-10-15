@@ -1,0 +1,22 @@
+uuid: 8cd0c09f-9fb8-4e0f-b2ac-8bb639b81f66
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.office_plan
+id: node.office_plan.promote
+field_name: promote
+entity_type: node
+bundle: office_plan
+label: 'Promoted to front page'
+description: ''
+required: false
+translatable: true
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

@@ -1,0 +1,94 @@
+uuid: 5ffadfb5-ec27-4c43-bf78-9aa4429d12a8
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.office_report.field_blockers
+    - field.field.node.office_report.field_commits
+    - field.field.node.office_report.field_decisions_needed
+    - field.field.node.office_report.field_next_steps
+    - field.field.node.office_report.field_office_date
+    - field.field.node.office_report.field_office_phase
+    - field.field.node.office_report.field_summary
+    - field.field.node.office_report.field_tests
+    - field.field.node.office_report.field_work_done
+    - node.type.office_report
+  module:
+    - datetime
+    - text
+    - user
+id: node.office_report.default
+targetEntityType: node
+bundle: office_report
+mode: default
+content:
+  field_blockers:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 15
+    region: content
+  field_commits:
+    type: string
+    label: inline
+    settings:
+      link_to_entity: false
+      link_rel: canonical
+    third_party_settings: {  }
+    weight: 18
+    region: content
+  field_decisions_needed:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 16
+    region: content
+  field_next_steps:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 14
+    region: content
+  field_office_date:
+    type: datetime_custom
+    label: inline
+    settings:
+      timezone_override: ''
+      date_format: Y-m-d
+    third_party_settings: {  }
+    weight: 10
+    region: content
+  field_office_phase:
+    type: entity_reference_label
+    label: inline
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 11
+    region: content
+  field_summary:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 12
+    region: content
+  field_tests:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 17
+    region: content
+  field_work_done:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 13
+    region: content
+hidden:
+  links: true

@@ -1,0 +1,11 @@
+uuid: 6b13402e-c8cf-42a5-811b-e4a81256eb05
+langcode: en
+status: true
+dependencies: {  }
+name: 'Office: phase'
+type: office_phase
+description: 'One row of the status board. Created and updated by drush ishop:plans.'
+help: null
+new_revision: true
+preview_mode: 0
+display_submitted: false

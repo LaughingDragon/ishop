@@ -1,0 +1,22 @@
+uuid: c46f23a7-dde4-4efd-bd3a-1cce703feef6
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.office_decision
+id: node.office_decision.promote
+field_name: promote
+entity_type: node
+bundle: office_decision
+label: 'Promoted to front page'
+description: ''
+required: false
+translatable: true
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

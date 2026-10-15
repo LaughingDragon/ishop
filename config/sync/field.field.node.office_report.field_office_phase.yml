@@ -1,0 +1,26 @@
+uuid: e5627fc8-8e7c-450f-8003-8d605d4acdb8
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_office_phase
+    - node.type.office_phase
+    - node.type.office_report
+id: node.office_report.field_office_phase
+field_name: field_office_phase
+entity_type: node
+bundle: office_report
+label: Phase
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      office_phase: office_phase
+    sort:
+      field: _none
+field_type: entity_reference

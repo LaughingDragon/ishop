@@ -1,0 +1,26 @@
+uuid: fcf3a92d-6929-4875-adb6-06c7bac9ad18
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_office_phase
+    - node.type.office_phase
+    - node.type.office_punch
+id: node.office_punch.field_office_phase
+field_name: field_office_phase
+entity_type: node
+bundle: office_punch
+label: Phase
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      office_phase: office_phase
+    sort:
+      field: _none
+field_type: entity_reference

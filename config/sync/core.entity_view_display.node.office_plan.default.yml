@@ -1,0 +1,24 @@
+uuid: 05dcfdf9-e27c-4b5f-aa6d-33af2d423293
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.office_plan.field_office_markdown
+    - node.type.office_plan
+  module:
+    - text
+    - user
+id: node.office_plan.default
+targetEntityType: node
+bundle: office_plan
+mode: default
+content:
+  field_office_markdown:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 10
+    region: content
+hidden:
+  links: true

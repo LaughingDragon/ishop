@@ -1,0 +1,24 @@
+uuid: 93f7b04a-d4da-4b46-ad86-8f8fb0ec2645
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_details
+    - filter.format.office_markdown
+    - node.type.office_punch
+  module:
+    - text
+id: node.office_punch.field_details
+field_name: field_details
+entity_type: node
+bundle: office_punch
+label: Details
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats:
+    - office_markdown
+field_type: text_long

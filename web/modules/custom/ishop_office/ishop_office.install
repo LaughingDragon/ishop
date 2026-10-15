@@ -1,0 +1,28 @@
+<?php
+
+/**
+ * @file
+ * Install hooks for the iShop site office.
+ */
+
+declare(strict_types=1);
+
+use Drupal\ishop_office\OfficeStructure;
+
+/**
+ * Implements hook_install().
+ */
+function ishop_office_install(bool $is_syncing): void {
+  // During a config import the structure arrives from config/sync instead.
+  if (!$is_syncing) {
+    OfficeStructure::ensure();
+  }
+  node_access_rebuild();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function ishop_office_uninstall(bool $is_syncing): void {
+  node_access_rebuild();
+}

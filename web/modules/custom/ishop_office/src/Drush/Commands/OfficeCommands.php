@@ -1,0 +1,212 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Drupal\ishop_office\Drush\Commands;
+
+use Drupal\ishop_office\OfficeManager;
+use Drupal\ishop_office\Parser\ReportParser;
+use Drupal\ishop_office\Parser\SecretScanner;
+use Drupal\ishop_office\Vocabulary;
+use Drush\Attributes as CLI;
+use Drush\Commands\AutowireTrait;
+use Drush\Commands\DrushCommands;
+
+/**
+ * Drush commands the agent uses to keep the site office up to date.
+ *
+ * Everything is saved as site-foreman, whoever runs the command.
+ */
+final class OfficeCommands extends DrushCommands {
+
+  use AutowireTrait;
+
+  public function __construct(
+    private readonly OfficeManager $office,
+  ) {
+    parent::__construct();
+  }
+
+  /**
+   * Re-syncs the plans page and status board from ROADMAP.md.
+   */
+  #[CLI\Command(name: 'ishop:plans')]
+  #[CLI\Option(name: 'file', description: 'Roadmap file. Defaults to ROADMAP.md at the project root.')]
+  #[CLI\Usage(name: 'drush ishop:plans', description: 'Sync after editing or ticking ROADMAP.md.')]
+  public function plans(array $options = ['file' => NULL]): int {
+    $file = $options['file'] ?? dirname(DRUPAL_ROOT) . '/ROADMAP.md';
+    $markdown = $this->read($file);
+    $result = $this->office->syncPlans($markdown, basename($file));
+    $this->logger()->success(sprintf('Plans page %s.', $result['plan']));
+    foreach (['created', 'updated', 'unchanged'] as $bucket) {
+      if ($result[$bucket]) {
+        $this->logger()->notice(sprintf('Phases %s: %s', $bucket, implode(', ', $result[$bucket])));
+      }
+    }
+    if ($result['orphaned']) {
+      $this->logger()->warning(sprintf('On the status board but no longer in the roadmap (left as is): phase %s', implode(', ', $result['orphaned'])));
+    }
+    return self::EXIT_SUCCESS;
+  }
+
+  /**
+   * Files a build report from a Markdown file and updates the status board.
+   */
+  #[CLI\Command(name: 'ishop:report')]
+  #[CLI\Argument(name: 'file', description: 'Markdown report with YAML front matter (see ReportParser for the format).')]
+  #[CLI\Option(name: 'dry-run', description: 'Check the file and show what would be filed, without saving.')]
+  #[CLI\Usage(name: 'drush ishop:report /tmp/report.md --dry-run', description: 'Validate a report.')]
+  public function report(string $file, array $options = ['dry-run' => FALSE]): int {
+    $markdown = $this->read($file);
+    $this->refuseSecrets($markdown);
+    $report = ReportParser::parse($markdown);
+    if (!$this->office->phase($report['phase'])) {
+      throw new \RuntimeException(sprintf('There is no phase "%s" on the status board.', $report['phase']));
+    }
+    if ($options['dry-run']) {
+      $this->io()->definitionList(
+        ['Date' => $report['date']],
+        ['Phase' => $report['phase']],
+        ['Phase status' => $report['phase_status'] ? Vocabulary::PHASE_STATUS[$report['phase_status']] : '(unchanged)'],
+        ['Title' => $report['title'] ?? '(default)'],
+        ['Commits' => implode(', ', $report['commits']) ?: '(none)'],
+        ['Sections' => implode(', ', array_keys($report['sections']))],
+      );
+      $this->logger()->success('Dry run: the report is valid. Nothing was saved.');
+      return self::EXIT_SUCCESS;
+    }
+    $node = $this->office->fileReport($report, basename($file));
+    $this->logger()->success(sprintf('Filed "%s": %s', $node->label(), $node->toUrl('canonical', ['absolute' => TRUE])->toString()));
+    return self::EXIT_SUCCESS;
+  }
+
+  /**
+   * Sets a phase's status on the status board.
+   */
+  #[CLI\Command(name: 'ishop:phase')]
+  #[CLI\Argument(name: 'phase', description: 'Phase number, e.g. 0.5.')]
+  #[CLI\Argument(name: 'status', description: 'not_started, in_progress, blocked or done.')]
+  #[CLI\Option(name: 'why', description: 'Reason, kept in the revision log.')]
+  public function phase(string $phase, string $status, array $options = ['why' => '']): int {
+    $status = Vocabulary::normalize(Vocabulary::PHASE_STATUS, $status);
+    $node = $this->office->setPhaseStatus($phase, $status, (string) $options['why']);
+    $this->logger()->success(sprintf('%s is now %s.', $node->label(), Vocabulary::PHASE_STATUS[$status]));
+    return self::EXIT_SUCCESS;
+  }
+
+  /**
+   * Adds an open item to the punch list.
+   */
+  #[CLI\Command(name: 'ishop:punch')]
+  #[CLI\Argument(name: 'question', description: 'The question or decision, up to 255 characters.')]
+  #[CLI\Option(name: 'waiting-on', description: 'Comma-separated: liam, cody, claude.')]
+  #[CLI\Option(name: 'phase', description: 'Phase number it belongs to.')]
+  #[CLI\Option(name: 'details', description: 'Longer explanation (Markdown).')]
+  #[CLI\Option(name: 'date', description: 'Opened date, YYYY-MM-DD. Defaults to today.')]
+  public function punch(string $question, array $options = ['waiting-on' => '', 'phase' => NULL, 'details' => '', 'date' => NULL]): int {
+    $this->refuseSecrets($question . "\n" . $options['details']);
+    $node = $this->office->addPunch($question, $this->people((string) $options['waiting-on']), $options['phase'], (string) $options['details'], $this->date($options['date']));
+    $this->logger()->success(sprintf('Punch list item %d opened: %s', $node->id(), $node->label()));
+    return self::EXIT_SUCCESS;
+  }
+
+  /**
+   * Closes a punch list item and records the answer.
+   */
+  #[CLI\Command(name: 'ishop:punch-close')]
+  #[CLI\Argument(name: 'nid', description: 'Node ID of the punch list item (see drush ishop:office).')]
+  #[CLI\Option(name: 'answer', description: 'The answer or outcome (Markdown). Required.')]
+  #[CLI\Option(name: 'date', description: 'Closed date, YYYY-MM-DD. Defaults to today.')]
+  public function punchClose(int $nid, array $options = ['answer' => '', 'date' => NULL]): int {
+    $answer = trim((string) $options['answer']);
+    if ($answer === '') {
+      throw new \InvalidArgumentException('--answer is required: closing an item records its answer.');
+    }
+    $this->refuseSecrets($answer);
+    $node = $this->office->closePunch($nid, $answer, $this->date($options['date']));
+    $this->logger()->success(sprintf('Closed punch list item %d: %s', $node->id(), $node->label()));
+    return self::EXIT_SUCCESS;
+  }
+
+  /**
+   * Adds a decision to the decision log.
+   */
+  #[CLI\Command(name: 'ishop:decision')]
+  #[CLI\Argument(name: 'decision', description: 'What was decided, up to 255 characters.')]
+  #[CLI\Option(name: 'by', description: 'Comma-separated: liam, cody, claude.')]
+  #[CLI\Option(name: 'why', description: 'Why (Markdown).')]
+  #[CLI\Option(name: 'phase', description: 'Phase number it belongs to.')]
+  #[CLI\Option(name: 'date', description: 'Decision date, YYYY-MM-DD. Defaults to today.')]
+  public function decision(string $decision, array $options = ['by' => '', 'why' => '', 'phase' => NULL, 'date' => NULL]): int {
+    $this->refuseSecrets($decision . "\n" . $options['why']);
+    $node = $this->office->addDecision($decision, $this->people((string) $options['by']), (string) $options['why'], $options['phase'], $this->date($options['date']));
+    $this->logger()->success(sprintf('Decision %d logged: %s', $node->id(), $node->label()));
+    return self::EXIT_SUCCESS;
+  }
+
+  /**
+   * Prints the status board and open punch list.
+   */
+  #[CLI\Command(name: 'ishop:office')]
+  public function show(): int {
+    $rows = [];
+    foreach ($this->office->statusBoard(FALSE) as $phase) {
+      $rows[] = [
+        $phase['key'],
+        $phase['status_label'],
+        $phase['percent_done'] === NULL ? '-' : $phase['percent_done'] . '%',
+        $phase['checklist_done'] . '/' . $phase['checklist_total'],
+        $phase['latest_report']['date'] ?? '-',
+      ];
+    }
+    $this->io()->table(['Phase', 'Status', 'Done', 'Checklist', 'Latest report'], $rows);
+    $rows = [];
+    foreach ($this->office->punchItems('open', FALSE) as $item) {
+      $rows[] = [
+        $item->id(),
+        implode(', ', array_column($item->get('field_waiting_on')->getValue(), 'value')),
+        $item->get('field_office_date')->value,
+        $item->label(),
+      ];
+    }
+    $this->io()->table(['ID', 'Waiting on', 'Opened', 'Open punch list item'], $rows);
+    return self::EXIT_SUCCESS;
+  }
+
+  private function read(string $file): string {
+    if (!is_file($file) || !is_readable($file)) {
+      throw new \RuntimeException(sprintf('Cannot read %s.', $file));
+    }
+    return (string) file_get_contents($file);
+  }
+
+  /**
+   * Stops if the text looks like it holds a secret or personal data.
+   */
+  private function refuseSecrets(string $text): void {
+    $findings = SecretScanner::scan($text);
+    if ($findings) {
+      throw new \RuntimeException("Refusing to save: this looks like it contains a secret or personal data.\n  " . implode("\n  ", $findings) . "\nRemove it (or reword it) and try again.");
+    }
+  }
+
+  /**
+   * @return list<string>
+   *   Vocabulary::PEOPLE keys.
+   */
+  private function people(string $list): array {
+    $people = array_filter(array_map('trim', explode(',', $list)));
+    if (!$people) {
+      throw new \InvalidArgumentException('Name at least one person: liam, cody or claude.');
+    }
+    return array_values(array_unique(array_map(fn ($p) => Vocabulary::normalize(Vocabulary::PEOPLE, $p), $people)));
+  }
+
+  private function date(?string $date): ?string {
+    if ($date !== NULL && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+      throw new \InvalidArgumentException('Dates are YYYY-MM-DD.');
+    }
+    return $date;
+  }
+
+}

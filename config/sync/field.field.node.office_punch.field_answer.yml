@@ -1,0 +1,24 @@
+uuid: 7da2cc0d-6ddf-4dd2-ac2b-45b041da2f30
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_answer
+    - filter.format.office_markdown
+    - node.type.office_punch
+  module:
+    - text
+id: node.office_punch.field_answer
+field_name: field_answer
+entity_type: node
+bundle: office_punch
+label: Answer
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats:
+    - office_markdown
+field_type: text_long

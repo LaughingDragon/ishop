@@ -1,0 +1,24 @@
+uuid: 4afbd856-9754-4b56-9442-1c4d0839ec48
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_next_steps
+    - filter.format.office_markdown
+    - node.type.office_report
+  module:
+    - text
+id: node.office_report.field_next_steps
+field_name: field_next_steps
+entity_type: node
+bundle: office_report
+label: "What's next"
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats:
+    - office_markdown
+field_type: text_long

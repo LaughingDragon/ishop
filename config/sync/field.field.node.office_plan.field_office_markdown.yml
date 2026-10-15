@@ -1,0 +1,24 @@
+uuid: 61ae7f8f-df68-48ee-85f4-7cea6c5ec861
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_office_markdown
+    - filter.format.office_markdown
+    - node.type.office_plan
+  module:
+    - text
+id: node.office_plan.field_office_markdown
+field_name: field_office_markdown
+entity_type: node
+bundle: office_plan
+label: 'Roadmap (Markdown)'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats:
+    - office_markdown
+field_type: text_long

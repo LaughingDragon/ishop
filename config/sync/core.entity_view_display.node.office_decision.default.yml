@@ -1,0 +1,53 @@
+uuid: 8830aecb-055d-4b46-8eb1-904a35c82bd4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.office_decision.field_decided_by
+    - field.field.node.office_decision.field_office_date
+    - field.field.node.office_decision.field_office_phase
+    - field.field.node.office_decision.field_why
+    - node.type.office_decision
+  module:
+    - datetime
+    - options
+    - text
+    - user
+id: node.office_decision.default
+targetEntityType: node
+bundle: office_decision
+mode: default
+content:
+  field_decided_by:
+    type: list_default
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 11
+    region: content
+  field_office_date:
+    type: datetime_custom
+    label: inline
+    settings:
+      timezone_override: ''
+      date_format: Y-m-d
+    third_party_settings: {  }
+    weight: 10
+    region: content
+  field_office_phase:
+    type: entity_reference_label
+    label: inline
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 13
+    region: content
+  field_why:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 12
+    region: content
+hidden:
+  links: true

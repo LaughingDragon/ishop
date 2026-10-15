@@ -1,0 +1,24 @@
+uuid: 080dca33-dedc-4d47-b728-5ed9e9750cc5
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_decisions_needed
+    - filter.format.office_markdown
+    - node.type.office_report
+  module:
+    - text
+id: node.office_report.field_decisions_needed
+field_name: field_decisions_needed
+entity_type: node
+bundle: office_report
+label: 'Decisions needed from Liam or Cody'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats:
+    - office_markdown
+field_type: text_long

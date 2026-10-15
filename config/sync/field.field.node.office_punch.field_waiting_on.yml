@@ -1,0 +1,21 @@
+uuid: 652f2388-e6b9-44d8-b3ec-e12ac5de324a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_waiting_on
+    - node.type.office_punch
+  module:
+    - options
+id: node.office_punch.field_waiting_on
+field_name: field_waiting_on
+entity_type: node
+bundle: office_punch
+label: 'Waiting on'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

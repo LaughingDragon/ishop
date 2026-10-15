@@ -1,0 +1,21 @@
+uuid: 088e5d0e-0c62-4d99-8a94-6aefbb73de94
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_closed_date
+    - node.type.office_punch
+  module:
+    - datetime
+id: node.office_punch.field_closed_date
+field_name: field_closed_date
+entity_type: node
+bundle: office_punch
+label: Closed
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

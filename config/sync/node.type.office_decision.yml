@@ -1,0 +1,11 @@
+uuid: 8a2347b2-de49-474c-a4db-3067b6b366b0
+langcode: en
+status: true
+dependencies: {  }
+name: 'Office: decision'
+type: office_decision
+description: 'What was decided, by whom, when and why.'
+help: null
+new_revision: true
+preview_mode: 0
+display_submitted: false

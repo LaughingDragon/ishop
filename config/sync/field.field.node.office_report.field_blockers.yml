@@ -1,0 +1,24 @@
+uuid: cca88394-4b0f-476c-b5b1-4a323670babd
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_blockers
+    - filter.format.office_markdown
+    - node.type.office_report
+  module:
+    - text
+id: node.office_report.field_blockers
+field_name: field_blockers
+entity_type: node
+bundle: office_report
+label: Blockers
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats:
+    - office_markdown
+field_type: text_long

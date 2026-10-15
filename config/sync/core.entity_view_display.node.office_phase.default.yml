@@ -1,0 +1,74 @@
+uuid: 395b9bc2-2df9-4a37-92a0-32dde723c6d6
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.office_phase.field_checklist_done
+    - field.field.node.office_phase.field_checklist_total
+    - field.field.node.office_phase.field_latest_report
+    - field.field.node.office_phase.field_office_markdown
+    - field.field.node.office_phase.field_phase_key
+    - field.field.node.office_phase.field_phase_status
+    - field.field.node.office_phase.field_phase_weight
+    - node.type.office_phase
+  module:
+    - options
+    - text
+    - user
+id: node.office_phase.default
+targetEntityType: node
+bundle: office_phase
+mode: default
+content:
+  field_checklist_done:
+    type: number_integer
+    label: inline
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 12
+    region: content
+  field_checklist_total:
+    type: number_integer
+    label: inline
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 13
+    region: content
+  field_latest_report:
+    type: entity_reference_label
+    label: inline
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 14
+    region: content
+  field_office_markdown:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 15
+    region: content
+  field_phase_key:
+    type: string
+    label: inline
+    settings:
+      link_to_entity: false
+      link_rel: canonical
+    third_party_settings: {  }
+    weight: 10
+    region: content
+  field_phase_status:
+    type: list_default
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 11
+    region: content
+hidden:
+  field_phase_weight: true
+  links: true

@@ -1,0 +1,18 @@
+uuid: 17beae58-18f4-4398-8025-f7bddc4174c1
+langcode: en
+status: true
+dependencies:
+  config:
+    - filter.format.office_markdown
+  module:
+    - filter
+    - ishop_office
+    - system
+id: site_office
+label: 'Site office'
+weight: 5
+is_admin: false
+permissions:
+  - 'access content'
+  - 'access site office'
+  - 'use text format office_markdown'

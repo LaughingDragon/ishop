@@ -1,0 +1,6 @@
+ishop_office.board:
+  title: 'Site office'
+  description: 'Plans, status board, build reports, punch list and decisions.'
+  route_name: ishop_office.board
+  menu_name: main
+  weight: 50

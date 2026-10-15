@@ -1,0 +1,19 @@
+uuid: 4c93793d-99ba-4db8-9127-7a662730c053
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_commits
+    - node.type.office_report
+id: node.office_report.field_commits
+field_name: field_commits
+entity_type: node
+bundle: office_report
+label: 'Git commits'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

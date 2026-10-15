@@ -1,0 +1,24 @@
+uuid: c67a78a6-1290-41e7-8780-d81daf321b8a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_tests
+    - filter.format.office_markdown
+    - node.type.office_report
+  module:
+    - text
+id: node.office_report.field_tests
+field_name: field_tests
+entity_type: node
+bundle: office_report
+label: 'Tests run and results'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats:
+    - office_markdown
+field_type: text_long

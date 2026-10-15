@@ -1,0 +1,20 @@
+uuid: 23109589-5e90-4fb5-9816-21fdcd5c8765
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_checklist_done
+field_name: field_checklist_done
+entity_type: node
+type: integer
+settings:
+  unsigned: false
+  size: normal
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

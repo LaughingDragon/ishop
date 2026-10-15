@@ -1,0 +1,14 @@
+uuid: 7cbf84e1-59ca-447a-be10-fdb836f67ed9
+langcode: en
+status: true
+dependencies:
+  config:
+    - user.role.site_office
+  module:
+    - user
+id: user_add_role_action.site_office
+label: 'Add the Site office role to the selected user(s)'
+type: user
+plugin: user_add_role_action
+configuration:
+  rid: site_office

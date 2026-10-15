@@ -1,0 +1,19 @@
+uuid: 225c9459-b8d1-4f4d-8236-fa9493d664ae
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - text
+id: node.field_next_steps
+field_name: field_next_steps
+entity_type: node
+type: text_long
+settings: {  }
+module: text
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

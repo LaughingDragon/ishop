@@ -1,0 +1,21 @@
+uuid: 087d8643-74d9-4a54-81a6-62e0c5b04f76
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_decided_by
+    - node.type.office_decision
+  module:
+    - options
+id: node.office_decision.field_decided_by
+field_name: field_decided_by
+entity_type: node
+bundle: office_decision
+label: 'Decided by'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

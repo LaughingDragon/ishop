@@ -1,0 +1,24 @@
+uuid: 63c8aed2-706d-401a-8c1a-e300700dbb9f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_office_date
+    - node.type.office_decision
+  module:
+    - datetime
+id: node.office_decision.field_office_date
+field_name: field_office_date
+entity_type: node
+bundle: office_decision
+label: 'Decided on'
+description: ''
+required: true
+translatable: true
+default_value:
+  -
+    default_date_type: now
+    default_date: now
+default_value_callback: ''
+settings: {  }
+field_type: datetime
