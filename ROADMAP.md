@@ -202,8 +202,10 @@ reference project is used only for its rules and formatting logic.
 - [x] Stockroom search and filters: title search, brand, size, status, posted on a platform,
   location (including everything inside it), price range. Built in, no Search API or Facets
   (Liam, decision 178); each filtered view has its own link.
-- [ ] Money page (Charts): sold by platform, profit after fees using the son's fee
-  math, average days to sell, longest-sitting items.
+- [x] Money page in My office: sold by platform, profit after fees, shipping and item cost,
+  average days to sell (from Date sold), longest-sitting live listings, for this season /
+  month / year / last year / all time. Real data only; plain labelled bars, no Charts module.
+  The "This season" scoreboard and the office glance use the same numbers (Money).
 - [ ] Year-end tax export: sales, cost, fees, profit per item, plus mileage and
   expenses. Donation log for unsold items with estimated values.
 

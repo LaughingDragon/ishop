@@ -3,3 +3,20 @@
 
 /* "Needs you now" rows with several buttons (stale-listing nudges). */
 .rm-needs__buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* My office: Money (Phase 4). Bars are labelled with their numbers. */
+.rm-money { margin: 0 0 28px; }
+.rm-money h2 { margin: 0 0 12px; }
+.rm-money h3 { margin: 22px 0 10px; font-size: 1.15rem; }
+.rm-money__periods { display: flex; gap: 8px; margin: 0 0 14px; padding: 0 0 4px; overflow-x: auto; }
+.rm-money__period { flex: none; display: inline-flex; align-items: center; min-height: 44px; padding: 8px 14px; border: 2px solid var(--rm-line-soft); border-radius: var(--rm-pill); color: var(--rm-text); text-decoration: none; font-weight: 600; }
+.rm-money__period.is-current { background: var(--rm-gold); border-color: var(--rm-gold); color: var(--rm-ground); }
+.rm-money .rm-money__totals { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 14px; border-radius: var(--rm-radius); background: #0F0D0C; }
+@media (min-width: 640px) { .rm-money .rm-money__totals { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.rm-money__notes { margin: 12px 0 0; padding-left: 1.2em; color: var(--rm-text-soft); font-size: 17px; }
+.rm-money__bars, .rm-money__sitting { margin: 0; padding: 0; list-style: none; }
+.rm-money__bars li { margin: 0 0 12px; }
+.rm-money__bar-label { display: block; margin-bottom: 4px; }
+.rm-money__bar { display: block; height: 14px; border-radius: 4px; background: var(--rm-gold); }
+.rm-money__sitting { counter-reset: sit; }
+.rm-money__sitting li { padding: 10px 0; border-bottom: 1px solid var(--rm-line); }

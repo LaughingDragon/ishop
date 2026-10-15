@@ -13,3 +13,4 @@ services:
   Drupal\ishop_items\StaleNudges: ~
   Drupal\ishop_items\BulkActions: ~
   Drupal\ishop_items\StockroomFilters: ~
+  Drupal\ishop_items\Money: ~

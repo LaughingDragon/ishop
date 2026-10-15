@@ -10,6 +10,7 @@ use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Url;
 use Drupal\Core\Cache\Cache;
 use Drupal\ishop_items\Controller\StaleController;
+use Drupal\ishop_items\Money;
 use Drupal\ishop_items\StaleNudges;
 use Drupal\ishop_items\Platforms;
 use Drupal\ishop_matrix\Birthday;
@@ -33,6 +34,7 @@ final class MatrixController extends ControllerBase {
     private readonly Birthday $birthday,
     private readonly Season $season,
     private readonly StaleNudges $nudges,
+    private readonly Money $money,
   ) {}
 
   /**
@@ -203,23 +205,15 @@ final class MatrixController extends ControllerBase {
       ->condition('field_item_status', Rooms::ON_HAND, 'IN')
       ->count()->execute();
 
-    $month_start = strtotime($this->dateFormatter->format($now, 'custom', 'Y-m-01 00:00:00'));
-    $listings = $this->entityTypeManager()->getStorage('platform_listing');
-    $sold_ids = $listings->getQuery()->accessCheck(FALSE)
-      ->condition('status', Platforms::SOLD_HERE)
-      ->condition('changed', $month_start, '>=')
-      ->execute();
-    $total = 0.0;
-    foreach ($listings->loadMultiple($sold_ids) as $listing) {
-      $total += (float) $listing->get('sold_price')->value;
-    }
+    // Same numbers as the Money page: sales by Date sold this month.
+    $month = Money::summarize($this->money->sales($this->dateFormatter->format($now, 'custom', 'Y-m-01'), NULL));
 
     $not_built = (string) $this->t('Not built yet');
     return [
       'front-desk' => Rooms::count(count($needs), '%d thing needs you', '%d things need you', 'Nothing needs you right now'),
       'stockroom' => Rooms::count($on_hand, '%d item on the game room table', '%d items on the game room table', 'No items yet'),
       'shipping-room' => $not_built,
-      'my-office' => $sold_ids ? sprintf('Sold this month: $%s', number_format($total, 2)) : 'Nothing sold yet this month',
+      'my-office' => $month['count'] ? sprintf('Sold this month: $%s', number_format($month['revenue'], 2)) : 'Nothing sold yet this month',
       'mailroom' => $not_built,
       'calendar-wall' => $not_built,
       'break-room' => $not_built,
@@ -230,33 +224,126 @@ final class MatrixController extends ControllerBase {
    * The "This season" scoreboard: sold, listed, gold struck since the start.
    *
    * Real data only; zeros when there is nothing yet. Sold and gold struck
-   * count "Sold here" listings by when they were last changed (there is no
-   * separate sale date); listed counts listings by "Date posted".
+   * count "Sold here" listings by Date sold; listed counts listings by
+   * "Date posted".
    */
   private function scoreboard(): array {
+    // The same numbers as the Money page (Money::summarize).
+    $start = $this->season->startOfSeason()->format('Y-m-d');
+    $sales = Money::summarize($this->money->sales($start, NULL));
+    $listed = $this->money->listedCount($start, NULL);
     $start = $this->season->startOfSeason();
-    $listings = $this->entityTypeManager()->getStorage('platform_listing');
-    $sold_ids = $listings->getQuery()->accessCheck(FALSE)
-      ->condition('status', Platforms::SOLD_HERE)
-      ->condition('changed', $start->getTimestamp(), '>=')
-      ->execute();
-    $sold_items = [];
-    $gold = 0.0;
-    foreach ($listings->loadMultiple($sold_ids) as $listing) {
-      $sold_items[$listing->get('item')->target_id] = TRUE;
-      $gold += (float) $listing->get('sold_price')->value;
-    }
-    $listed = (int) $listings->getQuery()->accessCheck(FALSE)
-      ->condition('date_posted', $start->format('Y-m-d'), '>=')
-      ->count()->execute();
     return [
       'title' => $this->t('This season'),
       'since' => $this->t('since @date', ['@date' => $start->format('M j')]),
       'cells' => [
-        ['label' => $this->t('Sold'), 'value' => number_format(count($sold_items))],
+        ['label' => $this->t('Sold'), 'value' => number_format($sales['count'])],
         ['label' => $this->t('Listed'), 'value' => number_format($listed)],
-        ['label' => $this->t('Gold struck'), 'value' => '$' . number_format($gold)],
+        ['label' => $this->t('Gold struck'), 'value' => '$' . number_format($sales['revenue'])],
       ],
+    ];
+  }
+
+  /**
+   * Periods for the Money page: key => [label, from, to] (Y-m-d or NULL).
+   */
+  private function periods(): array {
+    $today = new \DateTimeImmutable('now', new \DateTimeZone('America/Los_Angeles'));
+    $year = (int) $today->format('Y');
+    return [
+      'season' => [$this->t('This season'), $this->season->startOfSeason()->format('Y-m-d'), NULL],
+      'month' => [$this->t('This month'), $today->format('Y-m-01'), NULL],
+      'year' => [$this->t('This year'), "$year-01-01", NULL],
+      'last_year' => [$this->t('Last year'), ($year - 1) . '-01-01', ($year - 1) . '-12-31'],
+      'all' => [$this->t('All time'), NULL, NULL],
+    ];
+  }
+
+  /**
+   * The Money page section: sold by platform, profit, days to sell.
+   */
+  private function moneySection(): array {
+    $periods = $this->periods();
+    $key = (string) \Drupal::request()->query->get('period', 'season');
+    $key = isset($periods[$key]) ? $key : 'season';
+    [$label, $from, $to] = $periods[$key];
+    $sum = Money::summarize($this->money->sales($from, $to));
+    $dollars = fn (float $v) => ($v < 0 ? '-$' : '$') . number_format(abs($v), 2);
+    $max = max([1.0, ...array_map(fn ($p) => $p['revenue'], $sum['by_platform'])]);
+    $platforms = [];
+    foreach ($sum['by_platform'] as $platform => $p) {
+      $platforms[] = [
+        'name' => Platforms::PLATFORMS[$platform],
+        'count' => $p['count'],
+        'revenue' => $dollars($p['revenue']),
+        'profit' => $dollars($p['profit']),
+        'width' => max(2, (int) round($p['revenue'] / $max * 100)),
+      ];
+    }
+    $sitting = [];
+    foreach ($this->money->longestSitting(5) as $row) {
+      $sitting[] = [
+        'title' => $row['item']->label(),
+        'url' => $row['item']->toUrl('canonical', ['fragment' => 'listings'])->toString(),
+        'platform' => Platforms::PLATFORMS[$row['platform']],
+        'days' => $row['days'],
+      ];
+    }
+    $tabs = [];
+    foreach ($periods as $k => [$tab_label]) {
+      $tabs[] = [
+        'label' => $tab_label,
+        'url' => Url::fromRoute('ishop_matrix.my_office', [], ['query' => ['period' => $k]])->toString(),
+        'current' => $k === $key,
+      ];
+    }
+    return [
+      '#type' => 'inline_template',
+      '#template' => '<section class="rm-money" aria-labelledby="rm-money-title"><h2 id="rm-money-title">{{ title }}</h2>
+<nav class="rm-money__periods" aria-label="{{ periods_label }}">{% for t in tabs %}<a href="{{ t.url }}" class="rm-money__period{{ t.current ? \' is-current\' }}"{% if t.current %} aria-current="page"{% endif %}>{{ t.label }}</a>{% endfor %}</nav>
+<dl class="rm-scoreboard__cells rm-money__totals">{% for c in cells %}<div class="rm-scoreboard__cell"><dt>{{ c.label }}</dt><dd>{{ c.value }}</dd></div>{% endfor %}</dl>
+{% if notes %}<ul class="rm-money__notes">{% for n in notes %}<li>{{ n }}</li>{% endfor %}</ul>{% endif %}
+<h3>{{ by_title }}</h3>{% if platforms %}<ul class="rm-money__bars">{% for p in platforms %}<li><span class="rm-money__bar-label"><strong>{{ p.name }}</strong> {{ p.count }} {{ sold_word }} · {{ p.revenue }} · {{ profit_word }} {{ p.profit }}</span><span class="rm-money__bar" style="width: {{ p.width }}%"></span></li>{% endfor %}</ul>{% else %}<p>{{ no_sales }}</p>{% endif %}
+<h3>{{ sitting_title }}</h3>{% if sitting %}<ol class="rm-money__sitting">{% for s in sitting %}<li><a href="{{ s.url }}">{{ s.title }}</a> · {{ s.platform }} · {{ s.days }} {{ days_word }}</li>{% endfor %}</ol>{% else %}<p>{{ nothing_live }}</p>{% endif %}
+</section>',
+      '#context' => [
+        'title' => $this->t('Money'),
+        'periods_label' => $this->t('Period'),
+        'tabs' => $tabs,
+        'cells' => [
+          ['label' => $this->t('Sold'), 'value' => number_format($sum['count'])],
+          ['label' => $this->t('Sales'), 'value' => '$' . number_format($sum['revenue'])],
+          [
+            'label' => $this->t('Profit'),
+            'value' => ($sum['profit'] < 0 ? '-$' : '$') . number_format(abs($sum['profit'])),
+          ],
+          [
+            'label' => $this->t('Avg days to sell'),
+            'value' => $sum['avg_days'] === NULL ? '-' : number_format($sum['avg_days'], 0),
+          ],
+        ],
+        'notes' => array_filter([
+          $sum['count'] ? $this->t('@label: @revenue in sales, minus @fees fees, @shipping shipping and @cost item cost.', [
+            '@label' => $label,
+            '@revenue' => $dollars($sum['revenue']),
+            '@fees' => $dollars($sum['fees']),
+            '@shipping' => $dollars($sum['shipping']),
+            '@cost' => $dollars($sum['cost']),
+          ]) : NULL,
+          $sum['missing_price'] ? $this->formatPlural($sum['missing_price'], '1 sale has no sale price entered, so it adds nothing to sales.', '@count sales have no sale price entered, so they add nothing to sales.') : NULL,
+          $sum['missing_cost'] ? $this->formatPlural($sum['missing_cost'], "1 sale's item has no cost entered, so its profit may be too high.", "@count sales' items have no cost entered, so their profit may be too high.") : NULL,
+        ]),
+        'by_title' => $this->t('Sold by platform'),
+        'platforms' => $platforms,
+        'sold_word' => $this->t('sold'),
+        'profit_word' => $this->t('profit'),
+        'no_sales' => $this->t('No sales in this period yet.'),
+        'sitting_title' => $this->t('Longest-sitting live listings'),
+        'sitting' => $sitting,
+        'days_word' => $this->t('days'),
+        'nothing_live' => $this->t('Nothing is live on a platform yet.'),
+      ],
+      '#cache' => ['max-age' => 0],
     ];
   }
 
@@ -266,6 +353,7 @@ final class MatrixController extends ControllerBase {
   public function myOffice(): array {
     $build = $this->room('my-office');
     return [
+      'money' => $this->moneySection(),
       'season' => $this->formBuilder()->getForm(SeasonForm::class),
       'rest' => $build,
       '#attached' => ['library' => ['ishop_matrix/matrix']],
