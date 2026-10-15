@@ -82,11 +82,12 @@ report in the site office.
   - [x] `webmaster`: administrator, for Liam. Password never in any file the
     agent can read.
   - [x] `theowner`: Cody's account, created by him, full administrator.
-  - [x] `site-foreman`: the agent's Drupal account, role "foreman" (content and
-    config it is asked to change; no user or permission administration).
-  - [x] The agent works through Drush and code, never web logins. Use
-    `drush --uid=<site-foreman uid>` for content operations so changes are
-    attributed to site-foreman in revision logs.
+  - [x] `site-foreman`: the agent's Drupal account, role "Site foreman"
+    (`site_foreman`: content and config it is asked to change; no user or
+    permission administration).
+  - [x] The agent works through Drush and code, never web logins. The
+    `ishop:*` Drush commands save everything as site-foreman (they switch to
+    that account internally), so revision logs show site-foreman.
 
 ## Phase 0.5: the site office
 
