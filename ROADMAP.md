@@ -76,7 +76,7 @@ report in the site office.
   and login flood limits instead. Security Kit.
 - [x] Backup and Migrate: nightly database + private files backup, kept 14 days,
   stored outside the web root.
-- [ ] Liam (in the Cloud console): daily disk snapshot schedule, 7-day retention.
+- [x] Liam (in the Cloud console): daily disk snapshot schedule, 7-day retention.
 - [x] Gin admin theme + Gin Toolbar.
 - Accounts:
   - [x] `webmaster`: administrator, for Liam. Password never in any file the
