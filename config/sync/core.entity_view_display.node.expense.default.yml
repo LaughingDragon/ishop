@@ -1,0 +1,54 @@
+uuid: c1c8b696-8f6e-4e1f-8330-f668a2a78f12
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.expense.field_amount
+    - field.field.node.expense.field_expense_category
+    - field.field.node.expense.field_log_date
+    - field.field.node.expense.field_log_note
+    - field.field.node.expense.field_receipt
+    - node.type.expense
+  module:
+    - user
+id: node.expense.default
+targetEntityType: node
+bundle: expense
+mode: default
+content:
+  field_amount:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 11
+    region: content
+  field_expense_category:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 12
+    region: content
+  field_log_date:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 10
+    region: content
+  field_log_note:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 14
+    region: content
+  field_receipt:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 13
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden: {  }

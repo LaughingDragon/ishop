@@ -1,0 +1,20 @@
+uuid: 19bcf7f5-287f-4adb-a3c3-5011f90645aa
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_miles
+field_name: field_miles
+entity_type: node
+type: decimal
+settings:
+  precision: 7
+  scale: 1
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -1,0 +1,19 @@
+uuid: 53179049-7f87-4d85-973e-d4f59dd09f8b
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_trip
+    - node.type.mileage
+id: node.mileage.field_trip
+field_name: field_trip
+entity_type: node
+bundle: mileage
+label: Trip
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

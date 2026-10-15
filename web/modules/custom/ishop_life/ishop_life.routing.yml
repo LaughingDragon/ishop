@@ -1,0 +1,22 @@
+ishop_life.log:
+  path: '/room/my-office/log'
+  defaults:
+    _controller: '\Drupal\ishop_life\Controller\LogController::page'
+    _title: 'Mileage and expenses'
+  requirements:
+    _permission: 'manage platform listings'
+    _user_is_logged_in: 'TRUE'
+  options:
+    no_cache: TRUE
+
+ishop_life.tax_export:
+  path: '/room/my-office/tax/{year}/{kind}'
+  defaults:
+    _controller: '\Drupal\ishop_life\Controller\LogController::export'
+  requirements:
+    _permission: 'manage platform listings'
+    _user_is_logged_in: 'TRUE'
+    year: '\d{4}'
+    kind: 'mileage|expenses'
+  options:
+    no_cache: TRUE

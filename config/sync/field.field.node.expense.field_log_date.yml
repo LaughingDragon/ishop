@@ -1,0 +1,21 @@
+uuid: 56caf847-3fbd-4a3a-93e3-11079b177ab8
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_log_date
+    - node.type.expense
+  module:
+    - datetime
+id: node.expense.field_log_date
+field_name: field_log_date
+entity_type: node
+bundle: expense
+label: Date
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

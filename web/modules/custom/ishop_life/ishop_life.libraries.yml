@@ -1,0 +1,4 @@
+log:
+  css:
+    component:
+      css/log.css: {}

@@ -359,18 +359,22 @@ final class MatrixController extends ControllerBase {
         'year' => $year,
         'sales' => Url::fromRoute('ishop_items.tax_export', ['year' => $year, 'kind' => 'sales'])->toString(),
         'donations' => Url::fromRoute('ishop_items.tax_export', ['year' => $year, 'kind' => 'donations'])->toString(),
+        'mileage' => Url::fromRoute('ishop_life.tax_export', ['year' => $year, 'kind' => 'mileage'])->toString(),
+        'expenses' => Url::fromRoute('ishop_life.tax_export', ['year' => $year, 'kind' => 'expenses'])->toString(),
       ];
     }
     return [
       '#type' => 'inline_template',
-      '#template' => '<section class="rm-card rm-tax" aria-labelledby="rm-tax-title"><h2 id="rm-tax-title">{{ title }}</h2><p>{{ intro }}</p><ul class="rm-tax__years">{% for y in years %}<li><strong>{{ y.year }}</strong> <a class="rm-button rm-button--gold" href="{{ y.sales }}">{{ sales }}</a> <a class="rm-button rm-button--ghost" href="{{ y.donations }}">{{ donations }}</a></li>{% endfor %}</ul><p class="rm-tax__note">{{ note }}</p></section>',
+      '#template' => '<section class="rm-card rm-tax" aria-labelledby="rm-tax-title"><h2 id="rm-tax-title">{{ title }}</h2><p>{{ intro }}</p><ul class="rm-tax__years">{% for y in years %}<li><strong>{{ y.year }}</strong> <a class="rm-button rm-button--gold" href="{{ y.sales }}">{{ sales }}</a> <a class="rm-button rm-button--ghost" href="{{ y.donations }}">{{ donations }}</a> <a class="rm-button rm-button--ghost" href="{{ y.mileage }}">{{ mileage }}</a> <a class="rm-button rm-button--ghost" href="{{ y.expenses }}">{{ expenses }}</a></li>{% endfor %}</ul><p class="rm-tax__note">{{ note }}</p></section>',
       '#context' => [
         'title' => $this->t('Year-end tax export'),
-        'intro' => $this->t('Spreadsheet files (CSV) for your tax records: every sale with its price, cost, fees, shipping and profit, and the donation log. Anything missing is left blank and marked in the "Check" column, never guessed.'),
+        'intro' => $this->t('Spreadsheet files (CSV) for your tax records: every sale with its price, cost, fees, shipping and profit, the donation log, mileage and expenses. Anything missing is left blank and marked in the "Check" column, never guessed.'),
         'years' => $years,
         'sales' => $this->t('Sales (CSV)'),
         'donations' => $this->t('Donations (CSV)'),
-        'note' => $this->t('Donation values: enter an "Estimated donation value" on each donated item (Edit the item). Mileage and expenses join this export when they are added (Phase 5).'),
+        'mileage' => $this->t('Mileage (CSV)'),
+        'expenses' => $this->t('Expenses (CSV)'),
+        'note' => $this->t('Donation values: enter an "Estimated donation value" on each donated item (Edit the item). Mileage and expenses come from "Log a trip or an expense" above.'),
       ],
     ];
   }
@@ -381,6 +385,14 @@ final class MatrixController extends ControllerBase {
   public function myOffice(): array {
     $build = $this->room('my-office');
     return [
+      'log' => [
+        '#type' => 'inline_template',
+        '#template' => '<p class="rm-office-links"><a class="rm-button rm-button--gold" href="{{ url }}">{{ label }}</a></p>',
+        '#context' => [
+          'url' => Url::fromRoute('ishop_life.log')->toString(),
+          'label' => $this->t('Log a trip or an expense'),
+        ],
+      ],
       'money' => $this->moneySection(),
       'tax' => $this->taxSection(),
       'season' => $this->formBuilder()->getForm(SeasonForm::class),

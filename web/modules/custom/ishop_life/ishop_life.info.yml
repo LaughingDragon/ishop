@@ -1,0 +1,10 @@
+name: 'iShop daily life'
+type: module
+description: 'Phase 5 daily-life tools in the Reseller Matrix: mileage and expense log (more to come: bills, calendar, notes, document vault, daily digest).'
+package: iShop
+core_version_requirement: ^11.4
+dependencies:
+  - drupal:datetime
+  - drupal:file
+  - drupal:options
+  - ishop_items:ishop_items

@@ -1,0 +1,47 @@
+uuid: 7b41c0cc-6351-4c71-a13e-3a2273344404
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.mileage.field_log_date
+    - field.field.node.mileage.field_log_note
+    - field.field.node.mileage.field_miles
+    - field.field.node.mileage.field_trip
+    - node.type.mileage
+  module:
+    - user
+id: node.mileage.default
+targetEntityType: node
+bundle: mileage
+mode: default
+content:
+  field_log_date:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 10
+    region: content
+  field_log_note:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 13
+    region: content
+  field_miles:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 12
+    region: content
+  field_trip:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 11
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden: {  }

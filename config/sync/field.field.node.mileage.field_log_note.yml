@@ -1,0 +1,19 @@
+uuid: 8b29bbd4-df8f-46d0-8286-089887698ec7
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_log_note
+    - node.type.mileage
+id: node.mileage.field_log_note
+field_name: field_log_note
+entity_type: node
+bundle: mileage
+label: Note
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

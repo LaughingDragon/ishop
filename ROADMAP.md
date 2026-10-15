@@ -215,7 +215,10 @@ reference project is used only for its rules and formatting logic.
 
 - [ ] Calendar with recurring events (Smart Date, Calendar View).
 - [ ] Bills and subscriptions with due dates and reminders.
-- [ ] Mileage and expense log (post office runs, supplies; packing materials are supplies, kept in the game room).
+- [x] Mileage and expense log (post office runs, supplies; packing materials are supplies, kept in the game room).
+  My office > "Log a trip or an expense": quick-add forms ("Same as last time" for the regular
+  trip), receipt photos (JPEG, no GPS, private), latest entries; Mileage and Expenses CSVs in the
+  year-end tax export. Module ishop_life.
 - [ ] Private document vault (receipts, warranties, manuals), attachable to items.
 - [ ] Notes and to-dos.
 - [ ] **Daily digest email** at about 7 a.m. Pacific: items to post, take-downs,

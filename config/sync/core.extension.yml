@@ -31,6 +31,7 @@ module:
   image_effects: 0
   imagemagick: 0
   ishop_items: 0
+  ishop_life: 0
   ishop_matrix: 0
   ishop_office: 0
   ishop_ui: 0

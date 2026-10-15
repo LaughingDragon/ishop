@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * @file
+ * Install hooks for the daily-life tools.
+ */
+
+declare(strict_types=1);
+
+use Drupal\ishop_life\LifeStructure;
+
+/**
+ * Implements hook_install().
+ */
+function ishop_life_install(bool $is_syncing): void {
+  // During a config import the structure arrives from config/sync instead.
+  if (!$is_syncing) {
+    LifeStructure::ensure();
+  }
+}

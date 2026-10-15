@@ -1,0 +1,19 @@
+/* Mileage and expenses (Phase 5): big fields, iPhone first. */
+.rm-log__back { margin: 0 0 14px; }
+.rm-log__forms { display: grid; gap: 20px; margin: 0 0 26px; }
+@media (min-width: 860px) { .rm-log__forms { grid-template-columns: 1fr 1fr; align-items: start; } }
+.rm-log-form { padding: 20px 22px; }
+.rm-log-form h2 { margin-top: 0; }
+.rm-log-form .rm-log-form__again { width: 100%; margin: 0 0 16px; min-height: 52px; background: transparent; color: var(--rm-gold); border: 2px solid var(--rm-gold); white-space: normal; }
+.rm-log-form input[type=radio] { width: 26px; height: 26px; accent-color: var(--rm-gold); }
+.rm-log-form .form-type-radio, .rm-log-form .js-form-type-radio { display: flex; align-items: center; gap: 10px; min-height: 44px; margin: 0; }
+.rm-log-form .form-type-radio label, .rm-log-form .js-form-type-radio label { margin: 0; font-weight: 600; }
+.rm-log-form input[type=submit] { min-height: 52px; }
+.rm-log__lists { display: grid; gap: 20px; }
+@media (min-width: 860px) { .rm-log__lists { grid-template-columns: 1fr 1fr; } }
+.rm-log__list h2 { font-size: 1.2rem; }
+.rm-log__list ul { margin: 0; padding: 0; list-style: none; }
+.rm-log__list li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; padding: 10px 0; border-bottom: 1px solid var(--rm-line); }
+.rm-log__links { display: flex; gap: 14px; }
+.rm-log__links a { display: inline-flex; align-items: center; min-height: 44px; }
+.rm-log__note { grid-column: 1 / -1; font-size: 17px; color: var(--rm-text-soft); }

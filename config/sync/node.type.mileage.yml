@@ -1,0 +1,11 @@
+uuid: 754780f1-a636-42fa-b7ef-70808891b93a
+langcode: en
+status: true
+dependencies: {  }
+name: Mileage
+type: mileage
+description: 'A trip for the business (post office runs and the like). Logged in My office.'
+help: null
+new_revision: true
+preview_mode: 1
+display_submitted: false

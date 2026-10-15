@@ -1,0 +1,11 @@
+uuid: d1019704-790c-4f47-8bf5-d9aec05dac5e
+langcode: en
+status: true
+dependencies: {  }
+name: Expense
+type: expense
+description: 'Money spent for the business (supplies, packing materials, fees). Logged in My office.'
+help: null
+new_revision: true
+preview_mode: 1
+display_submitted: false

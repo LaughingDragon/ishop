@@ -1,0 +1,21 @@
+uuid: f00de650-922a-4b44-9070-6f7bad13f91b
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_expense_category
+    - node.type.expense
+  module:
+    - options
+id: node.expense.field_expense_category
+field_name: field_expense_category
+entity_type: node
+bundle: expense
+label: Category
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

@@ -1,0 +1,23 @@
+uuid: 37c73176-00f7-4697-8d3a-c4b75ec6d794
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_miles
+    - node.type.mileage
+id: node.mileage.field_miles
+field_name: field_miles
+entity_type: node
+bundle: mileage
+label: Miles
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0.0
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal

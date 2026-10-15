@@ -1,0 +1,27 @@
+uuid: 02443ac9-2f7f-4ca2-bb8d-0c1f458d7577
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_receipt
+    - node.type.expense
+  module:
+    - file
+id: node.expense.field_receipt
+field_name: field_receipt
+entity_type: node
+bundle: expense
+label: Receipt
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings: {  }
+  file_directory: 'receipts/[date:custom:Y]-[date:custom:m]'
+  file_extensions: 'jpg jpeg png webp heic heif pdf'
+  max_filesize: '32 MB'
+  description_field: false
+field_type: file
