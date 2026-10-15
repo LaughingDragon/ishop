@@ -24,6 +24,10 @@ final class VocabularyTest extends UnitTestCase {
     $this->assertSame('in_progress', Vocabulary::normalize(Vocabulary::PHASE_STATUS, 'in-progress'));
     $this->assertSame('not_started', Vocabulary::normalize(Vocabulary::PHASE_STATUS, 'not_started'));
     $this->assertSame('cody', Vocabulary::normalize(Vocabulary::PEOPLE, 'Cody'));
+    $this->assertSame('site_foreman', Vocabulary::normalize(Vocabulary::PEOPLE, 'site-foreman'));
+    $this->assertSame('claude', Vocabulary::normalize(Vocabulary::PEOPLE, 'Claude (review)'));
+    $this->assertSame('claude', Vocabulary::normalize(Vocabulary::PEOPLE, 'claude'));
+    $this->assertSame('site_foreman', Vocabulary::ACCOUNTS['site-foreman']);
   }
 
   /**

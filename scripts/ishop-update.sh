@@ -79,7 +79,7 @@ $2
 
 **How to answer:** "Site works", or "Site broken: (what you see)".
 EOF
-  "$DRUSH" ishop:punch "Automatic update on $TODAY did not finish ($STEP)" --waiting-on=liam,claude \
+  "$DRUSH" ishop:punch "Automatic update on $TODAY did not finish ($STEP)" --waiting-on=liam,site-foreman \
     --phase=foundation --instructions-file="$WORK/punch.md" \
     --details="Log on the VM: \`$LOG\`" || echo "!! could not open a punch list item"
 }

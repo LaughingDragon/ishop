@@ -16,11 +16,24 @@ final class Vocabulary {
     'done' => 'Done',
   ];
 
+  /**
+   * Who an item waits on, who decided, who answered.
+   *
+   * "site-foreman" is Claude working on the server (Drush, code, the VM).
+   * "Claude (review)" is Claude in a browser or chat, for reviews and judgment;
+   * it answers its punch list items through the site's answer form.
+   */
   public const PEOPLE = [
     'liam' => 'Liam',
     'cody' => 'Cody',
-    'claude' => 'Claude',
+    'site_foreman' => 'site-foreman',
+    'claude' => 'Claude (review)',
   ];
+
+  /**
+   * People whose punch list items need step-by-step instructions.
+   */
+  public const NEEDS_INSTRUCTIONS = ['liam', 'cody', 'claude'];
 
   /**
    * Which person each site office account belongs to.
@@ -28,7 +41,7 @@ final class Vocabulary {
   public const ACCOUNTS = [
     'webmaster' => 'liam',
     'theowner' => 'cody',
-    'site-foreman' => 'claude',
+    'site-foreman' => 'site_foreman',
   ];
 
   public const PUNCH_STATUS = [

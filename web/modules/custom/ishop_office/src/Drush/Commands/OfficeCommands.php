@@ -100,10 +100,10 @@ final class OfficeCommands extends DrushCommands {
    */
   #[CLI\Command(name: 'ishop:punch')]
   #[CLI\Argument(name: 'question', description: 'The question or decision, up to 255 characters.')]
-  #[CLI\Option(name: 'waiting-on', description: 'Comma-separated: liam, cody, claude.')]
+  #[CLI\Option(name: 'waiting-on', description: 'Comma-separated: liam, cody, site-foreman (server work), claude (browser review or judgment).')]
   #[CLI\Option(name: 'phase', description: 'Phase number it belongs to.')]
   #[CLI\Option(name: 'details', description: 'Background (Markdown).')]
-  #[CLI\Option(name: 'instructions-file', description: 'Markdown file with step-by-step instructions. Required when waiting on Liam or Cody.')]
+  #[CLI\Option(name: 'instructions-file', description: 'Markdown file with step-by-step instructions. Required when waiting on Liam, Cody or Claude (review).')]
   #[CLI\Option(name: 'date', description: 'Opened date, YYYY-MM-DD. Defaults to today.')]
   public function punch(
     string $question,
@@ -111,8 +111,8 @@ final class OfficeCommands extends DrushCommands {
   ): int {
     $people = $this->people((string) $options['waiting-on']);
     $instructions = $options['instructions-file'] ? trim($this->read((string) $options['instructions-file'])) : '';
-    if ($instructions === '' && array_intersect($people, ['liam', 'cody'])) {
-      throw new \InvalidArgumentException('--instructions-file is required: anything waiting on Liam or Cody needs full step-by-step instructions.');
+    if ($instructions === '' && array_intersect($people, Vocabulary::NEEDS_INSTRUCTIONS)) {
+      throw new \InvalidArgumentException('--instructions-file is required: anything waiting on Liam, Cody or Claude (review) needs full step-by-step instructions.');
     }
     $this->refuseSecrets($question . "\n" . $options['details'] . "\n" . $instructions);
     $node = $this->office->addPunch($question, $people, OptionValues::phase($options['phase']), (string) $options['details'], $this->date($options['date']), $instructions);
@@ -143,9 +143,9 @@ final class OfficeCommands extends DrushCommands {
   #[CLI\Command(name: 'ishop:punch-close')]
   #[CLI\Argument(name: 'nid', description: 'Node ID of the punch list item (see drush ishop:office).')]
   #[CLI\Option(name: 'answer', description: 'The answer or outcome (Markdown). Required.')]
-  #[CLI\Option(name: 'by', description: 'Who gave the answer: liam, cody or claude (default).')]
+  #[CLI\Option(name: 'by', description: 'Who gave the answer: liam, cody, site-foreman (default) or claude (review).')]
   #[CLI\Option(name: 'date', description: 'Closed date, YYYY-MM-DD. Defaults to today.')]
-  public function punchClose(int $nid, array $options = ['answer' => '', 'by' => 'claude', 'date' => NULL]): int {
+  public function punchClose(int $nid, array $options = ['answer' => '', 'by' => 'site-foreman', 'date' => NULL]): int {
     $answer = trim((string) $options['answer']);
     if ($answer === '') {
       throw new \InvalidArgumentException('--answer is required: closing an item records its answer.');
@@ -179,7 +179,7 @@ final class OfficeCommands extends DrushCommands {
    */
   #[CLI\Command(name: 'ishop:decision')]
   #[CLI\Argument(name: 'decision', description: 'What was decided, up to 255 characters.')]
-  #[CLI\Option(name: 'by', description: 'Comma-separated: liam, cody, claude.')]
+  #[CLI\Option(name: 'by', description: 'Comma-separated: liam, cody, site-foreman, claude (review).')]
   #[CLI\Option(name: 'why', description: 'Why (Markdown).')]
   #[CLI\Option(name: 'phase', description: 'Phase number it belongs to.')]
   #[CLI\Option(name: 'date', description: 'Decision date, YYYY-MM-DD. Defaults to today.')]
@@ -248,7 +248,7 @@ final class OfficeCommands extends DrushCommands {
   private function people(string $list): array {
     $people = array_filter(array_map('trim', explode(',', $list)));
     if (!$people) {
-      throw new \InvalidArgumentException('Name at least one person: liam, cody or claude.');
+      throw new \InvalidArgumentException('Name at least one person: liam, cody, site-foreman or claude.');
     }
     return array_values(array_unique(array_map(fn ($p) => Vocabulary::normalize(Vocabulary::PEOPLE, $p), $people)));
   }

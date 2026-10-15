@@ -48,6 +48,20 @@ final class AnswerPunchForm extends FormBase {
         '#title' => $this->t("This email address is ours (for example the address the site sends from), not a customer's."),
       ];
     }
+    // Claude (review) answers from Liam's logged-in browser, so it says so.
+    if ($node && in_array('claude', array_column($node->get('field_waiting_on')->getValue(), 'value'), TRUE)) {
+      $me = Vocabulary::ACCOUNTS[$this->currentUser()->getAccountName()] ?? NULL;
+      $form['answered_as'] = [
+        '#type' => 'radios',
+        '#title' => $this->t('Who is answering?'),
+        '#options' => array_filter([
+          $me => $me ? Vocabulary::PEOPLE[$me] : NULL,
+          'claude' => Vocabulary::PEOPLE['claude'],
+        ]),
+        '#default_value' => $me ?? 'claude',
+        '#required' => TRUE,
+      ];
+    }
     $form['actions'] = ['#type' => 'actions'];
     $form['actions']['submit'] = [
       '#type' => 'submit',
@@ -76,6 +90,9 @@ final class AnswerPunchForm extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $account = $this->currentUser();
     $person = Vocabulary::ACCOUNTS[$account->getAccountName()] ?? NULL;
+    if ($form_state->getValue('answered_as') === 'claude') {
+      $person = 'claude';
+    }
     if ($person === NULL) {
       $this->messenger()->addError($this->t('Your account is not linked to a person in the site office, so the answer was not saved.'));
       return;
