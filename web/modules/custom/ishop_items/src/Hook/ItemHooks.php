@@ -51,8 +51,19 @@ final class ItemHooks {
     $icons = '/' . \Drupal::moduleHandler()->getModule('ishop_items')->getPath() . '/icons';
     $tags = [
       'ishop_manifest' => ['link', ['rel' => 'manifest', 'href' => '/manifest.webmanifest']],
-      'ishop_apple_touch_icon' => ['link', ['rel' => 'apple-touch-icon', 'sizes' => '180x180', 'href' => "$icons/apple-touch-icon.png"]],
-      'ishop_icon_192' => ['link', ['rel' => 'icon', 'type' => 'image/png', 'sizes' => '192x192', 'href' => "$icons/icon-192.png"]],
+      'ishop_apple_touch_icon' => ['link', [
+        'rel' => 'apple-touch-icon',
+        'sizes' => '180x180',
+        'href' => "$icons/apple-touch-icon.png",
+      ],
+      ],
+      'ishop_icon_192' => ['link', [
+        'rel' => 'icon',
+        'type' => 'image/png',
+        'sizes' => '192x192',
+        'href' => "$icons/icon-192.png",
+      ],
+      ],
       'ishop_theme_color' => ['meta', ['name' => 'theme-color', 'content' => '#161312']],
       'ishop_apple_capable' => ['meta', ['name' => 'apple-mobile-web-app-capable', 'content' => 'yes']],
       'ishop_mobile_capable' => ['meta', ['name' => 'mobile-web-app-capable', 'content' => 'yes']],
