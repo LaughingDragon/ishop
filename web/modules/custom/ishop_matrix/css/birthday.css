@@ -101,3 +101,19 @@ body.rm-birthday {
 .rm-party-video { margin: 0 0 28px; padding: 20px 24px; border: 2px solid var(--rm-party-pink); }
 .rm-party-video h2 { margin: 0 0 6px; color: var(--rm-party-gold); }
 .rm-party-video p { margin: 0 0 16px; }
+
+/* Hero finishing touches (Liam, 2026-10-15): centered, a bigger two-line
+   heading, confetti only at the edges so the middle stays clean. */
+.rm-party-sign { text-align: center; padding: 36px 24px 34px; }
+.rm-party-sign .rm-greeting__text { display: flex; flex-direction: column; align-items: center; }
+/* Exactly two lines: "Happy birthday," sized to fit the width without
+   wrapping, then "boss!" extra large on its own line. */
+.rm-party-sign h1 { margin: 18px 0 6px; line-height: 1.02; }
+.rm-party-sign h1 span { display: block; white-space: nowrap; }
+.rm-party-sign h1 span:first-child { font-size: clamp(1.6rem, 7.2vw, 3.6rem); }
+.rm-party-sign h1 span:last-child { font-size: clamp(3.4rem, 19vw, 6.4rem); }
+.rm-party-sign p { margin-left: auto; margin-right: auto; font-size: 20px; }
+.rm-party-sign .rm-confetti {
+  -webkit-mask-image: linear-gradient(to right, #000 0 16%, transparent 30% 70%, #000 84% 100%);
+  mask-image: linear-gradient(to right, #000 0 16%, transparent 30% 70%, #000 84% 100%);
+}
