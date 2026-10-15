@@ -5,6 +5,7 @@ dependencies:
   config:
     - field.field.node.office_report.field_blockers
     - field.field.node.office_report.field_commits
+    - field.field.node.office_report.field_crew_only
     - field.field.node.office_report.field_decisions_needed
     - field.field.node.office_report.field_next_steps
     - field.field.node.office_report.field_office_date
@@ -43,6 +44,13 @@ content:
     settings:
       size: 60
       placeholder: ''
+    third_party_settings: {  }
+  field_crew_only:
+    type: boolean_checkbox
+    weight: 19
+    region: content
+    settings:
+      display_label: true
     third_party_settings: {  }
   field_decisions_needed:
     type: text_textarea

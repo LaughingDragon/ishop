@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\ishop_office\Drush\Commands;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\ishop_office\Drush\OptionValues;
 use Drupal\ishop_office\OfficeManager;
 use Drupal\ishop_office\Parser\ReportParser;
@@ -24,6 +25,7 @@ final class OfficeCommands extends DrushCommands {
 
   public function __construct(
     private readonly OfficeManager $office,
+    private readonly EntityTypeManagerInterface $entityTypeManager,
   ) {
     parent::__construct();
   }
@@ -56,8 +58,9 @@ final class OfficeCommands extends DrushCommands {
   #[CLI\Command(name: 'ishop:report')]
   #[CLI\Argument(name: 'file', description: 'Markdown report with YAML front matter (see ReportParser for the format).')]
   #[CLI\Option(name: 'dry-run', description: 'Check the file and show what would be filed, without saving.')]
+  #[CLI\Option(name: 'crew-only', description: 'Hide it from the owner (only webmaster and site-foreman see it).')]
   #[CLI\Usage(name: 'drush ishop:report /tmp/report.md --dry-run', description: 'Validate a report.')]
-  public function report(string $file, array $options = ['dry-run' => FALSE]): int {
+  public function report(string $file, array $options = ['dry-run' => FALSE, 'crew-only' => FALSE]): int {
     $markdown = $this->read($file);
     $this->refuseSecrets($markdown);
     $report = ReportParser::parse($markdown);
@@ -76,6 +79,7 @@ final class OfficeCommands extends DrushCommands {
       $this->logger()->success('Dry run: the report is valid. Nothing was saved.');
       return self::EXIT_SUCCESS;
     }
+    $this->office->setCrewOnly((bool) $options['crew-only']);
     $node = $this->office->fileReport($report, basename($file));
     $this->logger()->success(sprintf('Filed "%s": %s', $node->label(), $node->toUrl('canonical', ['absolute' => TRUE])->toString()));
     return self::EXIT_SUCCESS;
@@ -105,9 +109,17 @@ final class OfficeCommands extends DrushCommands {
   #[CLI\Option(name: 'details', description: 'Background (Markdown).')]
   #[CLI\Option(name: 'instructions-file', description: 'Markdown file with step-by-step instructions. Required when waiting on Liam, Cody or Claude (review).')]
   #[CLI\Option(name: 'date', description: 'Opened date, YYYY-MM-DD. Defaults to today.')]
+  #[CLI\Option(name: 'crew-only', description: 'Hide it from the owner (only webmaster and site-foreman see it).')]
   public function punch(
     string $question,
-    array $options = ['waiting-on' => '', 'phase' => NULL, 'details' => '', 'instructions-file' => NULL, 'date' => NULL],
+    array $options = [
+      'waiting-on' => '',
+      'phase' => NULL,
+      'details' => '',
+      'instructions-file' => NULL,
+      'date' => NULL,
+      'crew-only' => FALSE,
+    ],
   ): int {
     $people = $this->people((string) $options['waiting-on']);
     $instructions = $options['instructions-file'] ? trim($this->read((string) $options['instructions-file'])) : '';
@@ -115,6 +127,7 @@ final class OfficeCommands extends DrushCommands {
       throw new \InvalidArgumentException('--instructions-file is required: anything waiting on Liam, Cody or Claude (review) needs full step-by-step instructions.');
     }
     $this->refuseSecrets($question . "\n" . $options['details'] . "\n" . $instructions);
+    $this->office->setCrewOnly((bool) $options['crew-only']);
     $node = $this->office->addPunch($question, $people, OptionValues::phase($options['phase']), (string) $options['details'], $this->date($options['date']), $instructions);
     $this->logger()->success(sprintf('Punch list item %d opened: %s', $node->id(), $node->label()));
     return self::EXIT_SUCCESS;
@@ -183,10 +196,31 @@ final class OfficeCommands extends DrushCommands {
   #[CLI\Option(name: 'why', description: 'Why (Markdown).')]
   #[CLI\Option(name: 'phase', description: 'Phase number it belongs to.')]
   #[CLI\Option(name: 'date', description: 'Decision date, YYYY-MM-DD. Defaults to today.')]
-  public function decision(string $decision, array $options = ['by' => '', 'why' => '', 'phase' => NULL, 'date' => NULL]): int {
+  #[CLI\Option(name: 'crew-only', description: 'Hide it from the owner (only webmaster and site-foreman see it).')]
+  public function decision(
+    string $decision,
+    array $options = ['by' => '', 'why' => '', 'phase' => NULL, 'date' => NULL, 'crew-only' => FALSE],
+  ): int {
+    $this->office->setCrewOnly((bool) $options['crew-only']);
     $this->refuseSecrets($decision . "\n" . $options['why']);
     $node = $this->office->addDecision($decision, $this->people((string) $options['by']), (string) $options['why'], OptionValues::phase($options['phase']), $this->date($options['date']));
     $this->logger()->success(sprintf('Decision %d logged: %s', $node->id(), $node->label()));
+    return self::EXIT_SUCCESS;
+  }
+
+  /**
+   * Hides a report, punch item or decision from the owner, or shows it again.
+   */
+  #[CLI\Command(name: 'ishop:crew-only')]
+  #[CLI\Argument(name: 'nid', description: 'A report, punch item or decision.')]
+  #[CLI\Option(name: 'off', description: 'Make it visible to the owner again.')]
+  public function crewOnly(int $nid, array $options = ['off' => FALSE]): int {
+    $node = $this->entityTypeManager->getStorage('node')->load($nid);
+    if (!$node) {
+      throw new \InvalidArgumentException(sprintf('There is no node %d.', $nid));
+    }
+    $this->office->markCrewOnly($node, !$options['off']);
+    $this->logger()->success(sprintf('%d "%s" is now %s.', $nid, $node->label(), $options['off'] ? 'visible to the owner' : 'crew only (hidden from the owner)'));
     return self::EXIT_SUCCESS;
   }
 

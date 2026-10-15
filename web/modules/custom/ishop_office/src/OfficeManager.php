@@ -25,6 +25,11 @@ final class OfficeManager {
 
   public const FOREMAN = 'site-foreman';
 
+  /**
+   * Whether new reports, punch items and decisions are crew only.
+   */
+  private bool $crewOnly = FALSE;
+
   public function __construct(
     private readonly EntityTypeManagerInterface $entityTypeManager,
     private readonly AccountSwitcherInterface $accountSwitcher,
@@ -134,10 +139,11 @@ final class OfficeManager {
       $node->set('path', ['alias' => $this->uniqueAlias('/site-office/reports/' . $report['date'])]);
       $this->saveRevision($node, $foreman, sprintf('Filed with drush ishop:report from %s.', $source));
 
-      // The newest report by date becomes the phase's latest report.
+      // The newest report by date becomes the phase's latest report. Crew-only
+      // reports never do: the owner sees the status board.
       $latest = $phase->get('field_latest_report')->entity;
       $changes = [];
-      if (!$latest || $latest->get('field_office_date')->value <= $report['date']) {
+      if (!OfficeStructure::isCrewOnly($node) && (!$latest || $latest->get('field_office_date')->value <= $report['date'])) {
         $phase->set('field_latest_report', $node);
         $changes[] = 'latest report';
       }
@@ -378,7 +384,7 @@ final class OfficeManager {
       $total = (int) $phase->get('field_checklist_total')->value;
       $status = (string) $phase->get('field_phase_status')->value;
       $report = $phase->get('field_latest_report')->entity;
-      if ($report && $access_check && !$report->access('view')) {
+      if ($report && $access_check && (!$report->access('view') || (OfficeStructure::isCrewOnly($report) && !OfficeStructure::isCrew(\Drupal::currentUser())))) {
         $report = NULL;
       }
       $rows[] = [
@@ -420,16 +426,43 @@ final class OfficeManager {
   }
 
   /**
+   * Makes the next new reports, punch items and decisions crew only.
+   *
+   * Set before they are created, so they are never visible to the owner.
+   */
+  public function setCrewOnly(bool $crew_only): void {
+    $this->crewOnly = $crew_only;
+  }
+
+  /**
+   * Marks an existing office node crew only, or not.
+   */
+  public function markCrewOnly(NodeInterface $node, bool $crew_only): NodeInterface {
+    if (!$node->hasField('field_crew_only')) {
+      throw new \InvalidArgumentException(sprintf('Node %d is not a report, punch item or decision.', $node->id()));
+    }
+    return $this->asForeman(function (UserInterface $foreman) use ($node, $crew_only) {
+      $node->set('field_crew_only', $crew_only);
+      $this->saveRevision($node, $foreman, $crew_only ? 'Crew only (hidden from the owner).' : 'Visible to the owner again.');
+      return $node;
+    });
+  }
+
+  /**
    * A new, published, unpromoted node owned by site-foreman.
    */
   private function newNode(string $bundle, string $title, UserInterface $owner): NodeInterface {
-    return $this->entityTypeManager->getStorage('node')->create([
+    $node = $this->entityTypeManager->getStorage('node')->create([
       'type' => $bundle,
       'title' => $title,
       'uid' => $owner->id(),
       'status' => 1,
       'promote' => 0,
     ]);
+    if ($this->crewOnly && $node->hasField('field_crew_only')) {
+      $node->set('field_crew_only', TRUE);
+    }
+    return $node;
   }
 
   /**

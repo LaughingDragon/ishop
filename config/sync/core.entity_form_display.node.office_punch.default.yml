@@ -6,6 +6,7 @@ dependencies:
     - field.field.node.office_punch.field_answer
     - field.field.node.office_punch.field_answered_by
     - field.field.node.office_punch.field_closed_date
+    - field.field.node.office_punch.field_crew_only
     - field.field.node.office_punch.field_details
     - field.field.node.office_punch.field_instructions
     - field.field.node.office_punch.field_office_date
@@ -47,6 +48,13 @@ content:
     weight: 18
     region: content
     settings: {  }
+    third_party_settings: {  }
+  field_crew_only:
+    type: boolean_checkbox
+    weight: 19
+    region: content
+    settings:
+      display_label: true
     third_party_settings: {  }
   field_details:
     type: text_textarea

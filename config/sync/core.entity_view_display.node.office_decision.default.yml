@@ -3,6 +3,7 @@ langcode: en
 status: true
 dependencies:
   config:
+    - field.field.node.office_decision.field_crew_only
     - field.field.node.office_decision.field_decided_by
     - field.field.node.office_decision.field_office_date
     - field.field.node.office_decision.field_office_phase
@@ -18,6 +19,16 @@ targetEntityType: node
 bundle: office_decision
 mode: default
 content:
+  field_crew_only:
+    type: boolean
+    label: inline
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    weight: 14
+    region: content
   field_decided_by:
     type: list_default
     label: inline

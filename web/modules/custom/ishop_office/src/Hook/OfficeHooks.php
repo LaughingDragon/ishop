@@ -7,6 +7,8 @@ namespace Drupal\ishop_office\Hook;
 use Drupal\block\Entity\Block;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Access\AccessResultInterface;
+use Drupal\Core\Database\Query\AlterableInterface;
+use Drupal\Core\Database\Query\SelectInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Hook\Attribute\Hook;
 use Drupal\Core\Routing\RouteMatchInterface;
@@ -27,6 +29,11 @@ final class OfficeHooks {
   use StringTranslationTrait;
 
   private const GRANT_REALM = 'ishop_office';
+
+  /**
+   * Realm for crew-only office nodes (webmaster and site-foreman).
+   */
+  private const CREW_REALM = 'ishop_office_crew';
 
   public function __construct(
     private readonly RouteMatchInterface $routeMatch,
@@ -51,7 +58,7 @@ final class OfficeHooks {
       return [];
     }
     return [[
-      'realm' => self::GRANT_REALM,
+      'realm' => OfficeStructure::isCrewOnly($node) ? self::CREW_REALM : self::GRANT_REALM,
       'gid' => 1,
       'grant_view' => (int) $node->isPublished(),
       'grant_update' => 0,
@@ -65,7 +72,41 @@ final class OfficeHooks {
    */
   #[Hook('node_grants')]
   public function nodeGrants(AccountInterface $account, string $operation): array {
-    return $operation === 'view' && $account->hasPermission('access site office') ? [self::GRANT_REALM => [1]] : [];
+    if ($operation !== 'view' || !$account->hasPermission('access site office')) {
+      return [];
+    }
+    $grants = [self::GRANT_REALM => [1]];
+    if (OfficeStructure::isCrew($account)) {
+      $grants[self::CREW_REALM] = [1];
+    }
+    return $grants;
+  }
+
+  /**
+   * Implements hook_query_TAG_alter() for node_access.
+   *
+   * Crew-only office nodes are left out of every node list (site office,
+   * admin content list, autocomplete) for anyone who is not crew. This also
+   * covers administrators, who bypass node grants.
+   */
+  #[Hook('query_node_access_alter')]
+  public function queryNodeAccessAlter(AlterableInterface $query): void {
+    if (!$query instanceof SelectInterface) {
+      return;
+    }
+    $account = $query->getMetaData('account') ?? \Drupal::currentUser();
+    if (OfficeStructure::isCrew($account)) {
+      return;
+    }
+    foreach ($query->getTables() as $alias => $table) {
+      if (in_array($table['table'] ?? NULL, ['node', 'node_field_data'], TRUE) && empty($table['join type'])) {
+        $hidden = \Drupal::database()->select('node__field_crew_only', 'crew')
+          ->fields('crew', ['entity_id'])
+          ->condition('crew.field_crew_only_value', 1);
+        $query->condition($alias . '.nid', $hidden, 'NOT IN');
+        return;
+      }
+    }
   }
 
   /**
@@ -79,7 +120,8 @@ final class OfficeHooks {
     if (!self::isOffice($node)) {
       return AccessResult::neutral();
     }
-    return AccessResult::forbiddenIf(!$account->hasPermission('access site office'))->cachePerPermissions();
+    return AccessResult::forbiddenIf(!$account->hasPermission('access site office'))->cachePerPermissions()
+      ->orIf(AccessResult::forbiddenIf(OfficeStructure::isCrewOnly($node) && !OfficeStructure::isCrew($account))->cachePerUser()->addCacheableDependency($node));
   }
 
   /**

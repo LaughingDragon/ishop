@@ -1,0 +1,21 @@
+uuid: 88ebf7ae-8ade-4d63-b365-69586d5bf839
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_crew_only
+    - node.type.office_report
+id: node.office_report.field_crew_only
+field_name: field_crew_only
+entity_type: node
+bundle: office_report
+label: 'Crew only (hidden from the owner)'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

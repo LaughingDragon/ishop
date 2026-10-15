@@ -1,0 +1,21 @@
+uuid: d65b6bab-0482-44a4-a006-112190767428
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_crew_only
+    - node.type.office_decision
+id: node.office_decision.field_crew_only
+field_name: field_crew_only
+entity_type: node
+bundle: office_decision
+label: 'Crew only (hidden from the owner)'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

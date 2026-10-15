@@ -1,0 +1,21 @@
+uuid: 8c8d9c26-0908-4265-9834-3628a5a54d1a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_crew_only
+    - node.type.office_punch
+id: node.office_punch.field_crew_only
+field_name: field_crew_only
+entity_type: node
+bundle: office_punch
+label: 'Crew only (hidden from the owner)'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

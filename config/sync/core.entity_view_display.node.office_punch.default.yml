@@ -6,6 +6,7 @@ dependencies:
     - field.field.node.office_punch.field_answer
     - field.field.node.office_punch.field_answered_by
     - field.field.node.office_punch.field_closed_date
+    - field.field.node.office_punch.field_crew_only
     - field.field.node.office_punch.field_details
     - field.field.node.office_punch.field_instructions
     - field.field.node.office_punch.field_office_date
@@ -45,6 +46,16 @@ content:
       date_format: Y-m-d
     third_party_settings: {  }
     weight: 18
+    region: content
+  field_crew_only:
+    type: boolean
+    label: inline
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    weight: 19
     region: content
   field_details:
     type: text_default

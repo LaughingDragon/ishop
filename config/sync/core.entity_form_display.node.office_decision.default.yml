@@ -3,6 +3,7 @@ langcode: en
 status: true
 dependencies:
   config:
+    - field.field.node.office_decision.field_crew_only
     - field.field.node.office_decision.field_decided_by
     - field.field.node.office_decision.field_office_date
     - field.field.node.office_decision.field_office_phase
@@ -22,6 +23,13 @@ content:
     weight: 10
     region: content
     settings: {  }
+    third_party_settings: {  }
+  field_crew_only:
+    type: boolean_checkbox
+    weight: 14
+    region: content
+    settings:
+      display_label: true
     third_party_settings: {  }
   field_decided_by:
     type: options_buttons

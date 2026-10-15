@@ -9,6 +9,8 @@ use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\filter\Entity\FilterFormat;
 use Drupal\node\Entity\NodeType;
 use Drupal\user\Entity\Role;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\node\NodeInterface;
 
 /**
  * Creates the site office's text format, role, content types and fields.
@@ -21,6 +23,29 @@ final class OfficeStructure {
 
   public const FORMAT = 'office_markdown';
   public const ROLE = 'site_office';
+
+  /**
+   * The crew: webmaster (Liam) and site-foreman (Claude), by user ID.
+   *
+   * Crew-only office nodes (field_crew_only) are hidden from everyone else,
+   * the owner included, although that account is an administrator (Liam,
+   * 2026-10-15: "hide the birthday stuff from the owner").
+   */
+  public const CREW = [1, 2];
+
+  /**
+   * Whether an account is crew.
+   */
+  public static function isCrew(AccountInterface $account): bool {
+    return in_array((int) $account->id(), self::CREW, TRUE);
+  }
+
+  /**
+   * Whether a node is marked crew only.
+   */
+  public static function isCrewOnly(NodeInterface $node): bool {
+    return $node->hasField('field_crew_only') && (bool) $node->get('field_crew_only')->value;
+  }
 
   public const BUNDLES = [
     'office_plan' => ['Office: plan', 'The roadmap, synced from ROADMAP.md by drush ishop:plans.'],
@@ -59,6 +84,7 @@ final class OfficeStructure {
     'field_answered_by' => ['list_string', ['allowed_values' => Vocabulary::PEOPLE], 1],
     'field_decided_by' => ['list_string', ['allowed_values' => Vocabulary::PEOPLE], -1],
     'field_why' => ['text_long', [], 1],
+    'field_crew_only' => ['boolean', [], 1],
   ];
 
   /**
@@ -87,6 +113,7 @@ final class OfficeStructure {
       'field_decisions_needed' => ['Decisions needed from Liam or Cody', FALSE],
       'field_tests' => ['Tests run and results', TRUE],
       'field_commits' => ['Git commits', FALSE],
+      'field_crew_only' => ['Crew only (hidden from the owner)', FALSE],
     ],
     'office_punch' => [
       'field_instructions' => ['What to do', FALSE],
@@ -98,12 +125,14 @@ final class OfficeStructure {
       'field_answer' => ['Answer', FALSE],
       'field_answered_by' => ['Answered by', FALSE],
       'field_closed_date' => ['Closed', FALSE],
+      'field_crew_only' => ['Crew only (hidden from the owner)', FALSE],
     ],
     'office_decision' => [
       'field_office_date' => ['Decided on', TRUE],
       'field_decided_by' => ['Decided by', TRUE],
       'field_why' => ['Why', FALSE],
       'field_office_phase' => ['Phase', FALSE],
+      'field_crew_only' => ['Crew only (hidden from the owner)', FALSE],
     ],
   ];
 
