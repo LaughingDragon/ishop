@@ -72,7 +72,7 @@ report in the site office.
 
 ## Phase 0: safety net
 
-- [ ] Two-factor login: skipped for now by decision. Enforce strong passwords
+- [x] Two-factor login: skipped for now by decision. Enforce strong passwords
   and login flood limits instead. Security Kit.
 - [x] Backup and Migrate: nightly database + private files backup, kept 14 days,
   stored outside the web root.
