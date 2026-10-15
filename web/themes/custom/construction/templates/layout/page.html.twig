@@ -19,6 +19,7 @@
     {% if logged_in %}
       <div class="site-header__user">
         <span class="site-header__crew">Crew: <strong>{{ user_name }}</strong></span>
+        {% if ishop_add_item_url %}<a class="button button--hazard" href="{{ ishop_add_item_url }}">{{ 'Add item'|t }}</a>{% endif %}
         <a class="button button--hazard" href="{{ path('user.page') }}">{{ 'My account'|t }}</a>
         <a class="button button--hazard" href="{{ path('user.logout') }}">{{ 'Log out'|t }}</a>
       </div>

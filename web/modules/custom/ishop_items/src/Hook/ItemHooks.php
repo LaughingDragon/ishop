@@ -40,6 +40,19 @@ final class ItemHooks {
   ) {}
 
   /**
+   * Implements hook_preprocess_HOOK() for page: "Add item" for the headers.
+   *
+   * The Construction theme (site office) shows it beside My account, so a
+   * site office page is never a dead end on the phone.
+   */
+  #[Hook('preprocess_page')]
+  public function preprocessPage(array &$variables): void {
+    $variables['#cache']['contexts'][] = 'user.permissions';
+    $access = \Drupal::entityTypeManager()->getAccessControlHandler('node')->createAccess('item');
+    $variables['ishop_add_item_url'] = $access ? '/add' : NULL;
+  }
+
+  /**
    * Implements hook_page_attachments(): the home-screen app tags.
    *
    * On every page, the login gate included, so "Add to Home Screen" works
