@@ -158,6 +158,23 @@ final class OfficeCommands extends DrushCommands {
   }
 
   /**
+   * Reopens a punch list item that was closed by mistake.
+   */
+  #[CLI\Command(name: 'ishop:punch-reopen')]
+  #[CLI\Argument(name: 'nid', description: 'Node ID of the punch list item.')]
+  #[CLI\Option(name: 'why', description: 'Why it is reopened (kept in the revision log). Required.')]
+  public function punchReopen(int $nid, array $options = ['why' => '']): int {
+    $why = trim((string) $options['why']);
+    if ($why === '') {
+      throw new \InvalidArgumentException('--why is required.');
+    }
+    $this->refuseSecrets($why);
+    $node = $this->office->reopenPunch($nid, $why);
+    $this->logger()->success(sprintf('Reopened punch list item %d: %s', $node->id(), $node->label()));
+    return self::EXIT_SUCCESS;
+  }
+
+  /**
    * Adds a decision to the decision log.
    */
   #[CLI\Command(name: 'ishop:decision')]

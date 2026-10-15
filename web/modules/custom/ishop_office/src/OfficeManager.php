@@ -245,6 +245,29 @@ final class OfficeManager {
   }
 
   /**
+   * Reopens a punch list item that was closed by mistake.
+   *
+   * The earlier answer stays in the revision history; the log says why.
+   */
+  public function reopenPunch(int $nid, string $why): NodeInterface {
+    $node = $this->entityTypeManager->getStorage('node')->load($nid);
+    if (!$node instanceof NodeInterface || $node->bundle() !== 'office_punch') {
+      throw new \InvalidArgumentException(sprintf('Node %d is not a punch list item.', $nid));
+    }
+    if ($node->get('field_punch_status')->value === 'open') {
+      throw new \InvalidArgumentException(sprintf('Punch list item %d is already open.', $nid));
+    }
+    return $this->asForeman(function (UserInterface $foreman) use ($node, $why): NodeInterface {
+      $node->set('field_punch_status', 'open');
+      $node->set('field_answer', NULL);
+      $node->set('field_answered_by', NULL);
+      $node->set('field_closed_date', NULL);
+      $this->saveRevision($node, $foreman, 'Reopened with drush ishop:punch-reopen: ' . $why);
+      return $node;
+    });
+  }
+
+  /**
    * Adds a decision to the decision log.
    *
    * @param string $decision

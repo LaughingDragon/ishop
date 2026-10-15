@@ -32,7 +32,7 @@ final class SecretScanner {
     'Slack token' => '/\bxox[abprs]-[A-Za-z0-9-]{10,}/',
     'URL with a password' => '#\b[a-z][a-z0-9+.-]*://[^\s/:@]+:[^\s/@]+@#i',
     'Drupal one-time login link' => '#/user/reset/\d+/\d+/[A-Za-z0-9_-]{10,}#',
-    'password or key assignment' => '/(?<![a-z0-9])(?:password|passwd|pass|secret|api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret)\b\s*[:=]\s*(?!<?redacted>?|none\b|n\/a\b|not set\b|\*+)[\'"]?[^\s\'"]{6,}/i',
+    'password or key assignment' => '/(?<![a-z0-9])(?:password|passwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret)\b\s*[:=]\s*(?!<?redacted>?|none\b|n\/a\b|not set\b|\*+)[\'"]?[^\s\'"]{6,}/i',
   ];
 
   /**

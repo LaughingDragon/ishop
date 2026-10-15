@@ -77,6 +77,7 @@ final class SecretScannerTest extends UnitTestCase {
       ['Commit 69f5e1d added the roadmap.'],
       ['Visit https://ishoponamazonwaytoomuch.ohbah.com/site-office'],
       ['The task-list skill is fine.'],
+      ['Pass: commit and file a report. Fail: roll back.'],
     ];
   }
 
