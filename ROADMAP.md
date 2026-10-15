@@ -76,7 +76,6 @@ report in the site office.
   and login flood limits instead. Security Kit.
 - [x] Backup and Migrate: nightly database + private files backup, kept 14 days,
   stored outside the web root.
-- [x] Liam (in the Cloud console): daily disk snapshot schedule, 7-day retention.
 - [x] Gin admin theme + Gin Toolbar.
 - Accounts:
   - [x] `webmaster`: administrator, for Liam. Password never in any file the
@@ -128,7 +127,7 @@ Approved 2026-10-15 (punch item 78: proposal plus Claude (review)'s gaps; Liam d
   It is snapshotted first, then formatted and mounted by UUID with nofail at /srv/ishop-data. Code, database
   and Drupal stay on the boot disk; MariaDB and Apache don't depend on the mount. If it's missing, the site
   runs and photo pages say "Photo storage offline". status.json and the status board report the mount and
-  free space on both disks. Liam puts both disks on the snapshot schedule. Item photos are left out of the
+  free space on both disks. Item photos are left out of the
   nightly private-files tarball.
 - [x] **Item** content type, plus taxonomies and photos:
   - Fields: title (counter at 60 and 70, maximum 80), photos (Media, first one is the cover), description
