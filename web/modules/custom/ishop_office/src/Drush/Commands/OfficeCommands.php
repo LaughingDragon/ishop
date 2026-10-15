@@ -101,15 +101,38 @@ final class OfficeCommands extends DrushCommands {
   #[CLI\Argument(name: 'question', description: 'The question or decision, up to 255 characters.')]
   #[CLI\Option(name: 'waiting-on', description: 'Comma-separated: liam, cody, claude.')]
   #[CLI\Option(name: 'phase', description: 'Phase number it belongs to.')]
-  #[CLI\Option(name: 'details', description: 'Longer explanation (Markdown).')]
+  #[CLI\Option(name: 'details', description: 'Background (Markdown).')]
+  #[CLI\Option(name: 'instructions-file', description: 'Markdown file with step-by-step instructions. Required when waiting on Liam or Cody.')]
   #[CLI\Option(name: 'date', description: 'Opened date, YYYY-MM-DD. Defaults to today.')]
   public function punch(
     string $question,
-    array $options = ['waiting-on' => '', 'phase' => NULL, 'details' => '', 'date' => NULL],
+    array $options = ['waiting-on' => '', 'phase' => NULL, 'details' => '', 'instructions-file' => NULL, 'date' => NULL],
   ): int {
-    $this->refuseSecrets($question . "\n" . $options['details']);
-    $node = $this->office->addPunch($question, $this->people((string) $options['waiting-on']), $this->phaseOption($options['phase']), (string) $options['details'], $this->date($options['date']));
+    $people = $this->people((string) $options['waiting-on']);
+    $instructions = $options['instructions-file'] ? trim($this->read((string) $options['instructions-file'])) : '';
+    if ($instructions === '' && array_intersect($people, ['liam', 'cody'])) {
+      throw new \InvalidArgumentException('--instructions-file is required: anything waiting on Liam or Cody needs full step-by-step instructions.');
+    }
+    $this->refuseSecrets($question . "\n" . $options['details'] . "\n" . $instructions);
+    $node = $this->office->addPunch($question, $people, $this->phaseOption($options['phase']), (string) $options['details'], $this->date($options['date']), $instructions);
     $this->logger()->success(sprintf('Punch list item %d opened: %s', $node->id(), $node->label()));
+    return self::EXIT_SUCCESS;
+  }
+
+  /**
+   * Sets or replaces the step-by-step instructions on a punch list item.
+   */
+  #[CLI\Command(name: 'ishop:punch-instructions')]
+  #[CLI\Argument(name: 'nid', description: 'Node ID of the punch list item.')]
+  #[CLI\Argument(name: 'file', description: 'Markdown file with the instructions.')]
+  public function punchInstructions(int $nid, string $file): int {
+    $instructions = trim($this->read($file));
+    if ($instructions === '') {
+      throw new \InvalidArgumentException(sprintf('%s is empty.', $file));
+    }
+    $this->refuseSecrets($instructions);
+    $node = $this->office->setPunchInstructions($nid, $instructions);
+    $this->logger()->success(sprintf('Instructions set on punch list item %d: %s', $node->id(), $node->label()));
     return self::EXIT_SUCCESS;
   }
 

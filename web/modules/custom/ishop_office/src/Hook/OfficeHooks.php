@@ -100,7 +100,7 @@ final class OfficeHooks {
     }
     foreach (OfficeStructure::SECTION_FIELDS as $field) {
       // The plans page is one long document with its own headings.
-      if (isset($build[$field]) && $node->bundle() !== 'office_plan') {
+      if (isset($build[$field]['#theme']) && $node->bundle() !== 'office_plan') {
         $label = $node->getFieldDefinition($field)->getLabel();
         $build[$field] = [
           'heading' => ['#type' => 'html_tag', '#tag' => 'h2', '#value' => $label],
@@ -113,7 +113,8 @@ final class OfficeHooks {
       $build['ishop_office_answer'] = [
         '#type' => 'container',
         '#attributes' => ['id' => 'answer', 'class' => ['ishop-office-answer']],
-        '#weight' => -50,
+        // Right after "What to do" (weight 10 on the display).
+        '#weight' => 10.5,
         'heading' => ['#type' => 'html_tag', '#tag' => 'h2', '#value' => $this->t('Answer this')],
         'form' => \Drupal::formBuilder()->getForm(AnswerPunchForm::class, $node),
       ];

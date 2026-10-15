@@ -68,6 +68,12 @@
     font-weight: bold;
   }
 }
+/* Long commands wrap instead of running off a phone screen. */
+.node pre {
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
 /* The answer box on an open punch list item: big enough for a thumb. */
 .ishop-office-answer textarea {
   width: 100%;

@@ -177,10 +177,12 @@ final class OfficeManager {
    *   Longer explanation in Markdown, or ''.
    * @param string|null $date
    *   Opened date (YYYY-MM-DD), or NULL for today.
+   * @param string $instructions
+   *   Step-by-step instructions in Markdown, or ''.
    */
-  public function addPunch(string $question, array $waiting_on, ?string $phase_key, string $details, ?string $date): NodeInterface {
+  public function addPunch(string $question, array $waiting_on, ?string $phase_key, string $details, ?string $date, string $instructions = ''): NodeInterface {
     $phase = $phase_key === NULL ? NULL : ($this->phase($phase_key) ?? throw new \InvalidArgumentException(sprintf('No phase "%s".', $phase_key)));
-    return $this->asForeman(function (UserInterface $foreman) use ($question, $waiting_on, $phase, $details, $date): NodeInterface {
+    return $this->asForeman(function (UserInterface $foreman) use ($question, $waiting_on, $phase, $details, $date, $instructions): NodeInterface {
       $node = $this->newNode('office_punch', $this->title($question), $foreman);
       $node->set('field_punch_status', 'open');
       $node->set('field_waiting_on', $waiting_on);
@@ -189,7 +191,25 @@ final class OfficeManager {
       if ($details !== '') {
         $node->set('field_details', ['value' => $details, 'format' => OfficeStructure::FORMAT]);
       }
+      if ($instructions !== '') {
+        $node->set('field_instructions', ['value' => $instructions, 'format' => OfficeStructure::FORMAT]);
+      }
       $this->saveRevision($node, $foreman, 'Opened with drush ishop:punch.');
+      return $node;
+    });
+  }
+
+  /**
+   * Sets or replaces a punch list item's step-by-step instructions.
+   */
+  public function setPunchInstructions(int $nid, string $instructions): NodeInterface {
+    $node = $this->entityTypeManager->getStorage('node')->load($nid);
+    if (!$node instanceof NodeInterface || $node->bundle() !== 'office_punch') {
+      throw new \InvalidArgumentException(sprintf('Node %d is not a punch list item.', $nid));
+    }
+    return $this->asForeman(function (UserInterface $foreman) use ($node, $instructions): NodeInterface {
+      $node->set('field_instructions', ['value' => $instructions, 'format' => OfficeStructure::FORMAT]);
+      $this->saveRevision($node, $foreman, 'Instructions updated with drush ishop:punch-instructions.');
       return $node;
     });
   }

@@ -7,6 +7,7 @@ dependencies:
     - field.field.node.office_punch.field_answered_by
     - field.field.node.office_punch.field_closed_date
     - field.field.node.office_punch.field_details
+    - field.field.node.office_punch.field_instructions
     - field.field.node.office_punch.field_office_date
     - field.field.node.office_punch.field_office_phase
     - field.field.node.office_punch.field_punch_status
@@ -29,7 +30,7 @@ content:
     third_party_settings: {  }
   field_answer:
     type: text_textarea
-    weight: 15
+    weight: 16
     region: content
     settings:
       rows: 5
@@ -37,19 +38,27 @@ content:
     third_party_settings: {  }
   field_answered_by:
     type: options_buttons
-    weight: 16
+    weight: 17
     region: content
     settings: {  }
     third_party_settings: {  }
   field_closed_date:
     type: datetime_default
-    weight: 17
+    weight: 18
     region: content
     settings: {  }
     third_party_settings: {  }
   field_details:
     type: text_textarea
-    weight: 14
+    weight: 15
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_instructions:
+    type: text_textarea
+    weight: 10
     region: content
     settings:
       rows: 5
@@ -57,25 +66,25 @@ content:
     third_party_settings: {  }
   field_office_date:
     type: datetime_default
-    weight: 12
+    weight: 13
     region: content
     settings: {  }
     third_party_settings: {  }
   field_office_phase:
     type: options_select
-    weight: 13
+    weight: 14
     region: content
     settings: {  }
     third_party_settings: {  }
   field_punch_status:
     type: options_buttons
-    weight: 10
+    weight: 11
     region: content
     settings: {  }
     third_party_settings: {  }
   field_waiting_on:
     type: options_buttons
-    weight: 11
+    weight: 12
     region: content
     settings: {  }
     third_party_settings: {  }

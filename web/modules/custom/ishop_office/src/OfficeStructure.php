@@ -51,6 +51,7 @@ final class OfficeStructure {
     'field_tests' => ['text_long', [], 1],
     'field_commits' => ['string', ['max_length' => 40], -1],
     'field_details' => ['text_long', [], 1],
+    'field_instructions' => ['text_long', [], 1],
     'field_waiting_on' => ['list_string', ['allowed_values' => Vocabulary::PEOPLE], -1],
     'field_punch_status' => ['list_string', ['allowed_values' => Vocabulary::PUNCH_STATUS], 1],
     'field_closed_date' => ['datetime', ['datetime_type' => 'date'], 1],
@@ -88,11 +89,12 @@ final class OfficeStructure {
       'field_commits' => ['Git commits', FALSE],
     ],
     'office_punch' => [
+      'field_instructions' => ['What to do', FALSE],
       'field_punch_status' => ['Status', TRUE],
       'field_waiting_on' => ['Waiting on', TRUE],
       'field_office_date' => ['Opened', TRUE],
       'field_office_phase' => ['Phase', FALSE],
-      'field_details' => ['Details', FALSE],
+      'field_details' => ['Background', FALSE],
       'field_answer' => ['Answer', FALSE],
       'field_answered_by' => ['Answered by', FALSE],
       'field_closed_date' => ['Closed', FALSE],
@@ -110,7 +112,7 @@ final class OfficeStructure {
    */
   public const SECTION_FIELDS = [
     'field_office_markdown', 'field_summary', 'field_work_done', 'field_next_steps', 'field_blockers',
-    'field_decisions_needed', 'field_tests', 'field_details', 'field_answer',
+    'field_decisions_needed', 'field_tests', 'field_instructions', 'field_details', 'field_answer',
     'field_why',
   ];
 

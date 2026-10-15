@@ -12,7 +12,7 @@ id: node.office_punch.field_details
 field_name: field_details
 entity_type: node
 bundle: office_punch
-label: Details
+label: Background
 description: ''
 required: false
 translatable: true
