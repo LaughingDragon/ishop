@@ -1,0 +1,7 @@
+name: 'iShop UI'
+type: module
+description: 'Site-wide interface tweaks for a non-technical owner on a phone: visible View/Edit tabs.'
+package: iShop
+core_version_requirement: ^11.4
+dependencies:
+  - drupal:block

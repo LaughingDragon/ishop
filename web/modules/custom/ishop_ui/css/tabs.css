@@ -1,0 +1,12 @@
+/* Large View / Edit tabs, always visible, easy to find and tap on a phone. */
+.tabs .tabs__tab {
+  display: flex;
+}
+.tabs .tabs__trigger {
+  display: none;
+}
+.tabs .tabs__link {
+  min-height: 3rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+}

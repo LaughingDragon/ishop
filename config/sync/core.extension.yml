@@ -25,6 +25,7 @@ module:
   help: 0
   image: 0
   ishop_office: 0
+  ishop_ui: 0
   key: 0
   layout_builder: 0
   layout_discovery: 0
