@@ -54,3 +54,11 @@
   .ishop-post__queue { grid-template-columns: 1fr 1fr; }
   .ishop-post__queue-size { grid-column: 1 / -1; grid-row: 1; }
 }
+
+/* Depop bulk upload page. */
+.ishop-post__bulk { margin: 22px 0 0; }
+.ishop-bulk__actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.ishop-bulk h2 { margin-top: 26px; }
+.ishop-bulk table { width: 100%; border-collapse: collapse; }
+.ishop-bulk th, .ishop-bulk td { padding: 8px 10px 8px 0; text-align: left; border-bottom: 1px solid var(--rm-line, #3D302D); }
+.ishop-bulk__note { margin-top: 22px; font-size: 0.9rem; color: var(--rm-text-soft, #D3C6B2); }

@@ -92,6 +92,10 @@
     {% endif %}
   </section>
 
+  {% if platform.key == 'depop' %}
+    <p class="ishop-post__bulk"><a href="{{ path('ishop_items.depop_bulk') }}">{{ 'Several items for Depop? Use the bulk upload (one CSV for all of them)'|t }}</a></p>
+  {% endif %}
+
   {% if tips %}
     <section class="ishop-post__tips" aria-labelledby="ishop-post-tips-title">
       <h2 id="ishop-post-tips-title">{{ 'Tips'|t }}</h2>

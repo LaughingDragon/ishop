@@ -218,19 +218,7 @@ final class PostController extends ControllerBase {
    *   Previous item ID, next item ID, queue size.
    */
   private function queueNeighbours(NodeInterface $node, string $platform): array {
-    $storage = $this->entityTypeManager()->getStorage('platform_listing');
-    $ids = $storage->getQuery()->accessCheck(FALSE)
-      ->condition('platform', $platform)
-      ->condition('status', Platforms::TO_POST)
-      ->execute();
-    $queue = [];
-    foreach ($storage->loadMultiple($ids) as $listing) {
-      $item = $listing->getItem();
-      if ($item && $item->access('view') && $this->eligibility(ListingsGridForm::eligibilityFacts($item), $listing, $platform)['verdict'] !== Eligibility::NO) {
-        $queue[] = (int) $item->id();
-      }
-    }
-    sort($queue);
+    $queue = array_keys($this->listings->toPostQueue($platform));
     $current = (int) $node->id();
     $before = array_filter($queue, fn ($id) => $id < $current);
     $after = array_filter($queue, fn ($id) => $id > $current);

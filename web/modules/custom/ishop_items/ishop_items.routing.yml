@@ -71,3 +71,31 @@ ishop_items.post_zip:
       node:
         type: entity:node
         bundle: [item]
+
+ishop_items.depop_bulk:
+  path: '/post/depop-bulk'
+  defaults:
+    _controller: '\Drupal\ishop_items\Controller\DepopBulkController::page'
+    _title: 'Depop bulk upload'
+  requirements:
+    _permission: 'manage platform listings'
+  options:
+    no_cache: TRUE
+
+ishop_items.depop_bulk_csv:
+  path: '/post/depop-bulk/depop-bulk.csv'
+  defaults:
+    _controller: '\Drupal\ishop_items\Controller\DepopBulkController::csv'
+  requirements:
+    _permission: 'manage platform listings'
+  options:
+    no_cache: TRUE
+
+ishop_items.depop_bulk_photos:
+  path: '/post/depop-bulk/photos.zip'
+  defaults:
+    _controller: '\Drupal\ishop_items\Controller\DepopBulkController::photos'
+  requirements:
+    _permission: 'manage platform listings'
+  options:
+    no_cache: TRUE

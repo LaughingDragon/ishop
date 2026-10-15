@@ -7,6 +7,7 @@ namespace Drupal\ishop_items;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\ishop_items\Entity\PlatformListing;
+use Drupal\ishop_items\Form\ListingsGridForm;
 use Drupal\node\NodeInterface;
 
 /**
@@ -36,6 +37,39 @@ final class ListingManager {
       $by_platform[$listing->getPlatform()] = $listing;
     }
     return array_intersect_key(array_replace(Platforms::PLATFORMS, $by_platform), $by_platform);
+  }
+
+  /**
+   * The items still to post on a platform, oldest first.
+   *
+   * Items with a "To post" listing there that the eligibility rules (or a
+   * manual override) don't rule out, and that the current user can view.
+   *
+   * @return array<int, \Drupal\node\NodeInterface>
+   *   Keyed by node ID.
+   */
+  public function toPostQueue(string $platform): array {
+    $storage = $this->entityTypeManager->getStorage('platform_listing');
+    $ids = $storage->getQuery()->accessCheck(FALSE)
+      ->condition('platform', $platform)
+      ->condition('status', Platforms::TO_POST)
+      ->execute();
+    $queue = [];
+    foreach ($storage->loadMultiple($ids) as $listing) {
+      $item = $listing->getItem();
+      if (!$item || !$item->access('view')) {
+        continue;
+      }
+      $verdict = Eligibility::evaluate(ListingsGridForm::eligibilityFacts($item) + [
+        'override' => $listing->get('eligibility_override')->value,
+        'override_note' => $listing->get('eligibility_note')->value,
+      ], $platform)['verdict'];
+      if ($verdict !== Eligibility::NO) {
+        $queue[(int) $item->id()] = $item;
+      }
+    }
+    ksort($queue);
+    return $queue;
   }
 
   /**
