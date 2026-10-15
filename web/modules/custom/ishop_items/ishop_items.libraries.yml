@@ -19,3 +19,12 @@ add:
     - core/drupal
     - core/drupalSettings
     - core/once
+item_page:
+  js:
+    js/gallery.js: {}
+  css:
+    component:
+      css/item-page.css: {}
+  dependencies:
+    - core/drupal
+    - core/once
