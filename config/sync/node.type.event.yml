@@ -1,0 +1,11 @@
+uuid: ad10f137-7c70-40cc-be95-4adb53fbbd13
+langcode: en
+status: true
+dependencies: {  }
+name: Event
+type: event
+description: 'Something on the Calendar wall, once or repeating.'
+help: null
+new_revision: true
+preview_mode: 1
+display_submitted: false

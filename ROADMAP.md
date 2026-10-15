@@ -213,7 +213,10 @@ reference project is used only for its rules and formatting logic.
 
 ## Phase 5: daily life tools and the digest
 
-- [ ] Calendar with recurring events (Smart Date, Calendar View).
+- [x] Calendar wall with repeating events (built in, no Smart Date / Calendar View; decision 197):
+  next 14 days first, then the month grid and list; events (once / weekly / monthly / yearly,
+  optional time), bill due dates and game days shown automatically; the front desk tile shows
+  what's next this week.
 - [x] Bills and subscriptions with due dates and reminders: My office > Bills and subscriptions;
   each bill shows in "Needs you now" 3 days before it's due (and while overdue) with a Paid
   button that rolls it to the next due date (monthly bills keep their day of the month; one-offs

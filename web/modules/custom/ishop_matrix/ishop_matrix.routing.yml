@@ -57,3 +57,14 @@ ishop_matrix.birthday_song:
     _custom_access: '\Drupal\ishop_matrix\Controller\BirthdayController::access'
   options:
     no_cache: TRUE
+
+ishop_matrix.calendar:
+  path: '/room/calendar-wall'
+  defaults:
+    _controller: '\Drupal\ishop_matrix\Controller\CalendarController::page'
+    _title: 'Calendar wall'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+  options:
+    no_cache: TRUE

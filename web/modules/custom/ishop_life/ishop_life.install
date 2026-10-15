@@ -26,3 +26,11 @@ function ishop_life_update_11001(): string {
   LifeStructure::ensure();
   return 'Bill content type added.';
 }
+
+/**
+ * Adds calendar events (Phase 5 step 3).
+ */
+function ishop_life_update_11002(): string {
+  LifeStructure::ensure();
+  return 'Event content type added.';
+}

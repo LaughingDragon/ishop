@@ -1,0 +1,21 @@
+uuid: 457bb678-8ee5-4db7-a822-5d52f4414b02
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_repeat
+    - node.type.event
+  module:
+    - options
+id: node.event.field_repeat
+field_name: field_repeat
+entity_type: node
+bundle: event
+label: Repeats
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

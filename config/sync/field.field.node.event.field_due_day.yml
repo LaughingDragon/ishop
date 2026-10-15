@@ -1,0 +1,23 @@
+uuid: b105bba9-ae58-4c82-b6a2-d1259e772f19
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_due_day
+    - node.type.event
+id: node.event.field_due_day
+field_name: field_due_day
+entity_type: node
+bundle: event
+label: 'Day of the month'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 1
+  max: 31
+  prefix: ''
+  suffix: ''
+field_type: integer

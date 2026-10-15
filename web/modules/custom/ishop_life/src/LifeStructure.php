@@ -23,6 +23,7 @@ final class LifeStructure {
     'mileage' => ['Mileage', 'A trip for the business (post office runs and the like). Logged in My office.'],
     'expense' => ['Expense', 'Money spent for the business (supplies, packing materials, fees). Logged in My office.'],
     'bill' => ['Bill', 'A bill or subscription with a due date. Shown in "Needs you now" before it is due.'],
+    'event' => ['Event', 'Something on the Calendar wall, once or repeating.'],
   ];
 
   /**
@@ -61,6 +62,8 @@ final class LifeStructure {
     'field_repeat' => ['list_string', ['allowed_values' => self::REPEATS]],
     'field_last_paid' => ['datetime', ['datetime_type' => 'date']],
     'field_bill_business' => ['boolean', []],
+    'field_event_date' => ['datetime', ['datetime_type' => 'date']],
+    'field_event_time' => ['string', ['max_length' => 5]],
   ];
 
   /**
@@ -95,6 +98,13 @@ final class LifeStructure {
       'field_bill_business' => ['Business expense (log it in Expenses when paid)', FALSE, []],
       'field_last_paid' => ['Last paid', FALSE, []],
       'field_due_day' => ['Day of the month it is due', FALSE, ['min' => 1, 'max' => 31]],
+      'field_log_note' => ['Note', FALSE, []],
+    ],
+    'event' => [
+      'field_event_date' => ['Date', TRUE, []],
+      'field_event_time' => ['Time (optional, like 13:25)', FALSE, []],
+      'field_repeat' => ['Repeats', TRUE, []],
+      'field_due_day' => ['Day of the month', FALSE, ['min' => 1, 'max' => 31]],
       'field_log_note' => ['Note', FALSE, []],
     ],
   ];

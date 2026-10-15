@@ -12,6 +12,8 @@ dependencies:
     - field.field.node.bill.field_repeat
     - node.type.bill
   module:
+    - datetime
+    - options
     - user
 id: node.bill.default
 targetEntityType: node
@@ -19,42 +21,62 @@ bundle: bill
 mode: default
 content:
   field_amount:
+    type: number_decimal
     label: inline
-    settings: {  }
+    settings:
+      thousand_separator: ''
+      decimal_separator: .
+      scale: 2
+      prefix_suffix: true
     third_party_settings: {  }
     weight: 10
     region: content
   field_bill_business:
+    type: boolean
     label: inline
-    settings: {  }
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
     third_party_settings: {  }
     weight: 13
     region: content
   field_due_date:
+    type: datetime_default
     label: inline
-    settings: {  }
+    settings:
+      timezone_override: ''
+      format_type: medium
     third_party_settings: {  }
     weight: 11
     region: content
   field_due_day:
+    type: number_integer
     label: inline
-    settings: {  }
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
     third_party_settings: {  }
     weight: 15
     region: content
   field_last_paid:
+    type: datetime_default
     label: inline
-    settings: {  }
+    settings:
+      timezone_override: ''
+      format_type: medium
     third_party_settings: {  }
     weight: 14
     region: content
   field_log_note:
+    type: basic_string
     label: inline
     settings: {  }
     third_party_settings: {  }
     weight: 16
     region: content
   field_repeat:
+    type: list_default
     label: inline
     settings: {  }
     third_party_settings: {  }

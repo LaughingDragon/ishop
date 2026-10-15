@@ -6,3 +6,4 @@ services:
     parent: logger.channel_base
     arguments: ['ishop_life']
   Drupal\ishop_life\Bills: ~
+  Drupal\ishop_life\Calendar: ~

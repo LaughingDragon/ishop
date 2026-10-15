@@ -12,6 +12,7 @@ dependencies:
     - field.field.node.bill.field_repeat
     - node.type.bill
   module:
+    - datetime
     - path
 id: node.bill.default
 targetEntityType: node
@@ -25,36 +26,48 @@ content:
     settings: {  }
     third_party_settings: {  }
   field_amount:
+    type: number
     weight: 10
     region: content
-    settings: {  }
+    settings:
+      placeholder: ''
     third_party_settings: {  }
   field_bill_business:
+    type: boolean_checkbox
     weight: 13
     region: content
-    settings: {  }
+    settings:
+      display_label: true
     third_party_settings: {  }
   field_due_date:
+    type: datetime_default
     weight: 11
     region: content
     settings: {  }
     third_party_settings: {  }
   field_due_day:
+    type: number
     weight: 15
     region: content
-    settings: {  }
+    settings:
+      placeholder: ''
     third_party_settings: {  }
   field_last_paid:
+    type: datetime_default
     weight: 14
     region: content
     settings: {  }
     third_party_settings: {  }
   field_log_note:
+    type: string_textarea
     weight: 16
     region: content
-    settings: {  }
+    settings:
+      rows: 5
+      placeholder: ''
     third_party_settings: {  }
   field_repeat:
+    type: options_select
     weight: 12
     region: content
     settings: {  }

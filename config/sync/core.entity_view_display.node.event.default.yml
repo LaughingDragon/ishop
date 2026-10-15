@@ -1,0 +1,54 @@
+uuid: 2c54887a-94fc-4a4d-acd6-7fd1e84ab813
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.event.field_due_day
+    - field.field.node.event.field_event_date
+    - field.field.node.event.field_event_time
+    - field.field.node.event.field_log_note
+    - field.field.node.event.field_repeat
+    - node.type.event
+  module:
+    - user
+id: node.event.default
+targetEntityType: node
+bundle: event
+mode: default
+content:
+  field_due_day:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 13
+    region: content
+  field_event_date:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 10
+    region: content
+  field_event_time:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 11
+    region: content
+  field_log_note:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 14
+    region: content
+  field_repeat:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 12
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden: {  }

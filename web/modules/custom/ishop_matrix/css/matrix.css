@@ -28,3 +28,34 @@
 .rm-tax__years li { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--rm-line); }
 .rm-tax__years strong { min-width: 3.5em; font-family: var(--rm-font-sign); font-size: 1.2rem; }
 .rm-tax__note { margin: 14px 0 0; font-size: 17px; color: var(--rm-text-soft); }
+
+/* Calendar wall (Phase 5): next 14 days first, then the month. */
+.rm-cal__soon, .rm-cal__month { margin: 0 0 28px; }
+.rm-cal__day { margin: 0 0 12px; padding: 12px 16px; border-radius: var(--rm-radius); background: var(--rm-surface); border: 1.5px solid var(--rm-line); }
+.rm-cal__day.is-today { border-color: var(--rm-gold); }
+.rm-cal__day h3 { margin: 0 0 6px; font-family: var(--rm-font-body); font-size: 17px; font-weight: 700; color: var(--rm-gold); }
+.rm-cal__day ul, .rm-cal__list { margin: 0; padding: 0; list-style: none; }
+.rm-cal__entry { padding: 6px 0; }
+.rm-cal__kind { display: inline-block; min-width: 3.6em; padding: 1px 8px; border-radius: var(--rm-pill); font-size: 14px; font-weight: 700; text-align: center; border: 1.5px solid var(--rm-line-soft); color: var(--rm-text-soft); }
+.rm-cal__entry--bill .rm-cal__kind { border-color: var(--rm-red); color: var(--rm-text); }
+.rm-cal__entry--game .rm-cal__kind { border-color: var(--rm-gold); color: var(--rm-gold); }
+.rm-cal__edit { margin-left: 6px; font-size: 15px; }
+.rm-cal__month-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 10px; }
+.rm-cal__month-head h2 { margin: 0; }
+.rm-cal__grid { width: 100%; table-layout: fixed; border-collapse: collapse; margin: 0 0 18px; }
+.rm-cal__grid th { padding: 4px 0; font-size: 14px; text-align: center; color: var(--rm-text-soft); }
+.rm-cal__grid abbr { text-decoration: none; }
+.rm-cal__grid td { height: 64px; padding: 4px; vertical-align: top; border: 1px solid var(--rm-line); overflow: hidden; }
+.rm-cal__grid td.is-other { opacity: 0.45; }
+.rm-cal__grid td.is-today { outline: 2px solid var(--rm-gold); outline-offset: -2px; }
+.rm-cal__num { display: block; font-weight: 700; font-size: 15px; }
+.rm-cal__chip { display: block; margin-top: 2px; padding: 0 4px; border-radius: 4px; font-size: 12px; line-height: 1.5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: var(--rm-text-soft); color: var(--rm-ground); }
+.rm-cal__chip--bill { background: var(--rm-red); color: var(--rm-on-red); }
+.rm-cal__chip--game { background: var(--rm-gold); color: var(--rm-ground); }
+.rm-cal__more { display: block; font-size: 12px; color: var(--rm-text-soft); }
+@media (max-width: 480px) {
+  /* On the phone the grid shows days and marks; the list carries the words. */
+  .rm-cal__grid td { height: 48px; }
+  .rm-cal__chip { height: 6px; margin-top: 3px; font-size: 0; }
+  .rm-cal__more { display: none; }
+}

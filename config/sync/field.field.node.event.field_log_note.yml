@@ -1,0 +1,19 @@
+uuid: fbf8d41f-327d-4a4e-ad1c-23480b37be81
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_log_note
+    - node.type.event
+id: node.event.field_log_note
+field_name: field_log_note
+entity_type: node
+bundle: event
+label: Note
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

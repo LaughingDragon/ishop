@@ -12,6 +12,7 @@ use Drupal\Core\Cache\Cache;
 use Drupal\ishop_items\Controller\StaleController;
 use Drupal\ishop_items\Money;
 use Drupal\ishop_life\Bills;
+use Drupal\ishop_life\LogBook;
 use Drupal\ishop_life\Controller\BillsController;
 use Drupal\ishop_items\TaxExport;
 use Drupal\ishop_items\StaleNudges;
@@ -233,9 +234,27 @@ final class MatrixController extends ControllerBase {
       'shipping-room' => $not_built,
       'my-office' => $month['count'] ? sprintf('Sold this month: $%s', number_format($month['revenue'], 2)) : 'Nothing sold yet this month',
       'mailroom' => $not_built,
-      'calendar-wall' => $not_built,
+      'calendar-wall' => $this->calendarGlance(),
       'break-room' => $not_built,
     ];
+  }
+
+  /**
+   * The Calendar wall's glance: the next thing within a week, in words.
+   */
+  private function calendarGlance(): string {
+    $today = LogBook::today();
+    $week = (new \DateTimeImmutable($today))->modify('+7 days')->format('Y-m-d');
+    $next = \Drupal::classResolver(CalendarController::class)->entries($today, $week)[0] ?? NULL;
+    if (!$next) {
+      return 'Nothing in the next 7 days';
+    }
+    $when = match ($next['date']) {
+      $today => 'today',
+      (new \DateTimeImmutable($today))->modify('+1 day')->format('Y-m-d') => 'tomorrow',
+      default => (new \DateTimeImmutable($next['date']))->format('D M j'),
+    };
+    return sprintf('Next: %s, %s', $next['title'], $when);
   }
 
   /**
