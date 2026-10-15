@@ -4,7 +4,8 @@
 # 2026-10-15. Run by ishop-update.service (as liampward) from ishop-update.timer.
 #
 # 1. Refuse to start unless git and config are clean.
-# 2. Maintenance mode on, database dump to /var/backups/ishop-update.
+# 2. Maintenance mode on, database dump to /var/backups/ishop/update (on the
+#    data disk; the update refuses to start if that disk isn't mounted).
 # 3. composer update within composer.json limits (core: patch releases only).
 # 4. drush updb, cr, cex. Maintenance mode off.
 # 5. Checks: bootstrap, login page 200, site office 403 to anonymous, unit tests.
@@ -18,7 +19,7 @@ set -Eeuo pipefail
 
 PROJECT=/var/www/ishop
 SITE=https://ishoponamazonwaytoomuch.ohbah.com
-DUMPS=/var/backups/ishop-update
+DUMPS=/var/backups/ishop/update
 LOGS=/var/log/ishop-update
 STAMP=$(date +%Y-%m-%d_%H%M)
 TODAY=$(date +%F)
@@ -129,6 +130,12 @@ if [[ -n "$(git status --porcelain)" ]]; then
 fi
 "$DRUSH" config:status 2>&1 | tee "$WORK/cstatus.txt"
 grep -q "No differences" "$WORK/cstatus.txt"
+
+step "preflight: the data disk (rollback dumps) must be mounted"
+if [[ ! -f /var/backups/ishop/.ishop-data-disk ]]; then
+  echo "!! /var/backups/ishop is not on the data disk (no marker): no safe place for the rollback dump"
+  false
+fi
 
 step "maintenance mode on, database dump"
 UPDATING=1

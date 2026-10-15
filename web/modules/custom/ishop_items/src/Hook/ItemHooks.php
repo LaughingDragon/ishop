@@ -11,6 +11,7 @@ use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\file\FileInterface;
 use Drupal\ishop_items\PhotoPrep;
+use Drupal\ishop_office\DiskStatus;
 use Drupal\ishop_items\ReadyCheck;
 use Drupal\node\NodeInterface;
 
@@ -72,6 +73,7 @@ final class ItemHooks {
     if ($node->bundle() !== 'item' || !$display->getComponent('ishop_ready')) {
       return;
     }
+    $build['ishop_storage'] = self::offlineNotice() + ['#weight' => -100];
     $missing = ReadyCheck::missing(self::checkValues($node));
     $build['ishop_ready'] = [
       '#type' => 'inline_template',
@@ -121,6 +123,28 @@ final class ItemHooks {
       $form['field_description']['widget'][0]['value']['#attributes']['data-ishop-counter'] = '1000';
     }
     $form['#attached']['library'][] = 'ishop_items/item_form';
+    $form['ishop_storage'] = self::offlineNotice() + ['#weight' => -100];
+  }
+
+  /**
+   * A clear notice when the data disk (item photos) is not mounted.
+   *
+   * The site and database don't depend on that disk, so everything else
+   * keeps working; only photos are missing until it is back.
+   */
+  public static function offlineNotice(): array {
+    $notice = ['#cache' => ['max-age' => 0]];
+    if (!DiskStatus::photosOnline()) {
+      $notice += [
+        '#type' => 'inline_template',
+        '#template' => '<div class="so-callout so-callout--warn ishop-photos-offline" role="alert"><div class="so-callout__body"><h2>{{ title }}</h2><p>{{ text }}</p></div></div>',
+        '#context' => [
+          'title' => t('Photo storage offline'),
+          'text' => t("The disk that holds item photos isn't mounted, so photos can't be shown or added right now. Everything else works. Tell site-foreman (punch list)."),
+        ],
+      ];
+    }
+    return $notice;
   }
 
 }

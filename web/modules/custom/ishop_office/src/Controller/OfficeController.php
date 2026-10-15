@@ -9,6 +9,7 @@ use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
+use Drupal\ishop_office\DiskStatus;
 use Drupal\ishop_office\OfficeManager;
 use Drupal\ishop_office\Vocabulary;
 use Drupal\node\NodeInterface;
@@ -132,6 +133,7 @@ final class OfficeController extends ControllerBase {
       $this->t('No phases yet. Run drush ishop:plans.'),
     ));
 
+    $build['storage'] = $this->storageNote();
     $build['punch'] = $this->punchCallout($open, $this->t('Punch list: waiting on someone'));
     $build['reports'] = $this->section($this->t('Latest build reports'), $this->reportCards($this->office->reports(5)));
     $build['decisions'] = $this->section($this->t('Recent decisions'), $this->decisionTable($this->office->decisions(5), FALSE));
@@ -219,12 +221,38 @@ final class OfficeController extends ControllerBase {
       'phase_statuses' => array_values(Vocabulary::PHASE_STATUS),
       'open_punch_items' => count($this->office->punchItems('open')),
       'phases' => $this->office->statusBoard(),
+      'storage' => DiskStatus::report(),
     ];
     $response = new CacheableJsonResponse($data);
     $response->setEncodingOptions(JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     $response->headers->set('X-Robots-Tag', 'noindex, nofollow');
     $response->addCacheableDependency($this->cacheability());
+    // Disk state changes without any Drupal event, so it is never cached.
+    $response->getCacheableMetadata()->setCacheMaxAge(0);
     return $response;
+  }
+
+  /**
+   * One line about the disks, or a warning callout when something is wrong.
+   */
+  private function storageNote(): array {
+    $report = DiskStatus::report();
+    $gb = fn (?array $d) => $d ? sprintf('%.1f GB free (%d%%)', $d['free_bytes'] / 1e9, $d['free_percent']) : 'not mounted';
+    $problems = DiskStatus::problems($report);
+    return [
+      '#type' => 'inline_template',
+      '#template' => '{% if problems %}<section class="so-callout so-callout--warn" aria-labelledby="so-storage-title"><span class="so-diamond"><span>!</span></span><div class="so-callout__body"><h2 id="so-storage-title">{{ title }}</h2><ul>{% for p in problems %}<li>{{ p }}</li>{% endfor %}</ul><p>{{ line }}</p></div></section>{% else %}<p class="so-storage">{{ line }}</p>{% endif %}',
+      '#context' => [
+        'title' => $this->t('Storage needs attention'),
+        'problems' => $problems,
+        'line' => $this->t('Storage: data disk @mounted. Boot disk @boot; data disk @data.', [
+          '@mounted' => $report['data_disk_mounted'] ? $this->t('mounted') : $this->t('NOT mounted'),
+          '@boot' => $gb($report['boot_disk']),
+          '@data' => $gb($report['data_disk']),
+        ]),
+      ],
+      '#cache' => ['max-age' => 0],
+    ];
   }
 
   /**

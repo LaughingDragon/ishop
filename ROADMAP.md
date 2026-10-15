@@ -123,9 +123,13 @@ site-foreman (role "site office"); never public, noindex.
 
 Approved 2026-10-15 (punch item 78: proposal plus Claude (review)'s gaps; Liam delegated the decisions).
 
-- [ ] **Disk and photo backups:** the boot disk grows from 10 to 30 GB (snapshot first, Liam's console step).
-  Item photos are left out of the nightly private-files tarball and copied daily to the backup bucket,
-  as additions only.
+- [ ] **Data disk** (changed by Liam 2026-10-15; the boot disk stays 10 GB): the extra 10 GB disk
+  `ishopway2muchdata` holds item photos (private://items) and local backup files (/var/backups/ishop) only.
+  It is snapshotted first, then formatted and mounted by UUID with nofail at /srv/ishop-data. Code, database
+  and Drupal stay on the boot disk; MariaDB and Apache don't depend on the mount. If it's missing, the site
+  runs and photo pages say "Photo storage offline". status.json and the status board report the mount and
+  free space on both disks. Liam puts both disks on the snapshot schedule. Item photos are left out of the
+  nightly private-files tarball.
 - [ ] **Item** content type, plus taxonomies and photos:
   - Fields: title (counter at 60 and 70, maximum 80), photos (Media, first one is the cover), description
     (counter at 1000), flaws/condition notes, brand, size (free text), color, category, condition,
@@ -194,11 +198,12 @@ reference project is used only for its rules and formatting logic.
 
 - [ ] Calendar with recurring events (Smart Date, Calendar View).
 - [ ] Bills and subscriptions with due dates and reminders.
-- [ ] Mileage and expense log (post office runs, supplies).
+- [ ] Mileage and expense log (post office runs, supplies; packing materials are supplies, kept in the game room).
 - [ ] Private document vault (receipts, warranties, manuals), attachable to items.
 - [ ] Notes and to-dos.
 - [ ] **Daily digest email** at about 7 a.m. Pacific: items to post, take-downs,
-  returns closing soon, bills due, today's events. Short and readable on a
+  returns closing soon, bills due, today's events, and a storage check (data disk
+  mounted, free space on both disks; see DiskStatus in ishop_office). Short and readable on a
   phone. Needs a working mail transport (Symfony Mailer + an SMTP relay;
   ask Liam which, never store SMTP passwords in config).
 

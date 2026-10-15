@@ -13,3 +13,4 @@ dependencies:
   - drupal:options
   - drupal:taxonomy
   - imagemagick:imagemagick
+  - ishop_office:ishop_office
