@@ -4,3 +4,4 @@ services:
   Drupal\ishop_office\OfficeManager: ~
   ishop_office.manager:
     alias: Drupal\ishop_office\OfficeManager
+  Drupal\ishop_office\CrewState: ~

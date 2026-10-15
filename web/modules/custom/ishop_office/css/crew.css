@@ -1,0 +1,89 @@
+/*
+ * Crew-on-site beacon in the header, beside Log out. The label is always
+ * there, so the state never depends on colour alone. Orange (#F26A1B, the
+ * theme's --warn) is used for the light and its glow; the label stays light
+ * text on asphalt for contrast.
+ */
+.crew-beacon {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--tap, 44px);
+  padding: 4px 12px 4px 4px;
+  border: 2px solid currentColor;
+  border-radius: var(--radius-inner, 10px);
+  background: var(--asphalt-2, #2B2A27);
+  font-family: var(--font-body, sans-serif);
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+}
+.crew-beacon__tile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: calc(var(--radius-inner, 10px) - 3px);
+  background: var(--asphalt, #1C1C1A);
+}
+.crew-beacon__label {
+  color: var(--ink-light, #F4F1EA);
+}
+.crew-beacon:hover .crew-beacon__label,
+.crew-beacon:focus-visible .crew-beacon__label {
+  text-decoration: underline;
+}
+
+/* Quiet: grey. */
+.crew-beacon--off {
+  color: #8C877D;
+}
+.crew-beacon--off .crew-beacon__label {
+  color: var(--ink-muted, #CFCAC0);
+}
+
+/* On: orange light with a slow glow, one cycle per 1.5 s (well under the
+   3-flashes-a-second limit). */
+.crew-beacon--on {
+  color: #F26A1B;
+  animation: crew-beacon-glow 1.5s ease-in-out infinite;
+}
+.crew-beacon--on .crew-beacon__tile {
+  box-shadow: 0 0 10px 1px rgba(242, 106, 27, 0.7);
+}
+@keyframes crew-beacon-glow {
+  0%, 100% { box-shadow: 0 0 2px 0 rgba(242, 106, 27, 0.35); }
+  50% { box-shadow: 0 0 16px 4px rgba(242, 106, 27, 0.85); }
+}
+
+/* Reduced motion: a steady glow, no pulse. */
+@media (prefers-reduced-motion: reduce) {
+  .crew-beacon--on {
+    animation: none;
+    box-shadow: 0 0 10px 2px rgba(242, 106, 27, 0.7);
+  }
+}
+
+/* The crew page. */
+.crew-facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 16px;
+  margin: 0 0 1em;
+}
+.crew-facts dt {
+  font-weight: 600;
+}
+.crew-facts dd {
+  margin: 0;
+}
+
+/* Answer form while the crew is on site. */
+.ishop-office-crew-lock {
+  margin: 0 0 1em;
+  padding: 12px 14px;
+  border-left: 6px solid #F26A1B;
+  background: var(--warn-pale, #FFF1E6);
+  font-weight: 600;
+}

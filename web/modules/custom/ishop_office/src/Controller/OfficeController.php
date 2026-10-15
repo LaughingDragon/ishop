@@ -9,6 +9,7 @@ use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
+use Drupal\ishop_office\CrewState;
 use Drupal\ishop_office\OfficeManager;
 use Drupal\ishop_office\Vocabulary;
 use Drupal\node\NodeInterface;
@@ -23,6 +24,7 @@ final class OfficeController extends ControllerBase {
 
   public function __construct(
     private readonly OfficeManager $office,
+    private readonly CrewState $crew,
   ) {}
 
   /**
@@ -219,12 +221,53 @@ final class OfficeController extends ControllerBase {
       'phase_statuses' => array_values(Vocabulary::PHASE_STATUS),
       'open_punch_items' => count($this->office->punchItems('open')),
       'phases' => $this->office->statusBoard(),
+      'crew' => $this->crewJson(),
     ];
     $response = new CacheableJsonResponse($data);
     $response->setEncodingOptions(JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     $response->headers->set('X-Robots-Tag', 'noindex, nofollow');
     $response->addCacheableDependency($this->cacheability());
+    $response->addCacheableDependency($this->crew->cacheability());
     return $response;
+  }
+
+  /**
+   * The crew-on-site page: what the crew is doing, and since when.
+   */
+  public function crew(): array {
+    $build = $this->page();
+    $crew = $this->crew->get();
+    $build['beacon'] = [
+      '#type' => 'inline_template',
+      '#template' => '<section class="so-callout{% if active %} so-callout--warn{% endif %}" aria-labelledby="crew-title"><div class="so-callout__body"><h2 id="crew-title">{{ title }}</h2>{% if active %}<dl class="crew-facts"><dt>Task</dt><dd>{{ task }}</dd><dt>Since</dt><dd><time>{{ since }}</time></dd><dt>Last heartbeat</dt><dd><time>{{ heartbeat }}</time></dd></dl><p>Punch list answers open when the crew finishes.</p>{% else %}<p>{{ quiet }}{% if task %} (last task: {{ task }}){% endif %}.</p><p>Punch list answers are open.</p>{% endif %}</div></section>',
+      '#context' => [
+        'active' => $crew['active'],
+        'title' => $crew['active'] ? $this->t('Crew on site') : $this->t('Site quiet'),
+        'task' => $crew['task'],
+        'since' => $this->crew->format($crew['since']),
+        'heartbeat' => $this->crew->format($crew['heartbeat']),
+        'quiet' => $this->crew->quietText($crew),
+      ],
+    ];
+    $build['about'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'p',
+      '#value' => $this->t('The light comes on while site-foreman (Claude, working on the server) is busy, and goes quiet when it finishes or after 15 minutes without a sign of work.'),
+    ];
+    $this->crew->cacheability()->applyTo($build);
+    $this->addCacheability($build);
+    return $build;
+  }
+
+  /**
+   * The crew state for status.json, with ISO 8601 times.
+   */
+  private function crewJson(): array {
+    $crew = $this->crew->get();
+    foreach (['since', 'heartbeat'] as $key) {
+      $crew[$key] = $crew[$key] ? date('c', $crew[$key]) : NULL;
+    }
+    return $crew;
   }
 
   /**

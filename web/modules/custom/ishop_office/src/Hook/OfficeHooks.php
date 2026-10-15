@@ -13,6 +13,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\ishop_office\Controller\OfficeController;
+use Drupal\ishop_office\CrewState;
 use Drupal\ishop_office\Form\AnswerPunchForm;
 use Drupal\ishop_office\OfficeStructure;
 use Drupal\node\NodeInterface;
@@ -218,6 +219,21 @@ final class OfficeHooks {
     $is_report = $this->routeMatch->getRouteName() === 'entity.node.canonical'
       && $node instanceof NodeInterface && $node->bundle() === 'office_report';
     return AccessResult::forbiddenIf($is_report)->addCacheContexts(['route']);
+  }
+
+  /**
+   * Implements hook_preprocess_HOOK() for page templates.
+   *
+   * The crew-on-site beacon, for the site office crew only. The Construction
+   * theme prints {{ crew_beacon }} in the header beside Log out.
+   */
+  #[Hook('preprocess_page')]
+  public function preprocessPage(array &$variables): void {
+    $variables['#cache']['contexts'][] = 'user.permissions';
+    if (!\Drupal::currentUser()->hasPermission('access site office')) {
+      return;
+    }
+    $variables['crew_beacon'] = \Drupal::service(CrewState::class)->beacon();
   }
 
   /**

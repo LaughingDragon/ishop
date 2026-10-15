@@ -2,3 +2,7 @@ office:
   css:
     component:
       css/office.css: {}
+crew:
+  css:
+    component:
+      css/crew.css: {}

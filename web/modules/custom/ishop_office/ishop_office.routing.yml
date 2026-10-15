@@ -30,6 +30,14 @@ ishop_office.decisions:
   requirements:
     _permission: 'access site office'
 
+ishop_office.crew:
+  path: '/site-office/crew'
+  defaults:
+    _controller: '\Drupal\ishop_office\Controller\OfficeController::crew'
+    _title: 'Crew on site'
+  requirements:
+    _permission: 'access site office'
+
 ishop_office.status_json:
   path: '/site-office/status.json'
   defaults:
