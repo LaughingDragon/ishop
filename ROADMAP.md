@@ -123,14 +123,14 @@ site-foreman (role "site office"); never public, noindex.
 
 Approved 2026-10-15 (punch item 78: proposal plus Claude (review)'s gaps; Liam delegated the decisions).
 
-- [ ] **Data disk** (changed by Liam 2026-10-15; the boot disk stays 10 GB): the extra 10 GB disk
+- [x] **Data disk** (changed by Liam 2026-10-15; the boot disk stays 10 GB): the extra 10 GB disk
   `ishopway2muchdata` holds item photos (private://items) and local backup files (/var/backups/ishop) only.
   It is snapshotted first, then formatted and mounted by UUID with nofail at /srv/ishop-data. Code, database
   and Drupal stay on the boot disk; MariaDB and Apache don't depend on the mount. If it's missing, the site
   runs and photo pages say "Photo storage offline". status.json and the status board report the mount and
   free space on both disks. Liam puts both disks on the snapshot schedule. Item photos are left out of the
   nightly private-files tarball.
-- [ ] **Item** content type, plus taxonomies and photos:
+- [x] **Item** content type, plus taxonomies and photos:
   - Fields: title (counter at 60 and 70, maximum 80), photos (Media, first one is the cover), description
     (counter at 1000), flaws/condition notes, brand, size (free text), color, category, condition,
     quantity (default 1), lifecycle status (Draft / Ready / Listed / Sold / Returned to Amazon / Donated /
@@ -143,7 +143,7 @@ Approved 2026-10-15 (punch item 78: proposal plus Claude (review)'s gaps; Liam d
   - Photos: Media "Item photo" in private files. On upload: HEIC/HEIF converted to JPEG, turned the right
     way up, metadata (GPS) stripped, long edge at most 2560 px. ImageMagick's policy.xml allows only
     JPEG, PNG, WebP and HEIC/HEIF, and keeps its resource limits.
-- [ ] **Platform listing** custom entity: one per item per platform (Poshmark, Mercari, Depop, Grailed,
+- [x] **Platform listing** custom entity: one per item per platform (Poshmark, Mercari, Depop, Grailed,
   Vinted, Facebook). Fields: status (To post / Posted / Sold here / Take down / Not needed - sold /
   Posted - at risk / Not allowed), URL, listed price, date posted, sold price, fees, shipping paid by the
   seller, eligibility override and note.
