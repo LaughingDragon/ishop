@@ -926,8 +926,8 @@ if (is_readable("$ishop_mail_dir/address.txt") && is_readable("$ishop_mail_dir/a
   $ishop_mail_address = trim((string) file_get_contents("$ishop_mail_dir/address.txt"));
   $ishop_mail_password = trim((string) file_get_contents("$ishop_mail_dir/app_password.txt"));
   if ($ishop_mail_address !== '' && $ishop_mail_password !== '') {
-    $config['system.mail']['interface']['default'] = 'symfony_mailer';
-    $config['system.mail']['interface']['webform'] = 'symfony_mailer';
+    $config['system.mail']['interface']['default'] = 'ishop_mail';
+    $config['system.mail']['interface']['webform'] = 'ishop_mail';
     $config['system.mail']['mailer_dsn'] = [
       'scheme' => 'smtp',
       'host' => 'smtp.gmail.com',

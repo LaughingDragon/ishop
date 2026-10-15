@@ -14,6 +14,8 @@ use Drupal\Core\Link;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
 use Drupal\ishop_office\DiskStatus;
+use Drupal\ishop_office\Form\MailSetupForm;
+use Drupal\ishop_office\Plugin\Mail\IshopMail;
 use Drupal\ishop_office\OfficeManager;
 use Drupal\ishop_office\Vocabulary;
 use Drupal\node\NodeInterface;
@@ -227,6 +229,11 @@ final class OfficeController extends ControllerBase {
       'open_punch_items' => count($this->office->punchItems('open')),
       'phases' => $this->office->statusBoard(),
       'storage' => DiskStatus::report(),
+      'mail' => [
+        'configured' => MailSetupForm::savedAddress() !== '' && MailSetupForm::hasPassword(),
+        'last' => \Drupal::state()->get(IshopMail::STATE_LAST),
+        'last_ok' => \Drupal::state()->get(IshopMail::STATE_LAST_OK),
+      ],
     ];
     $response = new CacheableJsonResponse($data);
     $response->setEncodingOptions(JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);

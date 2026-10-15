@@ -22,3 +22,5 @@ The running log with history and locations is ~/ishop/NOTES.md on the VM.
   (ishop2much-data, ishopway2much-data, ishopway2muchdata), and the live one was deleted (incident, 2026-10-15).
 - Before disk or database work, have a fresh database dump somewhere other than the thing being changed.
 - Never run a script that unmounts or replaces a folder from inside that folder.
+- **settings.php:** never edit it with `sed -i` (it replaces the file and drops the www-data group, so the web
+  server can't read it and the site goes down). Edit in place with Python (or restore `chgrp www-data` at once).
