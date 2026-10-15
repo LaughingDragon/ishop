@@ -206,8 +206,10 @@ reference project is used only for its rules and formatting logic.
   average days to sell (from Date sold), longest-sitting live listings, for this season /
   month / year / last year / all time. Real data only; plain labelled bars, no Charts module.
   The "This season" scoreboard and the office glance use the same numbers (Money).
-- [ ] Year-end tax export: sales, cost, fees, profit per item, plus mileage and
-  expenses. Donation log for unsold items with estimated values.
+- [x] Year-end tax export (My office): Sales CSV per calendar year (date sold, platform, sale
+  price, cost, fees, shipping, profit, totals) and a Donations CSV (date donated from the
+  item's history, estimated value entered by Cody, never guessed); blanks flagged in a Check
+  column. Mileage and expenses join when Phase 5 adds them.
 
 ## Phase 5: daily life tools and the digest
 

@@ -262,6 +262,7 @@ final class ItemHooks {
       'ai_range' => 'AI price range',
       'field_original_price' => 'Original price',
       'field_cost_paid' => 'Cost paid',
+      'field_donation_value' => 'Estimated donation value',
     ],
     'Purchase' => [
       'field_purchase_source' => 'Bought from',
@@ -405,6 +406,7 @@ final class ItemHooks {
       case 'field_asking_price':
       case 'field_original_price':
       case 'field_cost_paid':
+      case 'field_donation_value':
         return $money($node->get($field)->value);
     }
     $items = $node->get($field);

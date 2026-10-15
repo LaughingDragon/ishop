@@ -122,3 +122,15 @@ ishop_items.stale_answer:
     parameters:
       platform_listing:
         type: entity:platform_listing
+
+ishop_items.tax_export:
+  path: '/room/my-office/tax/{year}/{kind}'
+  defaults:
+    _controller: '\Drupal\ishop_items\Controller\TaxExportController::download'
+  requirements:
+    _permission: 'manage platform listings'
+    _user_is_logged_in: 'TRUE'
+    year: '\d{4}'
+    kind: 'sales|donations'
+  options:
+    no_cache: TRUE

@@ -13,6 +13,7 @@ dependencies:
     - field.field.node.item.field_condition
     - field.field.node.item.field_cost_paid
     - field.field.node.item.field_description
+    - field.field.node.item.field_donation_value
     - field.field.node.item.field_flaws
     - field.field.node.item.field_internal_notes
     - field.field.node.item.field_item_status
@@ -128,6 +129,17 @@ content:
     settings: {  }
     third_party_settings: {  }
     weight: 2
+    region: content
+  field_donation_value:
+    type: number_decimal
+    label: inline
+    settings:
+      thousand_separator: ','
+      decimal_separator: .
+      scale: 2
+      prefix_suffix: true
+    third_party_settings: {  }
+    weight: 28
     region: content
   field_flaws:
     type: basic_string

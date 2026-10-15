@@ -1,0 +1,23 @@
+uuid: de9d7f2b-7f26-4830-8bec-95f7513e5c26
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_donation_value
+    - node.type.item
+id: node.item.field_donation_value
+field_name: field_donation_value
+entity_type: node
+bundle: item
+label: 'Estimated donation value'
+description: 'Only for donated items: your estimate of what it was worth when you gave it away. It goes in the year-end donation log. The site never fills this in.'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: 0.0
+  max: null
+  prefix: $
+  suffix: ''
+field_type: decimal

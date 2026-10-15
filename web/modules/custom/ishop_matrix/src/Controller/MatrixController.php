@@ -11,6 +11,7 @@ use Drupal\Core\Url;
 use Drupal\Core\Cache\Cache;
 use Drupal\ishop_items\Controller\StaleController;
 use Drupal\ishop_items\Money;
+use Drupal\ishop_items\TaxExport;
 use Drupal\ishop_items\StaleNudges;
 use Drupal\ishop_items\Platforms;
 use Drupal\ishop_matrix\Birthday;
@@ -35,6 +36,7 @@ final class MatrixController extends ControllerBase {
     private readonly Season $season,
     private readonly StaleNudges $nudges,
     private readonly Money $money,
+    private readonly TaxExport $taxExport,
   ) {}
 
   /**
@@ -348,12 +350,39 @@ final class MatrixController extends ControllerBase {
   }
 
   /**
+   * The year-end tax export: sales and donations CSV per year.
+   */
+  private function taxSection(): array {
+    $years = [];
+    foreach ($this->taxExport->years() as $year) {
+      $years[] = [
+        'year' => $year,
+        'sales' => Url::fromRoute('ishop_items.tax_export', ['year' => $year, 'kind' => 'sales'])->toString(),
+        'donations' => Url::fromRoute('ishop_items.tax_export', ['year' => $year, 'kind' => 'donations'])->toString(),
+      ];
+    }
+    return [
+      '#type' => 'inline_template',
+      '#template' => '<section class="rm-card rm-tax" aria-labelledby="rm-tax-title"><h2 id="rm-tax-title">{{ title }}</h2><p>{{ intro }}</p><ul class="rm-tax__years">{% for y in years %}<li><strong>{{ y.year }}</strong> <a class="rm-button rm-button--gold" href="{{ y.sales }}">{{ sales }}</a> <a class="rm-button rm-button--ghost" href="{{ y.donations }}">{{ donations }}</a></li>{% endfor %}</ul><p class="rm-tax__note">{{ note }}</p></section>',
+      '#context' => [
+        'title' => $this->t('Year-end tax export'),
+        'intro' => $this->t('Spreadsheet files (CSV) for your tax records: every sale with its price, cost, fees, shipping and profit, and the donation log. Anything missing is left blank and marked in the "Check" column, never guessed.'),
+        'years' => $years,
+        'sales' => $this->t('Sales (CSV)'),
+        'donations' => $this->t('Donations (CSV)'),
+        'note' => $this->t('Donation values: enter an "Estimated donation value" on each donated item (Edit the item). Mileage and expenses join this export when they are added (Phase 5).'),
+      ],
+    ];
+  }
+
+  /**
    * My office: the season settings and game days (the rest is coming).
    */
   public function myOffice(): array {
     $build = $this->room('my-office');
     return [
       'money' => $this->moneySection(),
+      'tax' => $this->taxSection(),
       'season' => $this->formBuilder()->getForm(SeasonForm::class),
       'rest' => $build,
       '#attached' => ['library' => ['ishop_matrix/matrix']],

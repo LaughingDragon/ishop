@@ -13,6 +13,7 @@ dependencies:
     - field.field.node.item.field_condition
     - field.field.node.item.field_cost_paid
     - field.field.node.item.field_description
+    - field.field.node.item.field_donation_value
     - field.field.node.item.field_flaws
     - field.field.node.item.field_internal_notes
     - field.field.node.item.field_item_status
@@ -50,6 +51,7 @@ third_party_settings:
         - field_condition
         - field_quantity
         - field_item_status
+        - field_donation_value
       label: Listing
       region: content
       parent_name: ''
@@ -207,6 +209,13 @@ content:
     region: content
     settings:
       rows: 6
+      placeholder: ''
+    third_party_settings: {  }
+  field_donation_value:
+    type: number
+    weight: 11
+    region: content
+    settings:
       placeholder: ''
     third_party_settings: {  }
   field_flaws:
