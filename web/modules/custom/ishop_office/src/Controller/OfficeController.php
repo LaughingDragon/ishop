@@ -303,10 +303,13 @@ final class OfficeController extends ControllerBase {
       '#context' => [
         'title' => $this->t('Storage needs attention'),
         'problems' => $problems,
-        'line' => $this->t('Storage: data disk @mounted. Boot disk @boot; data disk @data.', [
+        'line' => $this->t('Storage: data disk @mounted. Boot disk @boot; data disk @data. Last off-server backup: @offsite.', [
           '@mounted' => $report['data_disk_mounted'] ? $this->t('mounted') : $this->t('NOT mounted'),
           '@boot' => $gb($report['boot_disk']),
           '@data' => $gb($report['data_disk']),
+          '@offsite' => $report['offsite_backup']
+            ? substr((string) $report['offsite_backup']['time'], 0, 16) . ($report['offsite_backup']['ok'] ? '' : ' (failed)')
+            : $this->t('never'),
         ]),
       ],
       '#cache' => ['max-age' => 0],

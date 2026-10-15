@@ -17,14 +17,24 @@ set -Eeuo pipefail
 
 DRY=0
 [[ "${1:-}" == "--dry-run" ]] && DRY=1
-SRC=/var/backups/ishop-bm
+SRC=/var/backups/ishop/bm
+STATUS=/var/backups/ishop/offsite-status.json
 PHOTOS=/var/www/ishop/private/items
 DRUSH=/var/www/ishop/vendor/bin/drush
 BUCKET="${ISHOP_BUCKET:-}"
 DAYS=2   # copy files from the last two days, so a missed night catches up
 
+# Records the result for status.json and the site office board.
+record() {
+  [[ $DRY == 1 ]] && return 0
+  printf '{"time":"%s","ok":%s,"bucket":"%s","backup_files":%s,"photos":%s,"message":"%s"}\n' \
+    "$(date -Is)" "$1" "${BUCKET}" "${2:-0}" "${3:-0}" "$(echo "${4:-}" | tr -d '"\\' | head -c 300)" > "$STATUS.tmp" \
+    && mv "$STATUS.tmp" "$STATUS" || true
+}
+
 fail() {
   echo "!! $*" >&2
+  record false 0 0 "$*"
   if [[ $DRY == 0 ]]; then
     "$DRUSH" --root=/var/www/ishop ishop:punch "Off-server backup copy failed on $(date +%F)" \
       --waiting-on=site-foreman --phase=0 \
@@ -35,6 +45,7 @@ fail() {
 trap 'fail "stopped at line $LINENO"' ERR
 
 [[ -n "$BUCKET" ]] || fail "ISHOP_BUCKET is not set (see /etc/default/ishop-offsite)"
+[[ -f "$SRC/../.ishop-data-disk" ]] || fail "the data disk is not mounted ($SRC)"
 [[ -d "$SRC" ]] || fail "$SRC is missing"
 
 mapfile -t FILES < <(find "$SRC" -maxdepth 1 -type f -mtime -"$DAYS" -name 'backup-*' | sort)
@@ -68,3 +79,4 @@ if [[ -d "$PHOTOS" ]]; then
   (( remote_count >= local_count )) || fail "photos: $remote_count in the bucket, $local_count on the VM"
   echo "== $(date +%T) photos done, $local_count on the VM, $remote_count in the bucket"
 fi
+record true "${#FILES[@]}" "${local_count:-0}" "backups and photos copied"
