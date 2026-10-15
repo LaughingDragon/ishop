@@ -8,7 +8,11 @@
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
- * The wordmark shown in the header. Cody named the front page this.
+ * The motto under the site name in the header, gate and footer.
+ *
+ * Cody named the front page "Reseller Matrix"; the business name (site name)
+ * is the big title and this is the small motto underneath (Cody via Liam,
+ * 2026-10-15).
  */
 const RESELLER_MATRIX_WORDMARK = 'Reseller Matrix';
 

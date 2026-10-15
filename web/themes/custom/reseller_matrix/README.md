@@ -2,7 +2,8 @@
 
 Cody's main theme: **Look C, Red & Gold Marquee**, chosen by Cody from three
 options built from his style questionnaire. Dark charcoal ground, a red
-header with the gold "Reseller Matrix" wordmark, a strip of gold marquee
+header with the business name as the big gold title and "Reseller Matrix"
+as the small motto underneath (Cody, 2026-10-15), a strip of gold marquee
 bulbs, Bungee sign lettering for headings, Work Sans for text at 19 px
 ("a bit bigger"), icon-plus-word room tiles, 960 px max width, rounded
 corners.

@@ -7,8 +7,8 @@
 <header class="rm-header" role="banner">
   <div class="container rm-header__inner">
     <a class="rm-brand" href="{{ path('<front>') }}" rel="home">
-      <span class="rm-brand__wordmark">{{ wordmark }}</span>
-      <span class="rm-brand__sub">{{ site_name }}</span>
+      <span class="rm-brand__wordmark">{{ site_name }}</span>
+      <span class="rm-brand__sub">{{ wordmark }}</span>
     </a>
     {% if logged_in %}
       <div class="rm-header__actions">
@@ -38,7 +38,7 @@
 </main>
 
 <footer class="container rm-footer" role="contentinfo">
-  <span>{{ wordmark }}</span>
+  <span>{{ site_name }}</span>
   {{ page.footer }}
   {% if logged_in %}<a href="{{ path('user.logout') }}">{{ 'Log out'|t }}</a>{% endif %}
 </footer>

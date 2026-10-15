@@ -4,12 +4,12 @@
 .rm-gate__sign { flex: 1 1 400px; background: var(--rm-red); border-radius: var(--rm-radius); padding: 13px;
   background-image: radial-gradient(circle, var(--rm-gold) 0 4px, transparent 4.5px); background-size: 26px 26px; background-repeat: space; }
 .rm-gate__sign-inner { background: var(--rm-red); border-radius: var(--rm-radius-inner); padding: 40px 28px; text-align: center; }
-.rm-gate__wordmark { margin: 0; font-family: var(--rm-font-sign); font-size: 52px; line-height: 1; color: var(--rm-gold); }
-.rm-gate__sub { margin: 12px 0 0; font-weight: 600; color: var(--rm-on-red); font-size: 18px; }
+.rm-gate__wordmark { margin: 0; font-family: var(--rm-font-sign); font-size: 44px; line-height: 1; color: var(--rm-gold); }
+.rm-gate__sub { margin: 12px 0 0; font-family: var(--rm-font-body); font-size: 18px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--rm-on-red); }
 .rm-gate__box { flex: 1 1 340px; background: var(--rm-surface); border: 2px solid var(--rm-gold); border-radius: var(--rm-radius); padding: 28px 26px; }
 .rm-gate__box h1 { font-size: 30px; color: var(--rm-gold); }
 .rm-gate__box input.form-submit { width: 100%; font-size: 20px; }
 @media (max-width: 600px) {
   .rm-gate__main { padding-top: 24px; }
-  .rm-gate__wordmark { font-size: 38px; }
+  .rm-gate__wordmark { font-size: 36px; }
 }
