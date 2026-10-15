@@ -6,6 +6,8 @@
 .ia-form { max-width: 640px; }
 .ia-input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
 .ia-pick, .ia-after { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0 0 16px; }
+/* "Got it / Take another / Done" shows only after a camera shot. */
+.ia-after[hidden] { display: none; }
 .ia-after__text { grid-column: 1 / -1; margin: 0; font-weight: 700; color: var(--rm-text, #FBF3E4); }
 .ia-big {
   display: flex; align-items: center; justify-content: center; gap: 10px;

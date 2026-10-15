@@ -40,3 +40,7 @@ tr:first-child td { border-top: 0; }
 .tabs a { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 16px; border-radius: var(--rm-pill);
   text-decoration: none; font-weight: 600; color: var(--rm-text); border: 1.5px solid var(--rm-line); }
 .tabs a.is-active { background: var(--rm-gold); border-color: var(--rm-gold); color: var(--rm-ground); }
+
+/* The hidden attribute always wins over component display rules (a
+   display: grid on .ia-after once showed "Take another / Done" too early). */
+[hidden] { display: none !important; }

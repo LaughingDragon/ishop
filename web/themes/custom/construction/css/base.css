@@ -105,3 +105,7 @@ caption { text-align: left; font-family: var(--font-sign); font-weight: 800; fon
   text-decoration: none; background: var(--idle); color: var(--idle-ink);
 }
 .tabs a.is-active { background: var(--asphalt); color: var(--hazard); }
+
+/* The hidden attribute always wins over component display rules (a
+   display: grid on .ia-after once showed "Take another / Done" too early). */
+[hidden] { display: none !important; }
