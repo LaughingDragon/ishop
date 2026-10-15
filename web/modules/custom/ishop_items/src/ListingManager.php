@@ -131,6 +131,7 @@ final class ListingManager {
     $item->setNewRevision(TRUE);
     $item->setRevisionUserId($this->currentUser->id());
     $item->setRevisionLogMessage($why);
+    $item->setRevisionCreationTime(\Drupal::time()->getRequestTime());
     $item->save();
     return $taken_down;
   }
@@ -230,6 +231,7 @@ final class ListingManager {
       $item->setNewRevision(TRUE);
       $item->setRevisionLogMessage(sprintf('Sold on %s.', Platforms::PLATFORMS[$sold->getPlatform()]));
       $item->setRevisionUserId($this->currentUser->id());
+      $item->setRevisionCreationTime(\Drupal::time()->getRequestTime());
       $item->save();
     }
   }
@@ -274,6 +276,7 @@ final class ListingManager {
       $item->setNewRevision(TRUE);
       $item->setRevisionLogMessage(sprintf('Sale on %s un-marked.', Platforms::PLATFORMS[$sold->getPlatform()]));
       $item->setRevisionUserId($this->currentUser->id());
+      $item->setRevisionCreationTime(\Drupal::time()->getRequestTime());
       $item->save();
     }
     return $restore;

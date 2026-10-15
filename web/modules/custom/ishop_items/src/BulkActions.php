@@ -241,6 +241,8 @@ final class BulkActions {
     $item->setNewRevision(TRUE);
     $item->setRevisionUserId((int) \Drupal::currentUser()->id());
     $item->setRevisionLogMessage($why);
+    // Programmatic saves keep the old revision time unless it's set.
+    $item->setRevisionCreationTime(\Drupal::time()->getRequestTime());
     $item->save();
   }
 
