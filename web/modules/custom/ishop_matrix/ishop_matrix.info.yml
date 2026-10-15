@@ -5,3 +5,4 @@ package: iShop
 core_version_requirement: ^11.4
 dependencies:
   - ishop_items:ishop_items
+  - ishop_office:ishop_office

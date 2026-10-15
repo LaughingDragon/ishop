@@ -12,7 +12,7 @@ seckit_xss:
     object-src: "'none'"
     style-src: "'self' 'unsafe-inline'"
     img-src: "'self' data: blob:"
-    media-src: ''
+    media-src: "'self'"
     frame-src: ''
     frame-ancestors: "'self'"
     child-src: ''

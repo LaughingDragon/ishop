@@ -21,7 +21,8 @@ const RESELLER_MATRIX_WORDMARK = 'Reseller Matrix';
  */
 function reseller_matrix_preprocess_page(array &$variables): void {
   $account = \Drupal::currentUser();
-  $variables['wordmark'] = RESELLER_MATRIX_WORDMARK;
+  // A module may set its own motto first (birthday mode).
+  $variables['wordmark'] ??= RESELLER_MATRIX_WORDMARK;
   $variables['site_name'] = \Drupal::config('system.site')->get('name');
   $variables['user_name'] = $account->isAuthenticated() ? $account->getDisplayName() : '';
   // "Add item" is the phone flow (Phase 1 step 4).

@@ -8,7 +8,9 @@ use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Url;
+use Drupal\Core\Cache\Cache;
 use Drupal\ishop_items\Platforms;
+use Drupal\ishop_matrix\Birthday;
 use Drupal\ishop_matrix\Rooms;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -24,6 +26,7 @@ final class MatrixController extends ControllerBase {
   public function __construct(
     private readonly DateFormatterInterface $dateFormatter,
     private readonly TimeInterface $time,
+    private readonly Birthday $birthday,
   ) {}
 
   /**
@@ -43,9 +46,18 @@ final class MatrixController extends ControllerBase {
         'glance' => $glances[$slug],
       ];
     }
+    // TEMPORARY (birthday mode): see TEMPORARY.md.
+    $birthday_cache = $this->birthday->cacheability();
+    $party = $this->birthday->isActive($this->currentUser()) ? [
+      'badge' => $this->t('Today is a very big deal'),
+      'hello' => $this->t('Happy birthday, boss!'),
+      'line' => $this->t("The whole building is celebrating. Every room, every shelf, every listing. Take the day. You've earned it."),
+      'start' => $this->t('Start the party'),
+    ] : NULL;
     return [
       '#type' => 'inline_template',
-      '#template' => '<section class="rm-greeting"><div class="rm-greeting__text"><h1>{{ hello }}</h1><p>{{ date }}</p></div><span class="rm-badge">{{ badge }}</span></section>
+      '#template' => '{% if party %}<section class="rm-greeting rm-party-sign"><div class="rm-confetti" aria-hidden="true"></div><div class="rm-greeting__text"><span class="rm-badge rm-badge--party">{{ party.badge }}</span><h1>{{ party.hello }}</h1><p>{{ party.line }}</p><button type="button" class="rm-button rm-button--gold rm-party-toggle" hidden>{{ party.start }}</button></div></section>
+{% else %}<section class="rm-greeting"><div class="rm-greeting__text"><h1>{{ hello }}</h1><p>{{ date }}</p></div><span class="rm-badge">{{ badge }}</span></section>{% endif %}
 <section class="rm-needs" id="needs" aria-labelledby="rm-now"><h2 id="rm-now">{{ needs_title }}</h2>
 {% for n in needs %}<div class="rm-needs__row"><span>{{ n.text }}</span><a class="rm-button{% if n.ghost %} rm-button--ghost{% endif %}" href="{{ n.url }}">{{ n.action }}</a></div>
 {% else %}<p class="rm-needs__empty">{{ nothing }}</p>{% endfor %}</section>
@@ -58,15 +70,16 @@ final class MatrixController extends ControllerBase {
         'badge' => $this->t('Open for business'),
         'needs_title' => $this->t('Needs you now'),
         'needs' => $needs,
-        'nothing' => $this->t('Nothing needs you right now.'),
+        'nothing' => $party ? $this->t("Nothing that can't wait until tomorrow. It's your birthday.") : $this->t('Nothing needs you right now.'),
         'building' => $this->t('The building'),
         'rooms' => $rooms,
+        'party' => $party,
       ],
       '#cache' => [
-        'tags' => ['node_list:item', 'platform_listing_list'],
-        'contexts' => ['user.permissions'],
+        'tags' => Cache::mergeTags(['node_list:item', 'platform_listing_list'], $birthday_cache['tags']),
+        'contexts' => Cache::mergeContexts(['user.permissions'], $birthday_cache['contexts']),
         // The date line and "closes in N days" change daily.
-        'max-age' => 3600,
+        'max-age' => min(3600, $birthday_cache['max-age']),
       ],
     ];
   }

@@ -16,3 +16,24 @@ ishop_matrix.room:
     _permission: 'access content'
     _user_is_logged_in: 'TRUE'
     room: '[a-z-]+'
+
+# TEMPORARY (birthday mode): see TEMPORARY.md.
+ishop_matrix.birthday_settings:
+  path: '/site-office/birthday'
+  defaults:
+    _form: '\Drupal\ishop_matrix\Form\BirthdayForm'
+    _title: 'Birthday mode'
+  requirements:
+    _custom_access: '\Drupal\ishop_matrix\Form\BirthdayForm::access'
+  options:
+    no_cache: TRUE
+
+ishop_matrix.birthday_song:
+  path: '/birthday/song.mp3'
+  defaults:
+    _controller: '\Drupal\ishop_matrix\Controller\BirthdayController::song'
+  methods: [GET, HEAD]
+  requirements:
+    _custom_access: '\Drupal\ishop_matrix\Controller\BirthdayController::access'
+  options:
+    no_cache: TRUE

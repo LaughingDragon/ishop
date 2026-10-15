@@ -2,3 +2,13 @@ matrix:
   css:
     component:
       css/matrix.css: {}
+# TEMPORARY (birthday mode): see TEMPORARY.md.
+birthday:
+  js:
+    js/birthday.js: {}
+  css:
+    theme:
+      css/birthday.css: {}
+  dependencies:
+    - core/drupal
+    - core/once
