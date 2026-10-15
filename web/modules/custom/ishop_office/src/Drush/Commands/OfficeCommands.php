@@ -236,6 +236,9 @@ final class OfficeCommands extends DrushCommands {
     return array_values(array_unique(array_map(fn ($p) => Vocabulary::normalize(Vocabulary::PEOPLE, $p), $people)));
   }
 
+  /**
+   * Validates an optional YYYY-MM-DD option.
+   */
   private function date(?string $date): ?string {
     if ($date !== NULL && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
       throw new \InvalidArgumentException('Dates are YYYY-MM-DD.');
