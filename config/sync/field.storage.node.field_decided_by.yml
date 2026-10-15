@@ -18,8 +18,11 @@ settings:
       value: cody
       label: Cody
     -
+      value: site_foreman
+      label: site-foreman
+    -
       value: claude
-      label: Claude
+      label: 'Claude (review)'
   allowed_values_function: ''
 module: options
 locked: false
