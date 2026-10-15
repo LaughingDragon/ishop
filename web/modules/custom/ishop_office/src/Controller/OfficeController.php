@@ -6,6 +6,7 @@ namespace Drupal\ishop_office\Controller;
 
 use Drupal\Core\Cache\CacheableJsonResponse;
 use Drupal\Core\Cache\CacheableMetadata;
+use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Access\AccessResultInterface;
@@ -27,6 +28,7 @@ final class OfficeController extends ControllerBase {
 
   public function __construct(
     private readonly OfficeManager $office,
+    private readonly DateFormatterInterface $dateFormatter,
   ) {}
 
   /**
@@ -242,7 +244,12 @@ final class OfficeController extends ControllerBase {
    * A big link until answers are sent; "Continue" when a draft exists.
    */
   private function askCodyCallout(): array {
-    $build = ['#cache' => ['contexts' => ['user'], 'tags' => ['webform_submission_list', 'config:webform.webform.ask_cody']]];
+    $build = [
+      '#cache' => [
+        'contexts' => ['user'],
+        'tags' => ['webform_submission_list', 'config:webform.webform.ask_cody'],
+      ],
+    ];
     $webform = $this->entityTypeManager()->getStorage('webform')->load('ask_cody');
     if (!$webform || !$webform->access('submission_create') || !$webform->isOpen()) {
       return $build;
@@ -310,7 +317,7 @@ final class OfficeController extends ControllerBase {
           '#value' => $this->t('@who · @state · @date', [
             '@who' => $submission->getOwner()->getDisplayName(),
             '@state' => $submission->isDraft() ? $this->t('draft, in progress') : $this->t('sent'),
-            '@date' => \Drupal::service('date.formatter')->format((int) $submission->getChangedTime(), 'custom', 'Y-m-d H:i'),
+            '@date' => $this->dateFormatter->format((int) $submission->getChangedTime(), 'custom', 'Y-m-d H:i'),
           ]),
         ],
         'answers' => $builder->view($submission, 'html'),

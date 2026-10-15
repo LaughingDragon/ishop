@@ -217,7 +217,7 @@ final class OfficeHooks {
       return AccessResult::neutral();
     }
     // The questionnaire for Cody: no admin tabs (Test, Results, Build...)
-    // above it, even though his account is an administrator.
+    // above it, even though Cody's account is an administrator.
     if (in_array($this->routeMatch->getRouteName(), ['entity.webform.canonical', 'entity.webform.confirmation'], TRUE)
       && $block->getPluginId() === 'local_tasks_block') {
       return AccessResult::forbidden()->addCacheContexts(['route']);
