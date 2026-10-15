@@ -54,6 +54,22 @@ board picks up the new percentage. This file in git is the source of truth.
 8. **Nothing posts to marketplaces automatically.** They have no public
    listing APIs and their terms forbid automated posting.
 
+## Foundation: server, stack, HTTPS, hardening
+
+Done before Phase 0. Details live in `NOTES.md` and the foundation build
+report in the site office.
+
+- [x] GCE VM (e2-medium, Debian 13) surveyed; 2 GB swap added.
+- [x] Stack: Apache 2.4 + PHP-FPM 8.4, MariaDB 11.8 (localhost only),
+  Drupal 11.4, Drush 13. Project in /var/www/ishop, local git repo.
+- [x] Domain ishoponamazonwaytoomuch.ohbah.com (FreeDNS A record).
+- [x] HTTPS: Let's Encrypt certificate, HTTP to HTTPS redirect, automatic
+  renewal (timer and dry run checked), short HSTS.
+- [x] Hardening: unattended upgrades with reboots about 4 a.m. Pacific,
+  nftables firewall, fail2ban for SSH, LLMNR and mDNS off, secrets outside
+  the web root and out of git.
+- [x] Accounts: webmaster (Liam), theowner (Cody), site-foreman (the agent).
+
 ## Phase 0: safety net
 
 - [ ] Two-factor login: skipped for now by decision. Enforce strong passwords
