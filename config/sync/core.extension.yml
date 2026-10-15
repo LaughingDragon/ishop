@@ -14,6 +14,7 @@ module:
   dblog: 0
   dynamic_page_cache: 0
   editor: 0
+  encrypt: 0
   field: 0
   field_ui: 0
   file: 0
@@ -22,6 +23,7 @@ module:
   gin_toolbar: 0
   help: 0
   image: 0
+  key: 0
   layout_builder: 0
   layout_discovery: 0
   link: 0
@@ -34,10 +36,12 @@ module:
   page_cache: 0
   path: 0
   path_alias: 0
+  real_aes: 0
   seckit: 0
   system: 0
   taxonomy: 0
   text: 0
+  tfa: 0
   update: 0
   user: 0
   views_ui: 0

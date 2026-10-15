@@ -8,6 +8,7 @@ dependencies:
     - file
     - filter
     - system
+    - tfa
 _core:
   default_config_hash: wkW7P5A53YhGmsgamrmTbfwpZrqdnPYiJdoAZQtdmJg
 id: authenticated
@@ -17,4 +18,5 @@ is_admin: false
 permissions:
   - 'access content'
   - 'delete own files'
+  - 'setup own tfa'
   - 'use text format basic_html'
