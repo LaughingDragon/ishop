@@ -147,10 +147,8 @@ final class DiskStatus {
     if (!$report['data_disk_mounted']) {
       $problems[] = 'The data disk is not mounted: item photos and local backups are offline.';
     }
-    if (array_key_exists('offsite_backup', $report)
-      && ($problem = self::offsiteProblem($report['offsite_backup'], time()))) {
-      $problems[] = $problem;
-    }
+    // No off-site backup warning: Liam decided against off-site backups for
+    // now (decision, 2026-10-15). status.json still reports the field.
     foreach (['boot_disk' => 'Boot disk', 'data_disk' => 'Data disk'] as $key => $label) {
       if (!empty($report[$key]['low'])) {
         $problems[] = sprintf('%s is low on space: %d%% free.', $label, $report[$key]['free_percent']);
