@@ -171,13 +171,13 @@ reference project is used only for its rules and formatting logic.
 
 ## Phase 3: selling helpers
 
-- [ ] Port eligibility rules: green/amber/grey chip per platform on every item,
-  hover or tap for the reason.
+- [x] Port eligibility rules: green/amber/grey chip per platform on every item,
+  hover or tap for the reason. (Rules and reasons ported word for word; chips on each listing card.)
 - [ ] "Post this item" page: one tab per platform, every field cut to that
   platform's limits, copy buttons, photos resized per platform (image styles),
   ZIP download, Previous/Next through the to-post queue.
 - [ ] Depop and Vinted bulk CSV exports (Views Data Export).
-- [ ] **Sold-elsewhere alarm (ECA):** marking a platform "Sold here" sets every
+- [x] **Sold-elsewhere alarm (built in Phase 1 without ECA: confirmed cascade + "Needs you now"):** marking a platform "Sold here" sets every
   other Posted platform to "Take down" and puts it at the top of his dashboard.
 - [ ] Stale nudges (ECA + cron): Posted 30+ days without selling, flag with a
   suggested price drop or "consider donating."

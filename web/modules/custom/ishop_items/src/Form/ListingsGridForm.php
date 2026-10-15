@@ -6,6 +6,7 @@ namespace Drupal\ishop_items\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\ishop_items\Eligibility;
 use Drupal\ishop_items\Entity\PlatformListing;
 use Drupal\ishop_items\ListingManager;
 use Drupal\ishop_items\Platforms;
@@ -67,11 +68,18 @@ final class ListingsGridForm extends FormBase {
       '#empty' => $this->t('No listings yet.'),
       '#attributes' => ['class' => ['ishop-listings__table']],
     ];
+    $facts = self::eligibilityFacts($item);
     foreach ($this->listings->forItem($item) as $platform => $listing) {
       $name = Platforms::PLATFORMS[$platform];
+      $eligibility = Eligibility::evaluate($facts + [
+        'override' => $listing->get('eligibility_override')->value,
+        'override_note' => $listing->get('eligibility_note')->value,
+      ], $platform);
       $row = [];
       $row['platform'] = [
-        '#markup' => '<strong>' . $name . '</strong>',
+        '#type' => 'inline_template',
+        '#template' => '<strong>{{ name }}</strong> <details class="ishop-chip ishop-chip--{{ e.verdict }}"><summary>{{ e.label }}{% if e.overridden %} ({{ by_hand }}){% endif %}</summary><p>{{ e.reason }}</p></details>',
+        '#context' => ['name' => $name, 'e' => $eligibility, 'by_hand' => $this->t('set by hand')],
         '#wrapper_attributes' => ['data-label' => (string) $this->t('Platform')],
       ];
       $row['status'] = [
@@ -114,6 +122,22 @@ final class ListingsGridForm extends FormBase {
     ];
     $form['#cache']['max-age'] = 0;
     return $form;
+  }
+
+  /**
+   * What the eligibility rules look at: category path, title, description.
+   */
+  public static function eligibilityFacts(NodeInterface $item): array {
+    $path = '';
+    if ($term = $item->get('field_category')->entity) {
+      $parents = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadAllParents($term->id());
+      $path = implode(' > ', array_map(fn ($t) => $t->label(), array_reverse($parents)));
+    }
+    return [
+      'category' => $path,
+      'title' => (string) $item->label(),
+      'description' => (string) ($item->get('field_description')->value ?? ''),
+    ];
   }
 
   /**
