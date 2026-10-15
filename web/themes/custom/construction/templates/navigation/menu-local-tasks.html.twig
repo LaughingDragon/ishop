@@ -1,0 +1,16 @@
+{#
+/**
+ * @file
+ * Construction theme: local task tabs (Log in / Reset password, View / Edit).
+ *
+ * Same as stable9's template plus the "tabs" class that css/base.css styles.
+ */
+#}
+{% if primary %}
+  <h2 class="visually-hidden">{{ 'Primary tabs'|t }}</h2>
+  <ul class="tabs tabs--primary">{{ primary }}</ul>
+{% endif %}
+{% if secondary %}
+  <h2 class="visually-hidden">{{ 'Secondary tabs'|t }}</h2>
+  <ul class="tabs tabs--secondary">{{ secondary }}</ul>
+{% endif %}
