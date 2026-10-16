@@ -8,8 +8,10 @@ use Anthropic\Client;
 use Anthropic\Core\Exceptions\APIStatusException;
 use Anthropic\Core\Exceptions\AuthenticationException;
 use Anthropic\Core\Exceptions\PermissionDeniedException;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileSystemInterface;
+use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 use Drupal\image\Entity\ImageStyle;
 use Drupal\node\NodeInterface;
 
@@ -26,10 +28,29 @@ use Drupal\node\NodeInterface;
  * 264 after the cost test: Claude Sonnet 5.5 with the server-side refusal
  * fallback, up to 8 photos at 1092 px, web search on resale sites only (max
  * 4 searches). About $0.02-0.09 an item in the test, against $0.30-0.64.
+ *
+ * Two-step (Liam: "build it", 2026-10-16, report 2026-10-16-7), on when
+ * ishop_ai.settings:two_step is TRUE: step 1, Claude Haiku 5.5 writes the
+ * whole draft from ONE photo at 1092 px with no search, plus a rough value.
+ * Step 2 runs only when that value is at least research_threshold ($15): a
+ * text-only Claude Sonnet 5.5 sold-price search (Haiku 5.5 can't use the
+ * current web search tool). Research for a near-identical item (same
+ * normalized title and category, within research_reuse_days) is reused
+ * instead. If step 1 fails, the one-step run above is used.
  */
 final class ListingWriter {
 
   public const MODEL = 'claude-sonnet-5-5';
+
+  /**
+   * Step 1 of the two-step run: identify and write from one photo.
+   */
+  public const IDENTIFY_MODEL = 'claude-haiku-5-5';
+
+  /**
+   * Where reused research is kept: key = normalized title + category.
+   */
+  public const RESEARCH_STORE = 'ishop_ai.research';
 
   public const MAX_PHOTOS = 8;
 
@@ -55,6 +76,9 @@ final class ListingWriter {
   public const MODEL_PRICES = [
     'claude-opus-5-5' => [4.0, 20.0, 5.0, 0.20],
     'claude-sonnet-5-5' => [2.0, 10.0, 2.5, 0.20],
+    // Claude Haiku 5.5, prompts up to 100K tokens (2026-10-16, Claude API
+    // reference); cache prices assumed 1.25x / 0.1x input (no caching used).
+    'claude-haiku-5-5' => [0.10, 0.50, 0.125, 0.01],
   ];
 
   /**
@@ -145,9 +169,56 @@ price from the photos alone and leave research_notes and sources empty rather th
 inventing market data.
 PROMPT;
 
+  /**
+   * Step 1: the old prompt without the search (two-step run).
+   */
+  public const IDENTIFY_PROMPT = <<<'PROMPT'
+You are helping someone sell household items they already own (pre-owned things
+from their own home, often never used) on online resale marketplaces.
+The attached photo shows ONE item for sale.
+
+Step 1 - Identify the item. Read every tag, label, logo and stamp you can see and work
+out the exact brand, model or style name, and size. Only state what is actually visible
+in the photo - never invent a brand, model or size that isn't there.
+
+Step 2 - Write the listing:
+- Title: what a buyer would type into search - brand, item type, key attributes. No
+  emoji, no ALL CAPS.
+- Description: 2-4 short paragraphs. Honest and specific; mention material, measurements
+  or size if visible, and any flaws.
+- Condition: the item is pre-owned. Use "New with tags" only if original tags or sealed
+  packaging are visible, and "New without tags" only if it looks unused; otherwise
+  judge the wear you can see.
+- Condition notes: visible wear, stains, scratches. Empty string if it looks flawless.
+- price_min / price_max / suggested_price: a rough secondhand value from what you know
+  about items like this. There is no web search in this step: leave research_notes and
+  sources as empty strings.
+PROMPT;
+
+  /**
+   * Step 2: a text-only sold-price search for an identified item.
+   */
+  public const RESEARCH_PROMPT = <<<'PROMPT'
+Find what this exact item actually sells for secondhand right now. USE THE web_search
+TOOL. eBay SOLD listings are the most reliable source - they are completed sales, not
+asking prices - so check those first, then Poshmark, Mercari, Depop, Grailed, Vinted
+and StockX. Search for the specific item, not a generic category.
+
+The item:
+%s
+
+Return price_min / price_max / suggested_price based on the real sold prices you found
+(suggested_price is the single number to list at and must always be filled in),
+research_notes (one or two plain sentences on what the search actually turned up) and
+sources (the URLs you used, one per line). If the search turns up nothing useful, give
+your best estimate and leave research_notes and sources empty.
+PROMPT;
+
   public function __construct(
     private readonly FileSystemInterface $fileSystem,
     private readonly EntityTypeManagerInterface $entityTypeManager,
+    private readonly ConfigFactoryInterface $configFactory,
+    private readonly KeyValueFactoryInterface $keyValue,
   ) {}
 
   /**
@@ -250,6 +321,21 @@ PROMPT;
    *   Refused key or no credit: the caller pauses AI.
    */
   public function write(NodeInterface $item, string $key, array $options = []): array {
+    $settings = $this->configFactory->get('ishop_ai.settings');
+    // The cost test passes its own options; Cody's runs use the setting.
+    if (!$options && $settings->get('two_step')) {
+      try {
+        return $this->writeTwoStep($item, $key, (float) $settings->get('research_threshold'), (int) $settings->get('research_reuse_days'));
+      }
+      catch (TwoStepFailed $e) {
+        // Step 1 failed (declined photo, unusable answer): one-step run,
+        // with step 1's tokens still counted.
+        $result = $this->write($item, $key, ['two_step_failed' => TRUE]);
+        $result['usage'] = self::combine([$e->usage, $result['usage']]);
+        return $result;
+      }
+    }
+    unset($options['two_step_failed']);
     $options += self::DEFAULTS;
     $images = $this->photos($item, $options['style']);
     if (!$images) {
@@ -324,6 +410,168 @@ PROMPT;
   }
 
   /**
+   * The two-step run (see the class comment).
+   *
+   * @return array{draft: array, usage: array, searched: bool, blocks: array}
+   *   As write(); the draft also says what happened to the research:
+   *   research = skipped (under the threshold), reused, searched or none.
+   *
+   * @throws \Drupal\ishop_ai\TwoStepFailed
+   *   Step 1 gave nothing usable: the caller falls back to one step.
+   */
+  public function writeTwoStep(NodeInterface $item, string $key, float $threshold, int $reuse_days): array {
+    $images = $this->photos($item, 'ai_input_small');
+    if (!$images) {
+      throw new \RuntimeException('This item has no photos yet, so there is nothing for the AI to look at.');
+    }
+    $client = new Client(apiKey: $key);
+    $categories = $this->categories();
+    $content = [
+      ['type' => 'image', 'source' => ['type' => 'base64', 'mediaType' => 'image/jpeg', 'data' => $images[0]]],
+      ['type' => 'text', 'text' => self::IDENTIFY_PROMPT],
+    ];
+    $step1 = self::emptyUsage(self::IDENTIFY_MODEL);
+    $options = ['model' => self::IDENTIFY_MODEL, 'effort' => 'low', 'fallbacks' => FALSE];
+    try {
+      [$response] = $this->generate($client, $content, FALSE, $step1, $options, self::schema($categories));
+    }
+    catch (AuthenticationException | PermissionDeniedException $e) {
+      throw $e;
+    }
+    catch (APIStatusException $e) {
+      if ($e->type?->value === 'billing_error') {
+        throw $e;
+      }
+      throw new TwoStepFailed('Step 1 error: ' . $e->getMessage(), $step1);
+    }
+    $draft = self::decodeDraft($response);
+    if ($draft === NULL) {
+      throw new TwoStepFailed('Step 1 gave no usable listing.', $step1);
+    }
+    self::cleanResearch($draft, []);
+    $steps = [$step1];
+    $blocks = [];
+    $searched = FALSE;
+    $draft['research'] = 'skipped';
+    $store = $this->keyValue->get(self::RESEARCH_STORE);
+    $research_key = self::researchKey((string) $draft['title'], (string) $draft['category']);
+    if ((float) $draft['suggested_price'] >= $threshold) {
+      $saved = $store->get($research_key);
+      if ($saved && $saved['at'] >= time() - $reuse_days * 86400 && (int) $saved['nid'] !== (int) $item->id()) {
+        $draft = array_merge($draft, array_intersect_key($saved, array_flip(self::RESEARCH_FIELDS)));
+        $draft['research'] = 'reused';
+        $draft['research_from'] = (int) $saved['nid'];
+        $searched = TRUE;
+      }
+      else {
+        $step2 = self::emptyUsage(self::MODEL);
+        $about = implode("\n", array_filter([
+          'Title: ' . $draft['title'],
+          $draft['brand'] !== '' ? 'Brand: ' . $draft['brand'] : '',
+          'Category: ' . $draft['category'],
+          'Condition: ' . $draft['condition'],
+          $draft['size'] !== '' ? 'Size: ' . $draft['size'] : '',
+          'Description: ' . mb_substr((string) $draft['description'], 0, 600),
+        ]));
+        $research = NULL;
+        try {
+          $ask = [['type' => 'text', 'text' => sprintf(self::RESEARCH_PROMPT, $about)]];
+          [$response, $blocks] = $this->generate($client, $ask, TRUE, $step2, self::DEFAULTS, self::researchSchema());
+          $research = self::decodeDraft($response, 'suggested_price');
+        }
+        catch (AuthenticationException | PermissionDeniedException $e) {
+          throw $e;
+        }
+        catch (APIStatusException $e) {
+          if ($e->type?->value === 'billing_error') {
+            throw $e;
+          }
+        }
+        $steps[] = $step2;
+        $draft['research'] = 'none';
+        if ($research) {
+          $merged = array_merge($draft, array_intersect_key($research, array_flip(self::RESEARCH_FIELDS)));
+          $searched = self::cleanResearch($merged, $blocks);
+          if ($searched) {
+            $draft = $merged;
+            $draft['research'] = 'searched';
+            $saved = array_intersect_key($draft, array_flip(self::RESEARCH_FIELDS));
+            $store->set($research_key, $saved + ['nid' => (int) $item->id(), 'at' => time()]);
+          }
+        }
+      }
+    }
+    $draft['research_threshold'] = $threshold;
+    return ['draft' => $draft, 'usage' => self::combine($steps), 'searched' => $searched, 'blocks' => $blocks];
+  }
+
+  /**
+   * The fields step 2 fills in (and that are reused).
+   */
+  public const RESEARCH_FIELDS = ['price_min', 'price_max', 'suggested_price', 'research_notes', 'sources'];
+
+  /**
+   * Step 2's answer: just the research fields.
+   */
+  public static function researchSchema(): array {
+    $schema = self::schema();
+    $schema['properties'] = array_intersect_key($schema['properties'], array_flip(self::RESEARCH_FIELDS));
+    $schema['required'] = self::RESEARCH_FIELDS;
+    return $schema;
+  }
+
+  /**
+   * Near-identical items share research: normalized title + category.
+   */
+  public static function researchKey(string $title, string $category): string {
+    $norm = fn (string $s) => trim((string) preg_replace('/[^a-z0-9]+/', ' ', mb_strtolower($s)));
+    return sha1($norm($title) . '|' . $norm($category));
+  }
+
+  /**
+   * The JSON answer of a response, or NULL (refusal, no JSON, field missing).
+   */
+  private static function decodeDraft(object $response, string $required = 'title'): ?array {
+    if ($response->stopReason === 'refusal') {
+      return NULL;
+    }
+    $draft = NULL;
+    foreach ($response->content as $block) {
+      if ($block->type === 'text') {
+        $draft = json_decode($block->text, TRUE);
+      }
+    }
+    return is_array($draft) && isset($draft[$required]) ? $draft : NULL;
+  }
+
+  /**
+   * Zero usage for one model.
+   */
+  public static function emptyUsage(string $model): array {
+    return ['input' => 0, 'output' => 0, 'cache_write' => 0, 'cache_read' => 0, 'searches' => 0, 'model' => $model];
+  }
+
+  /**
+   * Several steps' usage as one: totals, plus the steps for cost().
+   */
+  public static function combine(array $steps): array {
+    $flat = [];
+    foreach ($steps as $step) {
+      foreach ($step['steps'] ?? [$step] as $one) {
+        $flat[] = $one;
+      }
+    }
+    $total = self::emptyUsage('two-step');
+    foreach ($flat as $one) {
+      foreach (['input', 'output', 'cache_write', 'cache_read', 'searches'] as $k) {
+        $total[$k] += (int) ($one[$k] ?? 0);
+      }
+    }
+    $total['steps'] = $flat;
+    return $total;
+  }
+
+  /**
    * One generation, resuming through pause_turn stops.
    *
    * @return array{0: object, 1: array}
@@ -340,13 +588,16 @@ PROMPT;
         'messages' => $messages,
         // Research needs some deliberation; more mostly buys more searches.
         'outputConfig' => [
-          'effort' => 'medium',
+          'effort' => $options['effort'] ?? 'medium',
           'format' => ['type' => 'json_schema', 'schema' => $schema],
         ],
-        // Server-side refusal fallback (recommended for Claude Opus 5.5).
-        'betas' => ['server-side-fallback-2026-07-01'],
-        'fallbacks' => 'default',
       ];
+      // Server-side refusal fallback (Claude Opus 5.5 / Sonnet 5.5; Claude
+      // Haiku 5.5 has none).
+      if ($options['fallbacks'] ?? TRUE) {
+        $args['betas'] = ['server-side-fallback-2026-07-01'];
+        $args['fallbacks'] = 'default';
+      }
       if ($search) {
         $tool = ['type' => 'web_search_20260209', 'name' => 'web_search', 'maxUses' => $options['max_searches']];
         if ($options['allowed_domains']) {
@@ -381,6 +632,9 @@ PROMPT;
    * The cost of a run in USD, from its usage.
    */
   public static function cost(array $usage): float {
+    if (!empty($usage['steps'])) {
+      return round(array_sum(array_map([self::class, 'cost'], $usage['steps'])), 4);
+    }
     [$in, $out, $write, $read] = self::MODEL_PRICES[$usage['model'] ?? self::MODEL] ?? self::MODEL_PRICES[self::MODEL];
     return round(
       $usage['input'] / 1e6 * $in

@@ -63,3 +63,15 @@ function ishop_ai_update_11002(): string {
   }
   return 'AI run table added.';
 }
+
+/**
+ * Adds ishop_ai.settings: the two-step run, on (Liam, 2026-10-16).
+ */
+function ishop_ai_update_11003(): string {
+  \Drupal::configFactory()->getEditable('ishop_ai.settings')
+    ->set('two_step', TRUE)
+    ->set('research_threshold', 15)
+    ->set('research_reuse_days', 30)
+    ->save();
+  return 'Two-step AI on: Claude Haiku 5.5 from one photo; price search from $15.';
+}

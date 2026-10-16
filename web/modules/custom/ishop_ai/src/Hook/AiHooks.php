@@ -96,7 +96,7 @@ final class AiHooks {
     if ($draft) {
       $build['ishop_ai']['why'] = [
         '#type' => 'inline_template',
-        '#template' => '<details class="ishop-ai__why"{% if open %} open{% endif %}><summary>{{ title }}</summary>{% if book %}<p class="ishop-ai__book"><strong>{{ book }}</strong></p>{% endif %}<p>{% if book %}{{ ai_label }} {% endif %}<strong>{{ price }}</strong></p>{% if notes %}<p>{{ notes }}</p>{% else %}<p>{{ no_search }}</p>{% endif %}{% if sources %}<ul>{% for s in sources %}<li>{% if s.url %}<a href="{{ s.url }}" rel="noopener noreferrer" target="_blank">{{ s.text }}</a>{% else %}{{ s.text }}{% endif %}</li>{% endfor %}</ul>{% endif %}</details>',
+        '#template' => '<details class="ishop-ai__why"{% if open %} open{% endif %}><summary>{{ title }}</summary>{% if book %}<p class="ishop-ai__book"><strong>{{ book }}</strong></p>{% endif %}<p>{% if book %}{{ ai_label }} {% endif %}<strong>{{ price }}</strong></p>{% if reused %}<p>{{ reused }}</p>{% endif %}{% if notes %}<p>{{ notes }}</p>{% else %}<p>{{ no_search }}</p>{% endif %}{% if sources %}<ul>{% for s in sources %}<li>{% if s.url %}<a href="{{ s.url }}" rel="noopener noreferrer" target="_blank">{{ s.text }}</a>{% else %}{{ s.text }}{% endif %}</li>{% endfor %}</ul>{% endif %}</details>',
         '#context' => [
           'open' => !$run['reviewed'],
           'title' => $this->t('Why this price'),
@@ -105,7 +105,13 @@ final class AiHooks {
           'ai_label' => $this->t('AI estimate:'),
           'price' => SuggestionForm::suggested($draft, 'price'),
           'notes' => (string) ($draft['research_notes'] ?? ''),
-          'no_search' => $this->t('The price search found nothing useful this time, so this price is an estimate from the photos alone.'),
+          'no_search' => match ($draft['research'] ?? NULL) {
+            // Two-step run: no search under the threshold (keeps the cost
+            // to a fraction of a cent).
+            'skipped' => $this->t('A quick estimate from the photo. Items under $@min get no price search, to keep the AI cost to a fraction of a cent. Check sold prices below for real sales.', ['@min' => number_format((float) ($draft['research_threshold'] ?? 15))]),
+            default => $this->t('The price search found nothing useful this time, so this price is an estimate from the photos alone.'),
+          },
+          'reused' => ($draft['research'] ?? NULL) === 'reused' ? $this->t('Price research reused from a near-identical item (item @nid), so no new search was paid for.', ['@nid' => $draft['research_from'] ?? '?']) : NULL,
           'sources' => $sources,
         ],
       ];

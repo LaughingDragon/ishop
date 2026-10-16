@@ -108,4 +108,42 @@ final class ListingWriterTest extends UnitTestCase {
     $this->assertSame(['Electronics', 'Home & Kitchen > Holiday & Seasonal', 'Other'], $schema['properties']['category']['enum']);
   }
 
+  /**
+   * Two-step cost: each step at its own model's price, searches included.
+   */
+  public function testTwoStepCost(): void {
+    $haiku = ['model' => 'claude-haiku-5-5', 'input' => 2000, 'output' => 800] + ListingWriter::emptyUsage('claude-haiku-5-5');
+    $sonnet = ['input' => 10000, 'output' => 500, 'searches' => 2] + ListingWriter::emptyUsage('claude-sonnet-5-5');
+    $usage = ListingWriter::combine([$haiku, $sonnet]);
+    $this->assertSame(12000, $usage['input']);
+    $this->assertSame(2, $usage['searches']);
+    // Haiku 0.0002 + 0.0004; Sonnet 0.02 + 0.005 + 0.02 searches.
+    $this->assertSame(0.0456, ListingWriter::cost($usage));
+    // Combining again (the one-step fallback) keeps the steps flat.
+    $this->assertCount(3, ListingWriter::combine([$usage, $haiku])['steps']);
+  }
+
+  /**
+   * Near-identical items share research; different ones don't.
+   */
+  public function testResearchKey(): void {
+    $this->assertSame(
+      ListingWriter::researchKey('Heye Cartoon Classics  Birthday puzzle!', 'Toys & Hobbies'),
+      ListingWriter::researchKey('heye cartoon classics birthday PUZZLE', 'toys & hobbies'),
+    );
+    $this->assertNotSame(
+      ListingWriter::researchKey('Heye Birthday puzzle', 'Toys & Hobbies'),
+      ListingWriter::researchKey('Heye Birthday puzzle', 'Collectibles'),
+    );
+  }
+
+  /**
+   * Step 2 asks for the research fields only.
+   */
+  public function testResearchSchema(): void {
+    $schema = ListingWriter::researchSchema();
+    $this->assertSame(ListingWriter::RESEARCH_FIELDS, $schema['required']);
+    $this->assertSame(ListingWriter::RESEARCH_FIELDS, array_keys($schema['properties']));
+  }
+
 }

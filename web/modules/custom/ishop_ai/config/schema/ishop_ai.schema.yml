@@ -1,0 +1,13 @@
+ishop_ai.settings:
+  type: config_object
+  label: 'AI listing helper settings'
+  mapping:
+    two_step:
+      type: boolean
+      label: 'Two-step run: Claude Haiku 5.5 from one photo, price search only above the threshold'
+    research_threshold:
+      type: float
+      label: 'Run the sold-price search when the first estimate is at least this many dollars'
+    research_reuse_days:
+      type: integer
+      label: 'Reuse price research for a near-identical item for this many days'
