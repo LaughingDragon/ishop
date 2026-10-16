@@ -132,6 +132,8 @@ final class AddItemForm extends FormBase {
         '#tag' => 'p',
         '#attributes' => ['class' => ['ia-bulk-link']],
         'link' => Link::createFromRoute($this->t('Many items at once? Use the bulk photo drop'), 'ishop_items.bulk_add')->toRenderable(),
+        'or' => ['#markup' => ' · '],
+        'amazon' => Link::createFromRoute($this->t('Import from Amazon'), 'ishop_items.amazon_import')->toRenderable(),
       ],
       // Shown by add.js; hidden when JavaScript doesn't run.
       'controls' => [

@@ -56,3 +56,8 @@ bulk:
     - core/drupal
     - core/drupalSettings
     - core/once
+
+amazon:
+  css:
+    component:
+      css/amazon.css: {}

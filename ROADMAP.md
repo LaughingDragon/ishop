@@ -253,11 +253,13 @@ Plan approved with changes (Liam, decision 241). Cody requests his data now (ite
   editable per item; the screen says it's counted from the order date (delivery is usually
   later, so it warns early). Amazon's holiday rule (bought Nov 1 to Dec 31: returnable until
   Jan 31) is a setting, not hard-coded. "Returned" and "Keeping it" buttons on the warning.
-- [ ] Upload Amazon's order history export (the "Your Orders" zip or CSV from "Request your
+- [x] Upload Amazon's order history export (the "Your Orders" zip or CSV from "Request your
   data"). A preview with ticks (open return windows pre-ticked); each ticked line becomes a
   draft item with cost, purchase date, order ID, ASIN and quantity (one item per line).
   Cancelled and digital orders skipped; duplicates (order + product) skipped on re-import.
-  Only the needed fields are kept; the uploaded file is deleted afterwards.
+  Only the needed fields are kept; the uploaded file is deleted afterwards. (Built: /add/amazon, linked
+  from "Add item"; a card per purchase, newest first, older ones behind "Show older purchases
+  too"; matched on order ID + ASIN; Amazon as the source; return-by filled in on save.)
 - [x] Digest and dashboard warn 7 and 2 days before a return window closes (and on the
   day): "return it or list it?" (Built with step 1: settings at My office > Return windows; "Needs you now"
   shows the last week with Returned / Keeping it / Open; the digest names it at 7, 2 and 0 days.)

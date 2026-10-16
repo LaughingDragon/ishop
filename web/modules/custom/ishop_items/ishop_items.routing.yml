@@ -167,3 +167,13 @@ ishop_items.return_settings:
     _title: 'Return windows'
   requirements:
     _permission: 'manage platform listings'
+
+ishop_items.amazon_import:
+  path: '/add/amazon'
+  defaults:
+    _form: '\Drupal\ishop_items\Form\AmazonImportForm'
+    _title: 'Import from Amazon'
+  requirements:
+    _entity_create_access: 'node:item'
+  options:
+    no_cache: TRUE
