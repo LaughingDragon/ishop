@@ -166,6 +166,9 @@ final class StockroomForm extends FormBase {
         ),
         '#default_value' => in_array($nid, $saved['nids'] ?? [], FALSE),
         '#wrapper_attributes' => ['class' => ['rm-stock__item']],
+        // Tapping the row ticks it for a bulk change; Open goes to the item
+        // (its page has Check sold prices, Listings and Post this item).
+        '#field_suffix' => Markup::create('<a class="rm-button rm-button--ghost rm-stock__open" href="' . Html::escape($item->toUrl()->toString()) . '">' . Html::escape((string) $this->t('Open')) . '<span class="visually-hidden"> ' . Html::escape($item->label()) . '</span></a>'),
       ];
     }
     $form['bar'] = [

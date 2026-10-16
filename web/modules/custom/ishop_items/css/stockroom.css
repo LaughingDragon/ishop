@@ -15,6 +15,15 @@
 .rm-stock__title { font-weight: 700; overflow-wrap: anywhere; }
 .rm-stock__meta { font-size: 0.9rem; font-weight: 400; color: var(--rm-text-soft, #D3C6B2); }
 .rm-stock__all { margin: 0 0 8px; }
+/* Open sits at the end of the row, after the label (the label ticks the box). */
+.rm-stock__item .field-suffix { order: 3; flex: none; }
+/* On a phone, Open goes on its own line under the text so the title keeps its width. */
+@media (max-width: 600px) {
+  .rm-stock__item { flex-wrap: wrap; row-gap: 6px; }
+  .rm-stock__item label { flex-basis: 0; min-width: 0; }
+  .rm-stock__item .field-suffix { flex-basis: 100%; padding-left: 108px; }
+}
+.rm-stock__open { min-height: 44px; min-width: 64px; display: inline-flex; align-items: center; justify-content: center; }
 
 /* The action bar stays at the bottom of the screen while scrolling. */
 .rm-stock__bar {
