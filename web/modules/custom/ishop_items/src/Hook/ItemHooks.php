@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Drupal\ishop_items\Hook;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Hook\Attribute\Hook;
 use Drupal\Core\Messenger\MessengerInterface;
@@ -14,11 +16,12 @@ use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\ishop_items\Form\ListingsGridForm;
 use Drupal\ishop_items\Cleared;
-use Drupal\ishop_items\EbaySold;
+use Drupal\ishop_items\Form\PriceCheckForm;
 use Drupal\ishop_items\ListingManager;
 use Drupal\ishop_items\PhotoPrep;
 use Drupal\ishop_office\DiskStatus;
 use Drupal\ishop_items\ReadyCheck;
+use Drupal\ishop_items\SoldSearch;
 use Drupal\image\Entity\ImageStyle;
 use Drupal\Core\Url;
 use Drupal\node\NodeInterface;
@@ -42,6 +45,8 @@ final class ItemHooks {
     private readonly ListingManager $listings,
     private readonly FormBuilderInterface $formBuilder,
     private readonly AccountProxyInterface $currentUser,
+    private readonly ConfigFactoryInterface $configFactory,
+    private readonly ModuleHandlerInterface $moduleHandler,
   ) {}
 
   /**
@@ -234,20 +239,10 @@ final class ItemHooks {
           '#value' => $this->t("Check it's OK to sell first: tick Cleared to sell on the item's Edit page. Then you can post it."),
           '#attributes' => ['class' => ['ishop-not-cleared']],
         ],
-        // Real sold prices, checked by Cody on eBay itself (decision 264).
-        'sold' => ($sold = EbaySold::url((string) $node->label())) ? [
-          '#type' => 'link',
-          '#title' => $this->t('See eBay sold prices'),
-          '#url' => Url::fromUri($sold),
-          '#attributes' => [
-            'class' => ['rm-button', 'rm-button--ghost', 'ishop-sold-link'],
-            'target' => '_blank',
-            'rel' => 'noopener noreferrer',
-          ],
-        ] : [],
         'form' => $this->formBuilder->getForm(ListingsGridForm::class, $node),
         '#attached' => ['library' => ['ishop_items/item_form']],
       ];
+      $build['ishop_sold_prices'] = $this->soldPrices($node) + ['#weight' => 85];
       $build['#cache']['max-age'] = 0;
     }
     $missing = ReadyCheck::missing(self::checkValues($node));
@@ -492,6 +487,69 @@ final class ItemHooks {
       ];
     }
     return $notice;
+  }
+
+  /**
+   * The Check sold prices panel (Phase 7.5): links, then Cody's answer.
+   */
+  private function soldPrices(NodeInterface $node): array {
+    // What to search for: the item's title, or (hook_ishop_sold_search_title
+    // _alter) the AI draft's title while the item still has a placeholder.
+    $title = (string) $node->label();
+    $this->moduleHandler->alter('ishop_sold_search_title', $title, $node);
+    $links = SoldSearch::links($title, (bool) $this->configFactory->get('ishop_items.pricing')->get('terapeak'));
+    $panel = [
+      '#type' => 'container',
+      '#attributes' => ['id' => 'sold-prices', 'class' => ['rm-card', 'ishop-sold-prices']],
+      'title' => ['#type' => 'html_tag', '#tag' => 'h2', '#value' => $this->t('Check sold prices')],
+    ];
+    if (!$links) {
+      $panel['empty'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'p',
+        '#value' => $this->t('Give the item a real title first; then these buttons search for it.'),
+      ];
+      return $panel;
+    }
+    $panel['help'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'p',
+      '#value' => $this->t('Each button opens that site in a new tab, showing only things that already sold. Look at what similar ones sold for, then come back here.'),
+    ];
+    $panel['links'] = ['#type' => 'container', '#attributes' => ['class' => ['ishop-sold-prices__links']]];
+    foreach ($links as $key => $link) {
+      $panel['links'][$key] = [
+        '#type' => 'link',
+        '#title' => $link['label'],
+        '#url' => Url::fromUri($link['url']),
+        '#attributes' => [
+          'class' => ['rm-button', $key === array_key_first($links) ? 'rm-button--gold' : 'rm-button--ghost'],
+          'target' => '_blank',
+          'rel' => 'noopener noreferrer',
+        ],
+      ];
+    }
+    if ($last = $node->get('field_price_check')->value) {
+      $when = (int) $node->get('field_price_check_at')->value;
+      $label = $last === 'typed' ? $this->t('typed a price') : PriceCheckForm::VERDICTS[$last] ?? $last;
+      $price = $node->get('field_price_check_price')->value;
+      $panel['last'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'p',
+        '#attributes' => ['class' => ['ishop-sold-prices__last']],
+        '#value' => $price !== NULL && $price !== ''
+          ? $this->t('Last checked @date: @label, @price.', [
+            '@date' => date('M j', $when),
+            '@label' => $label,
+            '@price' => PriceCheckForm::dollars((float) $price),
+          ])
+          : $this->t('Last checked @date: @label.', ['@date' => date('M j', $when), '@label' => $label]),
+      ];
+    }
+    if ($node->access('update')) {
+      $panel['form'] = $this->formBuilder->getForm(PriceCheckForm::class, $node);
+    }
+    return $panel;
   }
 
 }

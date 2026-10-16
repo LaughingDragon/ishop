@@ -9,7 +9,6 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\ishop_ai\AiRuns;
 use Drupal\ishop_ai\ListingWriter;
-use Drupal\ishop_items\EbaySold;
 use Drupal\ishop_items\PlatformCategories;
 use Drupal\ishop_items\ReadyCheck;
 use Drupal\node\NodeInterface;
@@ -144,12 +143,9 @@ final class SuggestionForm extends FormBase {
         [$usable, $note] = [FALSE, [$this->t('Not one of the site\'s conditions: pick one yourself.')]];
       }
       if ($field === 'price') {
-        // Decision 264: the AI's price is an estimate; real sold prices are
-        // one tap away on eBay.
-        $note[] = $this->t('An estimate from the photos and current listings, not confirmed sales.');
-        if ($sold = EbaySold::url((string) ($draft['title'] ?? ''))) {
-          $note[] = $this->t('<a href=":url" target="_blank" rel="noopener noreferrer">See eBay sold prices</a>', [':url' => $sold]);
-        }
+        // The AI's price is an estimate; Cody checks real sold prices in the
+        // Check sold prices panel on the same page (Phase 7.5).
+        $note[] = $this->t('An estimate from the photos and current listings, not confirmed sales. <a href="#sold-prices">Check sold prices</a>');
       }
       if ($field === 'category') {
         if ($suggested !== '' && $suggested !== $category) {

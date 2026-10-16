@@ -1,0 +1,33 @@
+uuid: e7b1aff3-8c8c-4aae-9ae1-4ac4126c544f
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_price_check
+field_name: field_price_check
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: lower
+      label: Lower
+    -
+      value: about_right
+      label: 'About right'
+    -
+      value: higher
+      label: Higher
+    -
+      value: typed
+      label: 'Typed a price'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

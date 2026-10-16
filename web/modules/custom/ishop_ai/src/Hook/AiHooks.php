@@ -14,6 +14,7 @@ use Drupal\Core\Url;
 use Drupal\ishop_ai\AiRuns;
 use Drupal\ishop_ai\AiStatus;
 use Drupal\ishop_ai\Form\SuggestionForm;
+use Drupal\ishop_items\SoldSearch;
 use Drupal\node\NodeInterface;
 
 /**
@@ -103,6 +104,23 @@ final class AiHooks {
           'sources' => $sources,
         ],
       ];
+    }
+  }
+
+  /**
+   * Implements hook_ishop_sold_search_title_alter().
+   *
+   * Check sold prices searches for what the AI identified while the item
+   * still has a placeholder title.
+   */
+  #[Hook('ishop_sold_search_title_alter')]
+  public function soldSearchTitleAlter(string &$title, NodeInterface $node): void {
+    if (SoldSearch::query($title) !== NULL) {
+      return;
+    }
+    $run = $this->runs->latest((int) $node->id());
+    if ($run && $run['status'] === 'done' && !empty($run['draft']['title'])) {
+      $title = (string) $run['draft']['title'];
     }
   }
 

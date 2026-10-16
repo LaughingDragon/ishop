@@ -27,3 +27,19 @@
   border: 2px solid var(--rm-line-soft, #4A3A36); border-radius: 10px;
 }
 .ishop-listings__table select:focus { border-color: var(--rm-gold, #F2C14E); outline: none; }
+
+/* Check sold prices (Phase 7.5): link buttons, then Cody's answer. */
+.ishop-sold-prices { margin: 0 0 20px; padding: 18px 20px; }
+.ishop-sold-prices h2 { font-size: 1.15rem; margin: 0 0 6px; }
+.ishop-sold-prices p { margin: 0 0 12px; }
+.ishop-sold-prices__links,
+.ishop-price-check .form-actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 14px; }
+.ishop-sold-prices__links .rm-button,
+.ishop-price-check .rm-button { min-height: 48px; }
+.ishop-sold-prices__last { color: var(--rm-text-soft, #D3C6B2); }
+.ishop-price-check { padding-top: 14px; border-top: 1px solid var(--rm-line, #3D302D); }
+.ishop-price-check input[type="number"] {
+  min-height: 48px; max-width: 9em; font-size: 1.05rem;
+  background-color: var(--rm-raised, #2D2422); color: var(--rm-text, #FBF3E4);
+  border: 2px solid var(--rm-line-soft, #4A3A36); border-radius: 10px;
+}

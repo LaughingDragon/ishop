@@ -22,6 +22,9 @@ dependencies:
     - field.field.node.item.field_package_length
     - field.field.node.item.field_package_width
     - field.field.node.item.field_photos
+    - field.field.node.item.field_price_check
+    - field.field.node.item.field_price_check_at
+    - field.field.node.item.field_price_check_price
     - field.field.node.item.field_quantity
     - field.field.node.item.field_show_in_shop
     - field.field.node.item.field_size
@@ -255,4 +258,7 @@ content:
     region: content
 hidden:
   field_cleared_to_sell: true
+  field_price_check: true
+  field_price_check_at: true
+  field_price_check_price: true
   links: true

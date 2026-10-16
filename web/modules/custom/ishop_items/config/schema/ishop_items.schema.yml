@@ -1,0 +1,7 @@
+ishop_items.pricing:
+  type: config_object
+  label: 'Pricing'
+  mapping:
+    terapeak:
+      type: boolean
+      label: 'Cody uses Seller Hub: show eBay Research (Terapeak) first'

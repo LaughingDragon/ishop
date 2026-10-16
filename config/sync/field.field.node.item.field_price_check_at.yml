@@ -1,0 +1,19 @@
+uuid: a3cf7b7b-49c4-4e8f-9c4f-2e6fc6a42045
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_price_check_at
+    - node.type.item
+id: node.item.field_price_check_at
+field_name: field_price_check_at
+entity_type: node
+bundle: item
+label: 'Sold prices checked'
+description: 'When Cody last checked sold prices.'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: timestamp

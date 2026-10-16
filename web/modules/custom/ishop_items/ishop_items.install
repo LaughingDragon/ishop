@@ -171,3 +171,73 @@ function ishop_items_update_11005(): string {
   }
   return 'Added "Cleared to sell"; ticked items: ' . ($ticked ? implode(', ', $ticked) : 'none');
 }
+
+/**
+ * Adds Check sold prices (Phase 7.5): the pricing settings and three fields.
+ *
+ * The fields record Cody's last answer after checking sold prices: Lower,
+ * About right, Higher or a typed price, and when.
+ */
+function ishop_items_update_11006(): string {
+  $config = \Drupal::configFactory()->getEditable('ishop_items.pricing');
+  if ($config->isNew()) {
+    $config->set('terapeak', FALSE)->save();
+  }
+  $fields = [
+    'field_price_check' => [
+      'list_string',
+      'Sold prices check',
+      [
+        'allowed_values' => [
+          'lower' => 'Lower',
+          'about_right' => 'About right',
+          'higher' => 'Higher',
+          'typed' => 'Typed a price',
+        ],
+      ],
+      'What Cody chose after checking sold prices.',
+    ],
+    'field_price_check_at' => [
+      'timestamp',
+      'Sold prices checked',
+      [],
+      'When Cody last checked sold prices.',
+    ],
+    'field_price_check_price' => [
+      'decimal',
+      'Price typed after checking',
+      ['precision' => 10, 'scale' => 2],
+      'The price Cody typed after checking sold prices, if any.',
+    ],
+  ];
+  foreach ($fields as $name => [$type, $label, $settings, $description]) {
+    if (!FieldStorageConfig::loadByName('node', $name)) {
+      FieldStorageConfig::create([
+        'field_name' => $name,
+        'entity_type' => 'node',
+        'type' => $type,
+        'settings' => $settings,
+      ])->save();
+    }
+    if (!FieldConfig::loadByName('node', 'item', $name)) {
+      FieldConfig::create([
+        'field_name' => $name,
+        'entity_type' => 'node',
+        'bundle' => 'item',
+        'label' => $label,
+        'description' => $description,
+      ])->save();
+    }
+  }
+  // Set by the Check sold prices form only: not on the edit form or the page.
+  $repository = \Drupal::service('entity_display.repository');
+  $form = $repository->getFormDisplay('node', 'item');
+  $view = $repository->getViewDisplay('node', 'item');
+  foreach (array_keys($fields) as $name) {
+    $form->removeComponent($name);
+    $view->removeComponent($name);
+  }
+  $form->save();
+  $view->save();
+  return 'Added the pricing settings and the Check sold prices fields.';
+}

@@ -1,0 +1,23 @@
+uuid: fa024412-38d6-4fd0-8f05-3a3fab82e6f5
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_price_check_price
+    - node.type.item
+id: node.item.field_price_check_price
+field_name: field_price_check_price
+entity_type: node
+bundle: item
+label: 'Price typed after checking'
+description: 'The price Cody typed after checking sold prices, if any.'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal

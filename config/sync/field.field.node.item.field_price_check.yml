@@ -1,0 +1,21 @@
+uuid: c3ea46ad-bac5-4651-90c8-7b6950ddc6ad
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_price_check
+    - node.type.item
+  module:
+    - options
+id: node.item.field_price_check
+field_name: field_price_check
+entity_type: node
+bundle: item
+label: 'Sold prices check'
+description: 'What Cody chose after checking sold prices.'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string
