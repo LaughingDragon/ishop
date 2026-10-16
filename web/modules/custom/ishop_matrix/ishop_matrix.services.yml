@@ -8,3 +8,4 @@ services:
     parent: logger.channel_base
     arguments: ['ishop_matrix']
   Drupal\ishop_matrix\Season: ~
+  Drupal\ishop_matrix\Digest: ~

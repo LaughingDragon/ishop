@@ -7,6 +7,7 @@ namespace Drupal\ishop_matrix\Hook;
 use Drupal\block\Entity\Block;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Access\AccessResultInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Hook\Attribute\Hook;
 use Drupal\Core\Hook\Order\OrderAfter;
 use Drupal\Core\Theme\ThemeManagerInterface;
@@ -16,6 +17,7 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\ishop_matrix\Birthday;
+use Drupal\ishop_matrix\Digest;
 
 /**
  * Hooks for the Reseller Matrix front of house.
@@ -59,16 +61,44 @@ final class MatrixHooks {
   }
 
   /**
-   * Implements hook_mail(): the birthday email and its test.
+   * Implements hook_mail(): the birthday email, the daily digest, their tests.
    *
-   * TEMPORARY (birthday mode): see TEMPORARY.md.
+   * The birthday keys are TEMPORARY (birthday mode): see TEMPORARY.md.
    */
   #[Hook('mail')]
   public function mail(string $key, array &$message, array $params): void {
-    if (in_array($key, ['birthday', 'birthday_test'], TRUE)) {
+    if (in_array($key, ['birthday', 'birthday_test', 'digest', 'digest_test'], TRUE)) {
       $message['subject'] = $params['subject'];
       $message['body'][] = $params['body'];
     }
+  }
+
+  /**
+   * Implements hook_form_FORM_ID_alter() for user_form: the digest switch.
+   *
+   * Only on Cody's own account page: "Send me the morning digest".
+   */
+  #[Hook('form_user_form_alter')]
+  public function userFormAlter(array &$form, FormStateInterface $form_state): void {
+    $account = $form_state->getFormObject()->getEntity();
+    if ((int) $account->id() !== Digest::OWNER_UID || (int) $this->currentUser->id() !== Digest::OWNER_UID) {
+      return;
+    }
+    $form['ishop_digest'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Send me the morning digest'),
+      '#description' => $this->t('A short email at about 7 a.m. with what needs you, bills due, today\'s calendar and what is waiting to be posted.'),
+      '#default_value' => !\Drupal::service('user.data')->get('ishop_matrix', Digest::OWNER_UID, Digest::USER_OFF),
+      '#weight' => -5,
+    ];
+    $form['actions']['submit']['#submit'][] = [self::class, 'saveDigestChoice'];
+  }
+
+  /**
+   * Saves Cody's digest choice.
+   */
+  public static function saveDigestChoice(array &$form, FormStateInterface $form_state): void {
+    \Drupal::service('user.data')->set('ishop_matrix', Digest::OWNER_UID, Digest::USER_OFF, $form_state->getValue('ishop_digest') ? 0 : 1);
   }
 
   /**

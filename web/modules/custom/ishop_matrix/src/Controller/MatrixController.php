@@ -175,7 +175,7 @@ final class MatrixController extends ControllerBase {
   /**
    * The "Needs you now" rows: take-downs after a sale, return windows.
    */
-  private function needs(int $now): array {
+  public function needs(int $now): array {
     $rows = [];
     $storage = $this->entityTypeManager()->getStorage('platform_listing');
     $ids = $storage->getQuery()->accessCheck(FALSE)->condition('status', Platforms::TAKE_DOWN)->sort('item')->execute();
