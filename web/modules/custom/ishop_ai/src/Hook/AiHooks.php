@@ -121,17 +121,20 @@ final class AiHooks {
   /**
    * Implements hook_ishop_sold_search_title_alter().
    *
-   * Check sold prices searches for what the AI identified while the item
-   * still has a placeholder title.
+   * Check sold prices searches the AI's search words, or what it identified
+   * while the item still has a placeholder title.
    */
   #[Hook('ishop_sold_search_title_alter')]
   public function soldSearchTitleAlter(string &$title, NodeInterface $node): void {
-    if (SoldSearch::query($title) !== NULL) {
-      return;
-    }
     $run = $this->runs->latest((int) $node->id());
-    if ($run && $run['status'] === 'done' && !empty($run['draft']['title'])) {
-      $title = (string) $run['draft']['title'];
+    $draft = $run && $run['status'] === 'done' ? $run['draft'] : [];
+    // The AI's search words first (drafts since 2026-10-16), then its title
+    // while the item still has a placeholder one.
+    if (!empty($draft['search_query'])) {
+      $title = (string) $draft['search_query'];
+    }
+    elseif (SoldSearch::query($title) === NULL && !empty($draft['title'])) {
+      $title = (string) $draft['title'];
     }
   }
 

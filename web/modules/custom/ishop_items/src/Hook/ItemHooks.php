@@ -526,6 +526,18 @@ final class ItemHooks {
       '#tag' => 'p',
       '#value' => $this->t('Each button opens that site in a new tab, showing only things that already sold. Look at what similar ones sold for, then come back here.'),
     ];
+    // Editable: fewer words find more (sites only show listings with every
+    // word). js/sold-search.js rewrites the links as Cody types.
+    $panel['words'] = [
+      '#type' => 'inline_template',
+      '#template' => '<div class="ishop-sold-prices__words"><label for="ishop-sold-words">{{ label }}</label><input type="search" id="ishop-sold-words" value="{{ value }}" data-ishop-sold-words autocapitalize="off" spellcheck="false" enterkeyhint="search"><p class="ishop-sold-prices__hint">{{ hint }}</p></div>',
+      '#context' => [
+        'label' => $this->t('Search words'),
+        'value' => SoldSearch::query($title),
+        'hint' => $this->t('No results? Take a word or two out, then tap a button again.'),
+      ],
+    ];
+    $panel['#attached']['library'][] = 'ishop_items/sold_search';
     $panel['links'] = ['#type' => 'container', '#attributes' => ['class' => ['ishop-sold-prices__links']]];
     foreach ($links as $key => $link) {
       $panel['links'][$key] = [
@@ -536,6 +548,7 @@ final class ItemHooks {
           'class' => ['rm-button', $key === array_key_first($links) ? 'rm-button--gold' : 'rm-button--ghost'],
           'target' => '_blank',
           'rel' => 'noopener noreferrer',
+          'data-sold-param' => SoldSearch::PARAMS[$key] ?? '',
         ],
       ];
     }

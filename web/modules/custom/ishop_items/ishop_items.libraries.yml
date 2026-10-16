@@ -56,3 +56,12 @@ bulk:
     - core/drupal
     - core/drupalSettings
     - core/once
+sold_search:
+  js:
+    js/sold-search.js: {}
+  css:
+    component:
+      css/sold-search.css: {}
+  dependencies:
+    - core/drupal
+    - core/once

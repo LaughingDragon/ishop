@@ -21,20 +21,58 @@ namespace Drupal\ishop_items;
 final class SoldSearch {
 
   /**
-   * Longest search text sent to a site.
+   * Most words sent to a site.
+   *
+   * EBay (and Mercari, Poshmark) only show listings containing EVERY word,
+   * so a whole 80-character title found nothing (Liam, 2026-10-16: "ebay
+   * search shows no results"). A few key words find similar sold items.
    */
-  public const MAX_QUERY = 80;
+  public const MAX_WORDS = 5;
+
+  /**
+   * Words that narrow a search without describing the item.
+   */
+  public const FILLER = [
+    'a', 'an', 'and', 'the', 'of', 'for', 'with', 'in', 'on', 'by', 'to', '&', '-', '+', '|', '/',
+    'new', 'sealed', 'nwt', 'nib', 'nwot', 'bnib', 'used', 'unused', 'preowned', 'pre-owned', 'vintage',
+    'set', 'lot', 'piece', 'pieces', 'pc', 'pcs', 'pack', 'size', 'authentic', 'genuine', 'original',
+  ];
 
   /**
    * The search text for a title, or NULL for an empty or placeholder one.
+   *
+   * Filler words and bare counts ("Set of 3") are dropped and at most
+   * MAX_WORDS whole words kept, in
+   * order (brand and item type usually come first in a listing title).
    */
   public static function query(string $title): ?string {
-    $query = trim((string) preg_replace('/\s+/', ' ', $title));
-    if ($query === '' || str_starts_with($query, ReadyCheck::DEFAULT_TITLE_PREFIX)) {
+    $title = trim((string) preg_replace('/\s+/', ' ', $title));
+    if ($title === '' || str_starts_with($title, ReadyCheck::DEFAULT_TITLE_PREFIX)) {
       return NULL;
     }
-    return mb_substr($query, 0, self::MAX_QUERY);
+    $words = [];
+    foreach (explode(' ', $title) as $word) {
+      $bare = trim($word, " \t,.;:!?()[]\"'");
+      if ($bare === '' || in_array(mb_strtolower($bare), self::FILLER, TRUE) || preg_match('/^(\d{1,2}|\d+(of|x)\d*)$/i', $bare)) {
+        continue;
+      }
+      $words[] = $bare;
+      if (count($words) >= self::MAX_WORDS) {
+        break;
+      }
+    }
+    return $words ? implode(' ', $words) : NULL;
   }
+
+  /**
+   * The search parameter each link uses (the page lets Cody edit the words).
+   */
+  public const PARAMS = [
+    'terapeak' => 'keywords',
+    'ebay' => '_nkw',
+    'mercari' => 'keyword',
+    'poshmark' => 'query',
+  ];
 
   /**
    * The links, best first: [key => ['label' => ..., 'url' => ...]].

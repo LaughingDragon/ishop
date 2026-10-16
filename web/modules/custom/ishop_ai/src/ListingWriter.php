@@ -272,6 +272,8 @@ PROMPT;
       'suggested_price' => $number('The single USD price to list at, based on real comps when they were found. Always fill this in - it is what the app auto-fills for the seller'),
       'research_notes' => $string('Short plain-English summary of what the price research found, e.g. "Similar Gap navy tees sold $12-18 on eBay in the last month". Empty string if no search was performed'),
       'sources' => $string('Newline-separated list of the URLs or sites the prices came from; empty string if no search was performed'),
+      // Check sold prices searches these (whole titles found nothing).
+      'search_query' => $string('3 to 5 words a buyer would type into eBay search to find sold listings of this kind of item: brand, item type, model or line. No condition words, colors, sizes or counts. E.g. "Heye Birthday puzzle 1000"'),
     ];
     return [
       'type' => 'object',
