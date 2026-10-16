@@ -290,12 +290,13 @@ below. Serves Cody's loop: photos, draft, check what it really sells for, post, 
 down elsewhere, ship. Replaces item 261's plan (decision 264). Not pursuing: eBay Marketplace
 Insights API, any server-side eBay login.
 
-- [ ] **Check sold prices** on each item: Terapeak research in Seller Hub (Sold tab) for the
+- [x] **Check sold prices** on each item: Terapeak research in Seller Hub (Sold tab) for the
   identified item, opened on Cody's own signed-in phone (no eBay login or cookie ever stored on
   the server); fallbacks eBay sold search, Mercari and Poshmark sold filters. Back on the site:
-  Lower / About right / Higher, or type the price; his choice is recorded.
-- [ ] **Price book:** every Sold here stores price, category and condition; "Why this price"
-  shows "You sold N similar items for $X-$Y" first.
+  Lower / About right / Higher, or type the price; his choice is recorded. Done bfde524, 1466ce7
+  (reports 2026-10-16-5); Cody's check is item 277.
+- [x] **Price book:** every Sold here stores price, category and condition; "Why this price"
+  shows "You sold N similar items for $X-$Y" first. Done 154ba2f (report 2026-10-16-6).
 - [ ] **Two-step AI:** cheapest current Claude model, one reduced-size photo: identifies the
   item, category (site list only), condition, title, description. Web search only above a
   value threshold ($15, a setting). Research reused for near-identical items. Cost per item
