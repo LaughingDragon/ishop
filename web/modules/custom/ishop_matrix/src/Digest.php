@@ -135,13 +135,10 @@ final class Digest {
     $now = $this->time->getCurrentTime();
     $lines = [];
 
-    // What needs Cody: take-downs and return windows (as on the dashboard),
-    // the most overdue stale nudges, bills due, to-dos due.
+    // What needs Cody: take-downs (as on the dashboard), the most overdue
+    // stale nudges, bills due, to-dos due.
     $needs = [];
     foreach ($this->classResolver->getInstanceFromDefinition(MatrixController::class)->needs($now) as $row) {
-      if (isset($row['return_days']) && !in_array($row['return_days'], Rooms::RETURN_DIGEST_DAYS, TRUE)) {
-        continue;
-      }
       $needs[] = (string) $row['text'];
     }
     $stale = $this->nudges->due();

@@ -144,36 +144,3 @@ ishop_items.bulk_add:
     _entity_create_access: 'node:item'
   options:
     no_cache: TRUE
-
-ishop_items.return_decide:
-  path: '/item/{node}/return/{action}'
-  defaults:
-    _controller: '\Drupal\ishop_items\Controller\ReturnController::decide'
-  requirements:
-    _entity_access: 'node.update'
-    _csrf_token: 'TRUE'
-    node: \d+
-    action: 'returned|keep'
-  options:
-    parameters:
-      node:
-        type: entity:node
-        bundle: [item]
-
-ishop_items.return_settings:
-  path: '/room/my-office/returns'
-  defaults:
-    _form: '\Drupal\ishop_items\Form\ReturnSettingsForm'
-    _title: 'Return windows'
-  requirements:
-    _permission: 'manage platform listings'
-
-ishop_items.amazon_import:
-  path: '/add/amazon'
-  defaults:
-    _form: '\Drupal\ishop_items\Form\AmazonImportForm'
-    _title: 'Import from Amazon'
-  requirements:
-    _entity_create_access: 'node:item'
-  options:
-    no_cache: TRUE

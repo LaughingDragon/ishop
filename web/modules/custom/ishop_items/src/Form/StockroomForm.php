@@ -112,7 +112,7 @@ final class StockroomForm extends FormBase {
       '#title' => $this->t('Status'),
       '#options' => array_map(fn ($label) => $this->t($label), BulkActions::STATUSES),
       '#default_value' => $saved['status'] ?? NULL,
-      '#description' => $this->t('Kept, Donated and Returned to Amazon also ask for any live listings to be taken down.'),
+      '#description' => $this->t('Kept and Donated also ask for any live listings to be taken down.'),
       '#states' => $visible(BulkActions::STATUS),
     ];
 

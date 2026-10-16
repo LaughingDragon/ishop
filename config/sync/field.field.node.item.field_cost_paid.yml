@@ -9,8 +9,8 @@ id: node.item.field_cost_paid
 field_name: field_cost_paid
 entity_type: node
 bundle: item
-label: 'Cost paid'
-description: ''
+label: 'What I paid (if you remember)'
+description: "Optional. Leave it blank if you don't remember; nothing asks for it."
 required: false
 translatable: true
 default_value: {  }

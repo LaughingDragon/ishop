@@ -22,9 +22,10 @@ final class TaxExport {
     'Item',
     'Platform',
     'Sale price',
-    'Item cost',
     'Platform fees',
     'Shipping paid',
+    'Earned after fees',
+    'What I paid',
     'Profit',
     'Check',
   ];
@@ -35,7 +36,7 @@ final class TaxExport {
     'Category',
     'Condition',
     'Estimated value',
-    'Item cost',
+    'What I paid',
     'Check',
   ];
 
@@ -63,11 +64,12 @@ final class TaxExport {
       'Item' => sprintf('%d sales', $sum['count']),
       'Platform' => '',
       'Sale price' => self::amount($sum['revenue']),
-      'Item cost' => self::amount($sum['cost']),
       'Platform fees' => self::amount($sum['fees']),
       'Shipping paid' => self::amount($sum['shipping']),
-      'Profit' => self::amount($sum['profit']),
-      'Check' => $sum['missing_price'] || $sum['missing_cost'] ? 'Some sales are missing a price or cost: see above' : '',
+      'Earned after fees' => self::amount($sum['earned']),
+      'What I paid' => $sum['with_cost'] ? self::amount($sum['cost']) : '',
+      'Profit' => $sum['with_cost'] ? self::amount($sum['profit']) : '',
+      'Check' => $sum['missing_price'] ? 'Some sales are missing a sale price: see above' : '',
     ];
     return $rows;
   }
@@ -80,17 +82,15 @@ final class TaxExport {
     if ($sale['price'] === NULL) {
       $check[] = 'no sale price entered';
     }
-    if ($sale['cost'] === NULL) {
-      $check[] = 'no item cost entered';
-    }
     return [
       'Date sold' => $date,
       'Item' => $title,
       'Platform' => $platform,
       'Sale price' => self::amount($sale['price']),
-      'Item cost' => self::amount($sale['cost']),
       'Platform fees' => self::amount($sale['fees']),
       'Shipping paid' => self::amount($sale['shipping']),
+      'Earned after fees' => self::amount(Money::earned($sale)),
+      'What I paid' => self::amount($sale['cost']),
       'Profit' => self::amount(Money::profit($sale)),
       'Check' => implode('; ', $check),
     ];
@@ -127,7 +127,7 @@ final class TaxExport {
         'Category' => (string) $item->get('field_category')->entity?->label(),
         'Condition' => (string) $item->get('field_condition')->entity?->label(),
         'Estimated value' => self::amount($value),
-        'Item cost' => self::amount($cost === NULL || $cost === '' ? NULL : (float) $cost),
+        'What I paid' => self::amount($cost === NULL || $cost === '' ? NULL : (float) $cost),
         'Check' => $value === NULL ? 'no estimated value entered' : '',
       ];
     }
@@ -139,7 +139,7 @@ final class TaxExport {
       'Category' => '',
       'Condition' => '',
       'Estimated value' => self::amount($total),
-      'Item cost' => '',
+      'What I paid' => '',
       'Check' => $missing ? sprintf('%d without an estimated value', $missing) : '',
     ];
     return $rows;

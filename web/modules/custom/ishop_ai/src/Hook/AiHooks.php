@@ -141,7 +141,7 @@ final class AiHooks {
     $form['ishop_ai_write'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Also write each listing with AI (you choose what to use)'),
-      '#description' => $this->t('About $0.40 an item, within the $@cap monthly cap.', ['@cap' => (int) AiRuns::MONTHLY_CAP]),
+      '#description' => $this->t('About 10 cents an item, within the $@cap monthly cap.', ['@cap' => (int) AiRuns::MONTHLY_CAP]),
       '#default_value' => TRUE,
       '#weight' => 90,
     ];

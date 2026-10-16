@@ -57,7 +57,7 @@ final class ListingManager {
     $queue = [];
     foreach ($storage->loadMultiple($ids) as $listing) {
       $item = $listing->getItem();
-      // Finished items (sold, donated, kept, returned) are not posted anywhere.
+      // Finished items (sold, donated, kept) are not posted anywhere.
       if (!$item || !$item->access('view') || in_array((string) $item->get('field_item_status')->value, Stale::ITEM_DONE, TRUE)) {
         continue;
       }
@@ -109,7 +109,7 @@ final class ListingManager {
   }
 
   /**
-   * Finishes an item without a sale: Donated, Kept or Returned to Amazon.
+   * Finishes an item without a sale: Donated or Kept.
    *
    * Its live listings become "Take down" (so "Needs you now" asks for them
    * to come down); unposted ones stay as they are, and the to-post queues

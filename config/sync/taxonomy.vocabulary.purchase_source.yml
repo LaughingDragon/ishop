@@ -1,9 +1,0 @@
-uuid: b6c8a5a0-6fdd-4b85-964b-400fac57d1e9
-langcode: en
-status: true
-dependencies: {  }
-name: 'Purchase source'
-vid: purchase_source
-description: 'Where an item was bought.'
-weight: 0
-new_revision: false

@@ -35,14 +35,13 @@ final class BulkActions {
   /**
    * Statuses offered in bulk (Liam's list).
    *
-   * Kept, Donated and Returned finish the item: its live listings become
+   * Kept and Donated finish the item: its live listings become
    * "Take down".
    */
   public const STATUSES = [
     'listed' => 'Listed',
     'kept' => 'Kept',
     'donated' => 'Donated',
-    'returned' => 'Returned to Amazon',
   ];
 
   public function __construct(

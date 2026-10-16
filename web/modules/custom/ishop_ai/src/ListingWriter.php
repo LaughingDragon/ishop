@@ -17,15 +17,19 @@ use Drupal\node\NodeInterface;
  * Photos to a draft listing, priced from web-searched sold comps (Phase 7).
  *
  * Ported from the old crosslister's app/ai_provider/claude.py: the prompt and
- * the listing fields word for word, up to 8 photos at 1568 px, web search
- * (max 5 searches), effort medium, pause_turn resumes, a photo-only retry if
- * the search request fails, and the rule that research fields are cleared
+ * the listing fields, effort medium, pause_turn resumes, a photo-only retry
+ * if the search request fails, and the rule that research fields are cleared
  * when no search really happened (a guess is never shown as market data).
- * Model: Claude Opus 5.5 with the server-side refusal fallback.
+ *
+ * Changed 2026-10-16: the prompt says the items are pre-owned household
+ * goods (redesign: Cody sells what is already in the house); and decision
+ * 264 after the cost test: Claude Sonnet 5.5 with the server-side refusal
+ * fallback, up to 8 photos at 1092 px, web search on resale sites only (max
+ * 4 searches). About $0.02-0.09 an item in the test, against $0.30-0.64.
  */
 final class ListingWriter {
 
-  public const MODEL = 'claude-opus-5-5';
+  public const MODEL = 'claude-sonnet-5-5';
 
   public const MAX_PHOTOS = 8;
 
@@ -61,9 +65,9 @@ final class ListingWriter {
    */
   public const DEFAULTS = [
     'model' => self::MODEL,
-    'style' => 'ai_input',
-    'max_searches' => 5,
-    'allowed_domains' => [],
+    'style' => 'ai_input_small',
+    'max_searches' => 4,
+    'allowed_domains' => self::RESALE_DOMAINS,
     'sold_comps' => FALSE,
     // NULL = self::PROMPT.
     'prompt' => NULL,
@@ -99,13 +103,14 @@ PROMPT;
   public const CONDITIONS = ['New with tags', 'New without tags', 'Like new', 'Good', 'Fair', 'Poor'];
 
   /**
-   * The old app's prompt, word for word.
+   * The old app's prompt, adapted to pre-owned household goods (2026-10-16).
    *
    * EBay is named on purpose: eBay SOLD listings are the best public record
    * of what things sell for; reading them is not selling there.
    */
   public const PROMPT = <<<'PROMPT'
-You are helping a reseller create an online marketplace listing.
+You are helping someone sell household items they already own (pre-owned things
+from their own home, often never used) on online resale marketplaces.
 All of the attached photos show ONE item for sale (different angles, tags, flaws).
 
 Step 1 - Identify the item. Read every tag, label, logo and stamp you can see and work
@@ -123,6 +128,9 @@ Step 3 - Write the listing from what you found:
   emoji, no ALL CAPS.
 - Description: 2-4 short paragraphs. Honest and specific; mention material, measurements
   or size if visible, styling ideas, and any flaws.
+- Condition: the item is pre-owned. Use "New with tags" only if original tags or sealed
+  packaging are visible, and "New without tags" only if it looks unused; otherwise
+  judge the wear you can see.
 - Condition notes: visible wear, stains, pilling, scratches. Empty string if it looks
   flawless.
 - price_min / price_max / suggested_price: base these on the real sold prices you found,

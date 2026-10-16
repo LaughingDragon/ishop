@@ -68,7 +68,10 @@ final class ListingWriterTest extends UnitTestCase {
    */
   public function testCost(): void {
     // 20k in ($0.08) + 2k out ($0.04) + 4 searches ($0.04).
-    $this->assertSame(0.16, ListingWriter::cost(['input' => 20000, 'output' => 2000, 'searches' => 4]));
+    $run = ['input' => 20000, 'output' => 2000, 'searches' => 4];
+    $this->assertSame(0.16, ListingWriter::cost($run + ['model' => 'claude-opus-5-5']));
+    // Sonnet: 20k in ($0.04) + 2k out ($0.02) + 4 searches ($0.04).
+    $this->assertSame(0.10, ListingWriter::cost($run + ['model' => 'claude-sonnet-5-5']));
     $this->assertSame(0.0, ListingWriter::cost(['input' => 0, 'output' => 0]));
   }
 

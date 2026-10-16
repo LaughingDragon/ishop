@@ -9,7 +9,6 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Url;
 use Drupal\Core\Cache\Cache;
-use Drupal\ishop_items\Controller\ReturnController;
 use Drupal\ishop_items\Controller\StaleController;
 use Drupal\ishop_items\Money;
 use Drupal\ishop_ai\AiRuns;
@@ -200,14 +199,14 @@ final class MatrixController extends ControllerBase {
         'tags' => Cache::mergeTags(['node_list:item', 'platform_listing_list', Season::CACHE_TAG], $birthday_cache['tags']),
         'contexts' => Cache::mergeContexts(['user.permissions'], $birthday_cache['contexts']),
         // The date line and "closes in N days" change daily. Buttons (nudges,
-        // bills, to-dos, returns) carry a per-session token: never cache.
+        // bills, to-dos) carry a per-session token: never cache.
         'max-age' => $due || array_filter(array_column($needs, 'buttons')) ? 0 : min(3600, $birthday_cache['max-age']),
       ],
     ];
   }
 
   /**
-   * The "Needs you now" rows: take-downs after a sale, return windows.
+   * The "Needs you now" rows: take-downs after a sale.
    */
   public function needs(int $now): array {
     $rows = [];
@@ -240,29 +239,6 @@ final class MatrixController extends ControllerBase {
       ];
     }
 
-    $today = $this->dateFormatter->format($now, 'custom', 'Y-m-d');
-    $last = $this->dateFormatter->format($now + Rooms::RETURN_WARN_DAYS * 86400, 'custom', 'Y-m-d');
-    $nodes = $this->entityTypeManager()->getStorage('node');
-    $query = $nodes->getQuery()->accessCheck(TRUE);
-    $not_kept = $query->orConditionGroup()->notExists('field_return_keep')->condition('field_return_keep', 0);
-    $ids = $query
-      ->condition('type', 'item')
-      ->condition($not_kept)
-      ->condition('field_return_by', $today, '>=')
-      ->condition('field_return_by', $last, '<=')
-      ->condition('field_item_status', Rooms::DONE, 'NOT IN')
-      ->sort('field_return_by')
-      ->execute();
-    foreach ($nodes->loadMultiple($ids) as $item) {
-      $days = Rooms::daysUntil($today, (string) $item->get('field_return_by')->value);
-      $rows[] = [
-        'text' => $days === 0
-          ? $this->t("@item's return window closes today. Return it or list it?", ['@item' => $item->label()])
-          : $this->formatPlural($days, "@item's return window closes tomorrow. Return it or list it?", "@item's return window closes in @count days. Return it or list it?", ['@item' => $item->label()]),
-        'buttons' => ReturnController::buttons($item, Url::fromRoute('ishop_matrix.dashboard')->toString()),
-        'return_days' => $days,
-      ];
-    }
     return $rows;
   }
 
@@ -349,7 +325,7 @@ final class MatrixController extends ControllerBase {
   }
 
   /**
-   * The Money page section: sold by platform, profit, days to sell.
+   * The Money page section: earned after fees, by platform, days to sell.
    */
   private function moneySection(): array {
     $periods = $this->periods();
@@ -365,7 +341,7 @@ final class MatrixController extends ControllerBase {
         'name' => Platforms::PLATFORMS[$platform],
         'count' => $p['count'],
         'revenue' => $dollars($p['revenue']),
-        'profit' => $dollars($p['profit']),
+        'earned' => $dollars($p['earned']),
         'width' => max(2, (int) round($p['revenue'] / $max * 100)),
       ];
     }
@@ -392,7 +368,7 @@ final class MatrixController extends ControllerBase {
 <nav class="rm-money__periods" aria-label="{{ periods_label }}">{% for t in tabs %}<a href="{{ t.url }}" class="rm-money__period{{ t.current ? \' is-current\' }}"{% if t.current %} aria-current="page"{% endif %}>{{ t.label }}</a>{% endfor %}</nav>
 <dl class="rm-scoreboard__cells rm-money__totals">{% for c in cells %}<div class="rm-scoreboard__cell"><dt>{{ c.label }}</dt><dd>{{ c.value }}</dd></div>{% endfor %}</dl>
 {% if notes %}<ul class="rm-money__notes">{% for n in notes %}<li>{{ n }}</li>{% endfor %}</ul>{% endif %}
-<h3>{{ by_title }}</h3>{% if platforms %}<ul class="rm-money__bars">{% for p in platforms %}<li><span class="rm-money__bar-label"><strong>{{ p.name }}</strong> {{ p.count }} {{ sold_word }} · {{ p.revenue }} · {{ profit_word }} {{ p.profit }}</span><span class="rm-money__bar" style="width: {{ p.width }}%"></span></li>{% endfor %}</ul>{% else %}<p>{{ no_sales }}</p>{% endif %}
+<h3>{{ by_title }}</h3>{% if platforms %}<ul class="rm-money__bars">{% for p in platforms %}<li><span class="rm-money__bar-label"><strong>{{ p.name }}</strong> {{ p.count }} {{ sold_word }} · {{ p.revenue }} · {{ earned_word }} {{ p.earned }}</span><span class="rm-money__bar" style="width: {{ p.width }}%"></span></li>{% endfor %}</ul>{% else %}<p>{{ no_sales }}</p>{% endif %}
 <h3>{{ sitting_title }}</h3>{% if sitting %}<ol class="rm-money__sitting">{% for s in sitting %}<li><a href="{{ s.url }}">{{ s.title }}</a> · {{ s.platform }} · {{ s.days }} {{ days_word }}</li>{% endfor %}</ol>{% else %}<p>{{ nothing_live }}</p>{% endif %}
 <h3>{{ ai.title }}</h3><p>{{ ai.line }}</p><p class="rm-money__ai-month">{{ ai.month }}</p>{% if ai.items %}<ul class="rm-money__sitting">{% for i in ai.items %}<li><a href="{{ i.url }}">{{ i.title }}</a> · {{ i.cost }}</li>{% endfor %}</ul>{% endif %}
 </section>',
@@ -401,32 +377,32 @@ final class MatrixController extends ControllerBase {
         'periods_label' => $this->t('Period'),
         'tabs' => $tabs,
         'cells' => [
+          [
+            'label' => $this->t('Earned after fees'),
+            'value' => ($sum['earned'] < 0 ? '-$' : '$') . number_format(abs($sum['earned'])),
+          ],
           ['label' => $this->t('Sold'), 'value' => number_format($sum['count'])],
           ['label' => $this->t('Sales'), 'value' => '$' . number_format($sum['revenue'])],
-          [
-            'label' => $this->t('Profit'),
-            'value' => ($sum['profit'] < 0 ? '-$' : '$') . number_format(abs($sum['profit'])),
-          ],
           [
             'label' => $this->t('Avg days to sell'),
             'value' => $sum['avg_days'] === NULL ? '-' : number_format($sum['avg_days'], 0),
           ],
         ],
         'notes' => array_filter([
-          $sum['count'] ? $this->t('@label: @revenue in sales, minus @fees fees, @shipping shipping and @cost item cost.', [
+          $sum['count'] ? $this->t('@label: @revenue in sales, minus @fees fees and @shipping shipping = @earned earned after fees.', [
             '@label' => $label,
             '@revenue' => $dollars($sum['revenue']),
             '@fees' => $dollars($sum['fees']),
             '@shipping' => $dollars($sum['shipping']),
-            '@cost' => $dollars($sum['cost']),
+            '@earned' => $dollars($sum['earned']),
           ]) : NULL,
+          $sum['with_cost'] ? $this->formatPlural($sum['with_cost'], 'Profit over what you paid: @profit, on the 1 sale where you entered what you paid.', 'Profit over what you paid: @profit, on the @count sales where you entered what you paid.', ['@profit' => $dollars($sum['profit'])]) : NULL,
           $sum['missing_price'] ? $this->formatPlural($sum['missing_price'], '1 sale has no sale price entered, so it adds nothing to sales.', '@count sales have no sale price entered, so they add nothing to sales.') : NULL,
-          $sum['missing_cost'] ? $this->formatPlural($sum['missing_cost'], "1 sale's item has no cost entered, so its profit may be too high.", "@count sales' items have no cost entered, so their profit may be too high.") : NULL,
         ]),
         'by_title' => $this->t('Sold by platform'),
         'platforms' => $platforms,
         'sold_word' => $this->t('sold'),
-        'profit_word' => $this->t('profit'),
+        'earned_word' => $this->t('earned'),
         'no_sales' => $this->t('No sales in this period yet.'),
         'sitting_title' => $this->t('Longest-sitting live listings'),
         'sitting' => $sitting,
@@ -515,14 +491,12 @@ final class MatrixController extends ControllerBase {
     return [
       'log' => [
         '#type' => 'inline_template',
-        '#template' => '<p class="rm-office-links"><a class="rm-button rm-button--gold" href="{{ url }}">{{ label }}</a> <a class="rm-button rm-button--ghost" href="{{ bills }}">{{ bills_label }}</a> <a class="rm-button rm-button--ghost" href="{{ returns }}">{{ returns_label }}</a></p>',
+        '#template' => '<p class="rm-office-links"><a class="rm-button rm-button--gold" href="{{ url }}">{{ label }}</a> <a class="rm-button rm-button--ghost" href="{{ bills }}">{{ bills_label }}</a></p>',
         '#context' => [
           'url' => Url::fromRoute('ishop_life.log')->toString(),
           'label' => $this->t('Log a trip or an expense'),
           'bills' => Url::fromRoute('ishop_life.bills')->toString(),
           'bills_label' => $this->t('Bills and subscriptions'),
-          'returns' => Url::fromRoute('ishop_items.return_settings')->toString(),
-          'returns_label' => $this->t('Return windows'),
         ],
       ],
       'money' => $this->moneySection(),

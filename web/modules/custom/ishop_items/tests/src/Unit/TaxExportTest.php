@@ -15,7 +15,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 final class TaxExportTest extends UnitTestCase {
 
   /**
-   * A complete sale: plain numbers, profit, nothing to check.
+   * A complete sale: plain numbers, earned, profit, nothing to check.
    */
   public function testSaleRow(): void {
     $row = TaxExport::saleRow('2026-10-15', 'Lamp, brass', 'Mercari', [
@@ -25,20 +25,31 @@ final class TaxExportTest extends UnitTestCase {
       'cost' => 10.0,
     ]);
     $this->assertSame(TaxExport::SALES_COLUMNS, array_keys($row));
-    $this->assertSame(['30.00', '10.00', '3.00', '5.00', '12.00', ''], [
-      $row['Sale price'], $row['Item cost'], $row['Platform fees'], $row['Shipping paid'], $row['Profit'], $row['Check'],
+    $this->assertSame(['30.00', '3.00', '5.00', '22.00', '10.00', '12.00', ''], [
+      $row['Sale price'], $row['Platform fees'], $row['Shipping paid'], $row['Earned after fees'], $row['What I paid'], $row['Profit'], $row['Check'],
     ]);
   }
 
   /**
-   * Missing figures stay blank and are named in Check, never guessed.
+   * A missing sale price is named in Check; a blank "What I paid" is fine.
    */
   public function testMissingFlagged(): void {
     $none = ['price' => NULL, 'fees' => NULL, 'shipping' => NULL, 'cost' => NULL];
     $row = TaxExport::saleRow('2026-10-15', 'Vase', 'Poshmark', $none);
     $this->assertSame('', $row['Sale price']);
-    $this->assertSame('', $row['Item cost']);
-    $this->assertSame('no sale price entered; no item cost entered', $row['Check']);
+    $this->assertSame('', $row['What I paid']);
+    $this->assertSame('', $row['Profit']);
+    $this->assertSame('no sale price entered', $row['Check']);
+
+    $no_cost = TaxExport::saleRow('2026-10-15', 'Vase', 'Poshmark', [
+      'price' => 20.0,
+      'fees' => 2.0,
+      'shipping' => NULL,
+      'cost' => NULL,
+    ]);
+    $this->assertSame(['18.00', '', '', ''], [
+      $no_cost['Earned after fees'], $no_cost['What I paid'], $no_cost['Profit'], $no_cost['Check'],
+    ]);
   }
 
   /**

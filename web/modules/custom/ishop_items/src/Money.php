@@ -11,10 +11,13 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
  *
  * One calculation for the Money page, the "This season" scoreboard and the
  * tax export, so they never disagree. Real data only: a sale with no sale
- * price or no cost is counted, but flagged, never guessed.
+ * price is counted, but flagged, never guessed.
  *
- * Profit = sale price - platform fees - shipping paid by the seller - what
- * the item cost (Liam, Phase 4 plan).
+ * Earned after fees = sale price - platform fees - shipping paid by the
+ * seller. That is the main number (redesign 2026-10-16: Cody sells
+ * household things already in the house, so what was paid is often
+ * unknown). Profit = earned - what was paid, only for sales where "What I
+ * paid" was entered; a blank is fine and never flagged.
  */
 final class Money {
 
@@ -67,48 +70,68 @@ final class Money {
    *
    * Pure: works on the plain rows from sales().
    *
-   * @return array{count: int, revenue: float, fees: float, shipping: float, cost: float, profit: float, avg_days: ?float, missing_price: int, missing_cost: int, by_platform: array}
-   *   Money in dollars; avg_days is NULL when no sale has both dates.
+   * @return array{count: int, revenue: float, fees: float, shipping: float, earned: float, cost: float, profit: float, with_cost: int, avg_days: ?float, missing_price: int, by_platform: array}
+   *   Money in dollars. cost and profit cover only the with_cost sales that
+   *   have "What I paid"; avg_days is NULL when no sale has both dates.
    */
   public static function summarize(array $rows): array {
-    $sum = ['count' => 0, 'revenue' => 0.0, 'fees' => 0.0, 'shipping' => 0.0, 'cost' => 0.0, 'profit' => 0.0];
+    $sum = [
+      'count' => 0,
+      'revenue' => 0.0,
+      'fees' => 0.0,
+      'shipping' => 0.0,
+      'earned' => 0.0,
+      'cost' => 0.0,
+      'profit' => 0.0,
+      'with_cost' => 0,
+    ];
     $days = [];
-    $missing_price = $missing_cost = 0;
+    $missing_price = 0;
     $by_platform = [];
     foreach ($rows as $row) {
+      $earned = self::earned($row);
       $profit = self::profit($row);
       $sum['count']++;
       $sum['revenue'] += $row['price'] ?? 0.0;
       $sum['fees'] += $row['fees'] ?? 0.0;
       $sum['shipping'] += $row['shipping'] ?? 0.0;
-      $sum['cost'] += $row['cost'] ?? 0.0;
-      $sum['profit'] += $profit;
+      $sum['earned'] += $earned;
+      if ($profit !== NULL) {
+        $sum['cost'] += $row['cost'];
+        $sum['profit'] += $profit;
+        $sum['with_cost']++;
+      }
       $missing_price += $row['price'] === NULL ? 1 : 0;
-      $missing_cost += $row['cost'] === NULL ? 1 : 0;
       if ($row['date_posted'] !== '' && $row['date_sold'] !== '') {
         $days[] = self::daysBetween($row['date_posted'], $row['date_sold']);
       }
       $platform = $row['platform'];
-      $by_platform[$platform] ??= ['count' => 0, 'revenue' => 0.0, 'profit' => 0.0];
+      $by_platform[$platform] ??= ['count' => 0, 'revenue' => 0.0, 'earned' => 0.0];
       $by_platform[$platform]['count']++;
       $by_platform[$platform]['revenue'] += $row['price'] ?? 0.0;
-      $by_platform[$platform]['profit'] += $profit;
+      $by_platform[$platform]['earned'] += $earned;
     }
     // Platform order as everywhere else on the site.
     $ordered = array_intersect_key(array_replace(Platforms::PLATFORMS, $by_platform), $by_platform);
     return $sum + [
       'avg_days' => $days ? (float) (array_sum($days) / count($days)) : NULL,
       'missing_price' => $missing_price,
-      'missing_cost' => $missing_cost,
       'by_platform' => $ordered,
     ];
   }
 
   /**
-   * One sale's profit: price - fees - shipping - cost (missing ones as 0).
+   * One sale's earnings after fees: price - fees - shipping (missing as 0).
    */
-  public static function profit(array $row): float {
-    return round(($row['price'] ?? 0.0) - ($row['fees'] ?? 0.0) - ($row['shipping'] ?? 0.0) - ($row['cost'] ?? 0.0), 2);
+  public static function earned(array $row): float {
+    return round(($row['price'] ?? 0.0) - ($row['fees'] ?? 0.0) - ($row['shipping'] ?? 0.0), 2);
+  }
+
+  /**
+   * One sale's profit: earned - what was paid; NULL when that is blank.
+   */
+  public static function profit(array $row): ?float {
+    return $row['cost'] === NULL ? NULL : round(self::earned($row) - $row['cost'], 2);
   }
 
   /**

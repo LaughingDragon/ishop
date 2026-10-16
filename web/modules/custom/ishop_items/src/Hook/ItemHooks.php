@@ -13,8 +13,8 @@ use Drupal\file\FileInterface;
 use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\ishop_items\Form\ListingsGridForm;
+use Drupal\ishop_items\EbaySold;
 use Drupal\ishop_items\ListingManager;
-use Drupal\ishop_items\ReturnWindow;
 use Drupal\ishop_items\PhotoPrep;
 use Drupal\ishop_office\DiskStatus;
 use Drupal\ishop_items\ReadyCheck;
@@ -41,7 +41,6 @@ final class ItemHooks {
     private readonly ListingManager $listings,
     private readonly FormBuilderInterface $formBuilder,
     private readonly AccountProxyInterface $currentUser,
-    private readonly ReturnWindow $returns,
   ) {}
 
   /**
@@ -164,29 +163,6 @@ final class ItemHooks {
   }
 
   /**
-   * Implements hook_node_presave(): the default return-by (Phase 6).
-   *
-   * An item with a purchase date and no return-by gets about 30 days from
-   * the order date. If the purchase date changes while the return-by is
-   * still the worked-out one, it follows; a date Cody typed stays.
-   */
-  #[Hook('node_presave')]
-  public function nodePresave(NodeInterface $node): void {
-    if ($node->bundle() !== 'item') {
-      return;
-    }
-    $bought = (string) $node->get('field_purchase_date')->value;
-    if ($bought === '') {
-      return;
-    }
-    $by = (string) $node->get('field_return_by')->value;
-    $old = $node->isNew() ? '' : (string) $node->getOriginal()?->get('field_purchase_date')->value;
-    if ($by === '' || ($old !== '' && $old !== $bought && $by === $this->returns->defaultFor($old))) {
-      $node->set('field_return_by', $this->returns->defaultFor($bought));
-    }
-  }
-
-  /**
    * Implements hook_ENTITY_TYPE_predelete() for nodes: listings go too.
    */
   #[Hook('node_predelete')]
@@ -252,6 +228,17 @@ final class ItemHooks {
           '#url' => Url::fromRoute('ishop_items.post_start', ['node' => $node->id()]),
           '#attributes' => ['class' => ['rm-button', 'rm-button--gold', 'ishop-post-link']],
         ],
+        // Real sold prices, checked by Cody on eBay itself (decision 264).
+        'sold' => ($sold = EbaySold::url((string) $node->label())) ? [
+          '#type' => 'link',
+          '#title' => $this->t('See eBay sold prices'),
+          '#url' => Url::fromUri($sold),
+          '#attributes' => [
+            'class' => ['rm-button', 'rm-button--ghost', 'ishop-sold-link'],
+            'target' => '_blank',
+            'rel' => 'noopener noreferrer',
+          ],
+        ] : [],
         'form' => $this->formBuilder->getForm(ListingsGridForm::class, $node),
         '#attached' => ['library' => ['ishop_items/item_form']],
       ];
@@ -286,15 +273,8 @@ final class ItemHooks {
       'field_asking_price' => 'Asking price',
       'ai_range' => 'AI price range',
       'field_original_price' => 'Original price',
-      'field_cost_paid' => 'Cost paid',
+      'field_cost_paid' => 'What I paid',
       'field_donation_value' => 'Estimated donation value',
-    ],
-    'Purchase' => [
-      'field_purchase_source' => 'Bought from',
-      'field_purchase_date' => 'Bought on',
-      'field_order_id' => 'Order ID',
-      'field_asin' => 'ASIN',
-      'field_return_by' => 'Return by',
     ],
     'Shipping' => [
       'field_weight_oz' => 'Weight',
@@ -425,16 +405,6 @@ final class ItemHooks {
         $item = $node->get($field)->first();
         return $item ? (string) ($item->getPossibleOptions()[$item->value] ?? $item->value) : NULL;
 
-      case 'field_return_by':
-        $by = (string) $node->get($field)->value;
-        if ($by === '') {
-          return NULL;
-        }
-        $text = $this->returns->isDefault($node)
-          ? (string) $this->t('about @date (counted from the order date)', ['@date' => $by])
-          : $by;
-        return $node->get('field_return_keep')->value ? (string) $this->t('@date. Keeping it: no reminders.', ['@date' => $text]) : $text;
-
       case 'field_show_in_shop':
         return $node->get($field)->value ? (string) $this->t('Yes') : NULL;
 
@@ -492,14 +462,6 @@ final class ItemHooks {
     }
     if (isset($form['field_description']['widget'][0]['value'])) {
       $form['field_description']['widget'][0]['value']['#attributes']['data-ishop-counter'] = '1000';
-    }
-    if (isset($form['field_return_by']['widget'][0]['value'])) {
-      $settings = $this->returns->settings();
-      $form['field_return_by']['widget'][0]['value']['#description'] = $this->t('Left empty, this fills in as about @days days from the purchase date@holiday. That counts from the order date; Amazon counts from delivery, which is usually later, so the reminder comes a little early. Change it if the order page shows a different date. <a href=":settings">Return window settings</a>', [
-        '@days' => $settings['days'],
-        '@holiday' => $settings['holiday'] ? $this->t(' (holiday orders: until @date)', ['@date' => date('M j', strtotime('2000-' . $settings['holiday_until']))]) : '',
-        ':settings' => Url::fromRoute('ishop_items.return_settings')->toString(),
-      ]);
     }
     $form['#attached']['library'][] = 'ishop_items/item_form';
     $form['ishop_storage'] = self::offlineNotice() + ['#weight' => -100];

@@ -9,6 +9,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\ishop_ai\AiRuns;
 use Drupal\ishop_ai\ListingWriter;
+use Drupal\ishop_items\EbaySold;
 use Drupal\ishop_items\PlatformCategories;
 use Drupal\ishop_items\ReadyCheck;
 use Drupal\node\NodeInterface;
@@ -141,6 +142,14 @@ final class SuggestionForm extends FormBase {
       $note = [];
       if ($field === 'condition' && !in_array($suggested, ListingWriter::CONDITIONS, TRUE)) {
         [$usable, $note] = [FALSE, [$this->t('Not one of the site\'s conditions: pick one yourself.')]];
+      }
+      if ($field === 'price') {
+        // Decision 264: the AI's price is an estimate; real sold prices are
+        // one tap away on eBay.
+        $note[] = $this->t('An estimate from the photos and current listings, not confirmed sales.');
+        if ($sold = EbaySold::url((string) ($draft['title'] ?? ''))) {
+          $note[] = $this->t('<a href=":url" target="_blank" rel="noopener noreferrer">See eBay sold prices</a>', [':url' => $sold]);
+        }
       }
       if ($field === 'category') {
         if ($suggested !== '' && $suggested !== $category) {

@@ -5,7 +5,6 @@ dependencies:
   config:
     - field.field.node.item.field_ai_price_max
     - field.field.node.item.field_ai_price_min
-    - field.field.node.item.field_asin
     - field.field.node.item.field_asking_price
     - field.field.node.item.field_brand
     - field.field.node.item.field_category
@@ -17,24 +16,18 @@ dependencies:
     - field.field.node.item.field_flaws
     - field.field.node.item.field_internal_notes
     - field.field.node.item.field_item_status
-    - field.field.node.item.field_order_id
     - field.field.node.item.field_original_price
     - field.field.node.item.field_package_height
     - field.field.node.item.field_package_length
     - field.field.node.item.field_package_width
     - field.field.node.item.field_photos
-    - field.field.node.item.field_purchase_date
-    - field.field.node.item.field_purchase_source
     - field.field.node.item.field_quantity
-    - field.field.node.item.field_return_by
-    - field.field.node.item.field_return_keep
     - field.field.node.item.field_show_in_shop
     - field.field.node.item.field_size
     - field.field.node.item.field_storage_location
     - field.field.node.item.field_weight_oz
     - node.type.item
   module:
-    - datetime
     - options
     - user
 id: node.item.default
@@ -63,13 +56,6 @@ content:
       prefix_suffix: true
     third_party_settings: {  }
     weight: 12
-    region: content
-  field_asin:
-    type: basic_string
-    label: inline
-    settings: {  }
-    third_party_settings: {  }
-    weight: 19
     region: content
   field_asking_price:
     type: number_decimal
@@ -163,13 +149,6 @@ content:
     third_party_settings: {  }
     weight: 10
     region: content
-  field_order_id:
-    type: basic_string
-    label: inline
-    settings: {  }
-    third_party_settings: {  }
-    weight: 18
-    region: content
   field_original_price:
     type: number_decimal
     label: inline
@@ -223,23 +202,6 @@ content:
     third_party_settings: {  }
     weight: 1
     region: content
-  field_purchase_date:
-    type: datetime_custom
-    label: inline
-    settings:
-      timezone_override: ''
-      date_format: Y-m-d
-    third_party_settings: {  }
-    weight: 16
-    region: content
-  field_purchase_source:
-    type: entity_reference_label
-    label: inline
-    settings:
-      link: false
-    third_party_settings: {  }
-    weight: 17
-    region: content
   field_quantity:
     type: number_integer
     label: inline
@@ -248,15 +210,6 @@ content:
       prefix_suffix: true
     third_party_settings: {  }
     weight: 9
-    region: content
-  field_return_by:
-    type: datetime_custom
-    label: inline
-    settings:
-      timezone_override: ''
-      date_format: Y-m-d
-    third_party_settings: {  }
-    weight: 20
     region: content
   field_show_in_shop:
     type: boolean
@@ -300,5 +253,4 @@ content:
     weight: 0
     region: content
 hidden:
-  field_return_keep: true
   links: true

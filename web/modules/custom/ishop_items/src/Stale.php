@@ -37,7 +37,7 @@ final class Stale {
   /**
    * Item statuses that are finished: no nudges (same as the dashboard's).
    */
-  public const ITEM_DONE = ['sold', 'returned', 'donated', 'kept'];
+  public const ITEM_DONE = ['sold', 'donated', 'kept'];
 
   /**
    * Today's date in the site's (Pacific) time zone, Y-m-d.

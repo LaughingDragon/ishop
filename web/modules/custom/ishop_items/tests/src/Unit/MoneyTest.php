@@ -30,7 +30,7 @@ final class MoneyTest extends UnitTestCase {
   }
 
   /**
-   * Profit is price - fees - shipping - cost; totals and platforms add up.
+   * Earned is price - fees - shipping; profit only where a cost was entered.
    */
   public function testSummarize(): void {
     $sum = Money::summarize([
@@ -42,15 +42,17 @@ final class MoneyTest extends UnitTestCase {
     $this->assertSame(100.0, $sum['revenue']);
     $this->assertSame(15.0, $sum['fees']);
     $this->assertSame(5.0, $sum['shipping']);
+    $this->assertSame(80.0, $sum['earned']);
+    // Only the two sales with "What I paid": (22 - 10) + (40 - 20).
     $this->assertSame(30.0, $sum['cost']);
-    $this->assertSame(50.0, $sum['profit']);
+    $this->assertSame(32.0, $sum['profit']);
+    $this->assertSame(2, $sum['with_cost']);
     // (10 + 30) / 2: the third sale has no Date posted.
     $this->assertSame(20.0, $sum['avg_days']);
-    $this->assertSame(1, $sum['missing_cost']);
     $this->assertSame(0, $sum['missing_price']);
     // Site platform order: Poshmark before Mercari.
     $this->assertSame(['poshmark', 'mercari'], array_keys($sum['by_platform']));
-    $this->assertSame(['count' => 2, 'revenue' => 50.0, 'profit' => 30.0], $sum['by_platform']['mercari']);
+    $this->assertSame(['count' => 2, 'revenue' => 50.0, 'earned' => 40.0], $sum['by_platform']['mercari']);
   }
 
   /**
@@ -58,7 +60,9 @@ final class MoneyTest extends UnitTestCase {
    */
   public function testEmpty(): void {
     $sum = Money::summarize([]);
-    $this->assertSame([0, 0.0, NULL, []], [$sum['count'], $sum['profit'], $sum['avg_days'], $sum['by_platform']]);
+    $this->assertSame([0, 0.0, 0.0, NULL, []], [
+      $sum['count'], $sum['earned'], $sum['profit'], $sum['avg_days'], $sum['by_platform'],
+    ]);
   }
 
   /**
@@ -66,7 +70,9 @@ final class MoneyTest extends UnitTestCase {
    */
   public function testMissingPrice(): void {
     $sum = Money::summarize([$this->sale('depop', NULL, 1.0, NULL, 4.0)]);
-    $this->assertSame([1, 0.0, -5.0, 1], [$sum['count'], $sum['revenue'], $sum['profit'], $sum['missing_price']]);
+    $this->assertSame([1, 0.0, -1.0, -5.0, 1], [
+      $sum['count'], $sum['revenue'], $sum['earned'], $sum['profit'], $sum['missing_price'],
+    ]);
   }
 
 }

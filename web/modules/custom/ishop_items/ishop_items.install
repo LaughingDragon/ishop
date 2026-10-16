@@ -47,3 +47,68 @@ function ishop_items_update_11003(): string {
   ])->save();
   return 'Added the category Holiday & Seasonal under Home & Kitchen.';
 }
+
+/**
+ * Removes the Amazon purchase and return-window parts (redesign, 2026-10-16).
+ *
+ * Cody sells household overstock already in the house; nothing is bought
+ * to resell. Removes the fields order ID, ASIN, purchase source, purchase
+ * date, return-by and "Keeping it", the purchase source vocabulary, the
+ * return window settings and the status "Returned to Amazon". None of the
+ * real items had data in them (checked before the change).
+ */
+function ishop_items_update_11004(): string {
+  $done = [];
+  $fields = \Drupal::entityTypeManager()->getStorage('field_config');
+  $removed = [
+    'field_order_id',
+    'field_asin',
+    'field_purchase_source',
+    'field_purchase_date',
+    'field_return_by',
+    'field_return_keep',
+  ];
+  foreach ($removed as $name) {
+    if ($field = $fields->load('node.item.' . $name)) {
+      $field->delete();
+      $done[] = $name;
+    }
+  }
+  field_purge_batch(100);
+
+  $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+  $terms->delete($terms->loadByProperties(['vid' => 'purchase_source']));
+  if ($vocabulary = \Drupal::entityTypeManager()->getStorage('taxonomy_vocabulary')->load('purchase_source')) {
+    $vocabulary->delete();
+    $done[] = 'purchase_source vocabulary';
+  }
+
+  \Drupal::configFactory()->getEditable('ishop_items.returns')->delete();
+
+  $storage = \Drupal::entityTypeManager()->getStorage('field_storage_config')->load('node.field_item_status');
+  $values = $storage->getSetting('allowed_values');
+  if (isset($values['returned'])) {
+    unset($values['returned']);
+    $storage->setSetting('allowed_values', $values)->save();
+    $done[] = 'status "Returned to Amazon"';
+  }
+  // "Cost paid" becomes optional "What I paid (if you remember)", in Prices.
+  if ($cost = \Drupal::entityTypeManager()->getStorage('field_config')->load('node.item.field_cost_paid')) {
+    $cost->setLabel('What I paid (if you remember)')
+      ->setRequired(FALSE)
+      ->setDescription('Optional. Leave it blank if you don\'t remember; nothing asks for it.')
+      ->save();
+  }
+  $display = \Drupal::entityTypeManager()->getStorage('entity_form_display')->load('node.item.default');
+  if ($display && ($groups = $display->getThirdPartySettings('field_group'))) {
+    if (isset($groups['group_prices']) && !in_array('field_cost_paid', $groups['group_prices']['children'], TRUE)) {
+      $groups['group_prices']['children'][] = 'field_cost_paid';
+      $display->setThirdPartySetting('field_group', 'group_prices', $groups['group_prices']);
+    }
+    if (isset($groups['group_purchase'])) {
+      $display->unsetThirdPartySetting('field_group', 'group_purchase');
+    }
+    $display->save();
+  }
+  return 'Removed: ' . ($done ? implode(', ', $done) : 'nothing (already gone)') . '. Cost paid is now "What I paid (if you remember)".';
+}
