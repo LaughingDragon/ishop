@@ -8,7 +8,7 @@ enabled: true
 keep: 14
 encrypt: null
 encrypt_password: null
-period: 3600
+period: 31449600
 cron: false
 source_id: private_files
 destination_id: private_files
