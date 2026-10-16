@@ -30,6 +30,7 @@ module:
   image: 0
   image_effects: 0
   imagemagick: 0
+  ishop_ai: 0
   ishop_items: 0
   ishop_life: 0
   ishop_matrix: 0

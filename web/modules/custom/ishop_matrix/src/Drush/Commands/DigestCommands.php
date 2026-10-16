@@ -31,7 +31,15 @@ final class DigestCommands extends DrushCommands {
   #[CLI\Option(name: 'check', description: 'Only say whether Cody\'s would send now.')]
   #[CLI\Option(name: 'enable-cody', description: 'Switch Cody\'s daily digest on (only after Liam\'s OK).')]
   #[CLI\Option(name: 'disable-cody', description: 'Switch Cody\'s daily digest off.')]
-  public function digest(array $options = ['test' => FALSE, 'show' => FALSE, 'check' => FALSE, 'enable-cody' => FALSE, 'disable-cody' => FALSE]): int {
+  public function digest(
+    array $options = [
+      'test' => FALSE,
+      'show' => FALSE,
+      'check' => FALSE,
+      'enable-cody' => FALSE,
+      'disable-cody' => FALSE,
+    ],
+  ): int {
     if ($options['enable-cody'] || $options['disable-cody']) {
       $this->digest->setCody((bool) $options['enable-cody']);
       $this->logger()->success($options['enable-cody'] ? 'Cody\'s daily digest is on.' : 'Cody\'s daily digest is off.');

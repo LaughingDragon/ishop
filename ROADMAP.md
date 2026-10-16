@@ -255,7 +255,9 @@ reference project is used only for its rules and formatting logic.
 
 - [ ] Wait until Cody has his own Anthropic account with a monthly spend limit
   set in the Anthropic console. Never use his son's key.
-- [ ] AI module + Anthropic provider; key via the Key module.
+- [x] AI module + Anthropic provider; key via the Key module: module ishop_ai, official
+  Anthropic PHP SDK, /site-office/ai-setup for Cody (and webmaster) to save, test and remove his
+  own key (file in secrets/, Key module "anthropic_api_key"; one tiny test call on save).
 - [ ] From an item's photos: identify the item, search the web for sold comps,
   fill title/description/brand/size/condition/category, set a price range with
   links to the comps shown under "Why this price." Match the son's pipeline in

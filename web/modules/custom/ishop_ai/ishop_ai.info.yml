@@ -1,0 +1,8 @@
+name: 'iShop AI'
+type: module
+description: "Phase 7: AI listing help on Cody's own Anthropic account. Step 1: the AI setup page (his API key, kept in secrets/)."
+package: iShop
+core_version_requirement: ^11.4
+dependencies:
+  - key:key
+  - ishop_office:ishop_office

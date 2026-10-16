@@ -30,9 +30,9 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  *
  * About 7 a.m. Pacific: what needs Cody, bills due, today's calendar,
  * to-dos, items waiting to be posted, and a storage check. Short plain text
- * for the phone. Sent to Cody only after Liam's OK (STATE['cody']), never on
- * his birthday (the birthday email replaces it), and he can turn it off on
- * his account page. Tests go to webmaster only.
+ * for the phone. Sent to the owner (Cody) only after Liam's OK (STATE['cody']),
+ * never on the owner's birthday (the birthday email replaces it), and the
+ * owner can turn it off on the account page. Tests go to webmaster only.
  */
 final class Digest {
 
@@ -84,7 +84,7 @@ final class Digest {
   }
 
   /**
-   * Whether Cody has turned the digest off on his account page.
+   * Whether the owner turned the digest off on the account page.
    */
   public function codyOptedOut(): bool {
     return (bool) $this->userData->get('ishop_matrix', self::OWNER_UID, self::USER_OFF);
@@ -243,7 +243,11 @@ final class Digest {
       'body' => $mail['body'],
     ]);
     $ok = !empty($result['result']);
-    $this->logger->notice('Digest @kind to account @uid: @result.', ['@kind' => $test ? 'test' : '', '@uid' => $uid, '@result' => $ok ? 'sent' : 'failed']);
+    $this->logger->notice('Digest @kind to account @uid: @result.', [
+      '@kind' => $test ? 'test' : '',
+      '@uid' => $uid,
+      '@result' => $ok ? 'sent' : 'failed',
+    ]);
     return $ok;
   }
 

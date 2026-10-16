@@ -1,0 +1,9 @@
+ishop_ai.setup:
+  path: '/site-office/ai-setup'
+  defaults:
+    _form: '\Drupal\ishop_ai\Form\AiSetupForm'
+    _title: 'AI setup'
+  requirements:
+    _custom_access: '\Drupal\ishop_ai\Form\AiSetupForm::access'
+  options:
+    no_cache: TRUE
