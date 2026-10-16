@@ -283,6 +283,27 @@ and taken out the next day, before any real data used it.
   searches and cost; the Money page shows AI cost for the period (per item, highest first) and
   this month against the $25 cap; each item shows its AI cost so far.
 
+## Phase 7.5: pricing redesign
+
+From Liam's redesign brief (punch item 270, 2026-10-16), plan approved in chat with the order
+below. Serves Cody's loop: photos, draft, check what it really sells for, post, sell, take
+down elsewhere, ship. Replaces item 261's plan (decision 264). Not pursuing: eBay Marketplace
+Insights API, any server-side eBay login.
+
+- [ ] **Check sold prices** on each item: Terapeak research in Seller Hub (Sold tab) for the
+  identified item, opened on Cody's own signed-in phone (no eBay login or cookie ever stored on
+  the server); fallbacks eBay sold search, Mercari and Poshmark sold filters. Back on the site:
+  Lower / About right / Higher, or type the price; his choice is recorded.
+- [ ] **Price book:** every Sold here stores price, category and condition; "Why this price"
+  shows "You sold N similar items for $X-$Y" first.
+- [ ] **Two-step AI:** cheapest current Claude model, one reduced-size photo: identifies the
+  item, category (site list only), condition, title, description. Web search only above a
+  value threshold ($15, a setting). Research reused for near-identical items. Cost per item
+  measured; target a few cents.
+- [ ] **eBay as a platform**, only if Cody says yes (item 267): listing row, Sold-here
+  cascade, nudges, bulk actions, Money page, tax export, eligibility and paste-ready text
+  (from the son's surviving eBay formatter).
+
 ## Phase 8: public catalog (built, switched off)
 
 - [ ] Public view of items with "show in shop" checked and not sold: photos,
