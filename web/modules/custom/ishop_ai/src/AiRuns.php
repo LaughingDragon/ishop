@@ -98,6 +98,31 @@ final class AiRuns {
   }
 
   /**
+   * AI spend between two dates (Y-m-d, inclusive, Pacific; NULL = open).
+   *
+   * @return array{cost: float, runs: int, items: int, by_item: array<int, float>}
+   *   Total, run and item counts, and cost per item (highest first).
+   */
+  public function spendBetween(?string $from, ?string $to): array {
+    $zone = new \DateTimeZone('America/Los_Angeles');
+    $query = $this->database->select('ishop_ai_run', 'r')->fields('r', ['nid', 'cost'])->isNotNull('cost');
+    if ($from) {
+      $query->condition('created', (new \DateTimeImmutable($from . ' 00:00', $zone))->getTimestamp(), '>=');
+    }
+    if ($to) {
+      $query->condition('created', (new \DateTimeImmutable($to . ' 00:00', $zone))->modify('+1 day')->getTimestamp(), '<');
+    }
+    $by_item = [];
+    $runs = 0;
+    foreach ($query->execute() as $row) {
+      $by_item[(int) $row->nid] = ($by_item[(int) $row->nid] ?? 0.0) + (float) $row->cost;
+      $runs++;
+    }
+    arsort($by_item);
+    return ['cost' => array_sum($by_item), 'runs' => $runs, 'items' => count($by_item), 'by_item' => $by_item];
+  }
+
+  /**
    * AI cost per item (all runs), keyed by node ID.
    */
   public function costByItem(): array {

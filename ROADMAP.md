@@ -269,7 +269,9 @@ reference project is used only for its rules and formatting logic.
   ticks, Why this price with sources; queued while AI is paused or at the $25 monthly cap.)
 - [ ] Bulk photo drop: a pile of photos split into items by time taken (45-minute
   gap default), per the son's `import_inbox.py`.
-- [ ] Log token usage per item so cost is visible on the money page.
+- [x] Log token usage per item so cost is visible on the money page: every run records tokens,
+  searches and cost; the Money page shows AI cost for the period (per item, highest first) and
+  this month against the $25 cap; each item shows its AI cost so far.
 
 ## Phase 8: public catalog (built, switched off)
 

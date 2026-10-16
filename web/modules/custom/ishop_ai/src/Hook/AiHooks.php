@@ -57,6 +57,7 @@ final class AiHooks {
       $line = trim($line);
       $sources[] = ['text' => $line, 'url' => preg_match('#^https?://#', $line) ? $line : NULL];
     }
+    $spent = $this->runs->costByItem()[(int) $node->id()] ?? 0.0;
     $build['ishop_ai'] = [
       '#type' => 'container',
       '#attributes' => ['id' => 'ai', 'class' => ['rm-card', 'ishop-ai']],
@@ -71,6 +72,14 @@ final class AiHooks {
           'button' => $open ? NULL : Url::fromRoute('ishop_ai.write_listing', ['node' => $node->id()])->toString(),
           'button_label' => $draft ? $this->t('Write it again') : $this->t('Write my listing'),
         ],
+      ],
+      'cost' => [
+        '#type' => 'html_tag',
+        '#tag' => 'p',
+        '#attributes' => ['class' => ['ishop-ai__cost']],
+        '#value' => $this->t('AI cost for this item so far: $@cost.', ['@cost' => number_format($spent, 2)]),
+        '#access' => $spent > 0,
+        '#weight' => 50,
       ],
     ];
     if ($draft && !$run['reviewed']) {

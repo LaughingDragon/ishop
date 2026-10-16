@@ -391,6 +391,7 @@ final class MatrixController extends ControllerBase {
 {% if notes %}<ul class="rm-money__notes">{% for n in notes %}<li>{{ n }}</li>{% endfor %}</ul>{% endif %}
 <h3>{{ by_title }}</h3>{% if platforms %}<ul class="rm-money__bars">{% for p in platforms %}<li><span class="rm-money__bar-label"><strong>{{ p.name }}</strong> {{ p.count }} {{ sold_word }} · {{ p.revenue }} · {{ profit_word }} {{ p.profit }}</span><span class="rm-money__bar" style="width: {{ p.width }}%"></span></li>{% endfor %}</ul>{% else %}<p>{{ no_sales }}</p>{% endif %}
 <h3>{{ sitting_title }}</h3>{% if sitting %}<ol class="rm-money__sitting">{% for s in sitting %}<li><a href="{{ s.url }}">{{ s.title }}</a> · {{ s.platform }} · {{ s.days }} {{ days_word }}</li>{% endfor %}</ol>{% else %}<p>{{ nothing_live }}</p>{% endif %}
+<h3>{{ ai.title }}</h3><p>{{ ai.line }}</p><p class="rm-money__ai-month">{{ ai.month }}</p>{% if ai.items %}<ul class="rm-money__sitting">{% for i in ai.items %}<li><a href="{{ i.url }}">{{ i.title }}</a> · {{ i.cost }}</li>{% endfor %}</ul>{% endif %}
 </section>',
       '#context' => [
         'title' => $this->t('Money'),
@@ -428,8 +429,48 @@ final class MatrixController extends ControllerBase {
         'sitting' => $sitting,
         'days_word' => $this->t('days'),
         'nothing_live' => $this->t('Nothing is live on a platform yet.'),
+        'ai' => $this->aiCost($from, $to, $label),
       ],
       '#cache' => ['max-age' => 0],
+    ];
+  }
+
+  /**
+   * AI cost for the Money page.
+   *
+   * The period's spend, this month against the cap, the items that cost most.
+   */
+  private function aiCost(?string $from, ?string $to, $label): array {
+    $runs = \Drupal::service(AiRuns::class);
+    $spend = $runs->spendBetween($from, $to);
+    $items = [];
+    foreach (array_slice($spend['by_item'], 0, 5, TRUE) as $nid => $cost) {
+      if ($item = $this->entityTypeManager()->getStorage('node')->load($nid)) {
+        $items[] = [
+          'title' => $item->label(),
+          'url' => $item->toUrl('canonical', ['fragment' => 'ai'])->toString(),
+          'cost' => '$' . number_format($cost, 2),
+        ];
+      }
+    }
+    return [
+      'title' => $this->t('AI cost'),
+      'line' => $spend['runs']
+        ? $this->t('@label: $@cost for @runs AI @run_word on @items @item_word (about $@avg an item).', [
+          '@label' => $label,
+          '@cost' => number_format($spend['cost'], 2),
+          '@runs' => $spend['runs'],
+          '@run_word' => $spend['runs'] === 1 ? $this->t('run') : $this->t('runs'),
+          '@items' => $spend['items'],
+          '@item_word' => $spend['items'] === 1 ? $this->t('item') : $this->t('items'),
+          '@avg' => number_format($spend['cost'] / max(1, $spend['items']), 2),
+        ])
+        : $this->t('No AI runs in this period.'),
+      'month' => $this->t('This month so far: $@spent of the site\'s $@cap monthly AI cap (your Anthropic account limit is $32).', [
+        '@spent' => number_format($runs->monthCost(), 2),
+        '@cap' => (int) AiRuns::MONTHLY_CAP,
+      ]),
+      'items' => $items,
     ];
   }
 
