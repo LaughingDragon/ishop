@@ -214,7 +214,8 @@ final class MatrixController extends ControllerBase {
   }
 
   /**
-   * The "Needs you now" rows: take-downs after a sale, sales to ship.
+   * The "Needs you now" rows: take-downs after a sale, sales to ship, and
+   * rows from hook_ishop_needs() (the marketplace inbox).
    */
   public function needs(int $now): array {
     $rows = [];
@@ -263,6 +264,11 @@ final class MatrixController extends ControllerBase {
         'action' => $this->t('Ship it'),
         'ghost' => FALSE,
       ];
+    }
+    // Other modules' rows: the marketplace inbox (Phase 10 B).
+    $return = Url::fromRoute('ishop_matrix.dashboard')->toString();
+    foreach ($this->moduleHandler()->invokeAll('ishop_needs', [$return]) as $row) {
+      $rows[] = $row;
     }
     if (count($to_ship) > self::SHIP_LIMIT) {
       $rows[] = [

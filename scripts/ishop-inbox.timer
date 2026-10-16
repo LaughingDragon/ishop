@@ -1,0 +1,9 @@
+[Unit]
+Description=ishop: read marketplace mail every 10 minutes
+
+[Timer]
+OnCalendar=*-*-* *:00/10:30
+AccuracySec=30s
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,13 @@
+[Unit]
+Description=ishop: read new marketplace emails in the business Gmail (read-only)
+After=mariadb.service network-online.target
+
+[Service]
+Type=oneshot
+User=www-data
+Group=www-data
+Environment=HOME=/tmp
+PrivateTmp=true
+WorkingDirectory=/var/www/ishop
+TimeoutStartSec=300
+ExecStart=/var/www/ishop/vendor/bin/drush ishop:inbox-check

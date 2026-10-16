@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * @file
+ * Install hooks for the marketplace inbox.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Implements hook_schema().
+ *
+ * One row per marketplace email already read, so nothing is read twice.
+ * Only what the site needs: never the subject, the text or the buyer.
+ */
+function ishop_inbox_schema(): array {
+  $schema['ishop_inbox_message'] = [
+    'description' => 'Marketplace emails read from the business Gmail (Phase 10 B).',
+    'fields' => [
+      'id' => ['type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE],
+      'mail_key' => ['type' => 'varchar_ascii', 'length' => 64, 'not null' => TRUE, 'description' => 'UIDVALIDITY:UID of the message in INBOX.'],
+      'message_id' => ['type' => 'varchar_ascii', 'length' => 255, 'not null' => TRUE, 'default' => '', 'description' => 'Message-ID header, to open it in Gmail.'],
+      'received' => ['type' => 'int', 'not null' => TRUE, 'default' => 0],
+      'platform' => ['type' => 'varchar_ascii', 'length' => 16, 'not null' => TRUE],
+      'kind' => ['type' => 'varchar_ascii', 'length' => 16, 'not null' => TRUE],
+      'title' => ['type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'description' => 'The item title read from the email.'],
+      'price' => ['type' => 'numeric', 'precision' => 10, 'scale' => 2, 'not null' => FALSE],
+      'ship_by' => ['type' => 'varchar_ascii', 'length' => 10, 'not null' => FALSE],
+      'listing' => ['type' => 'int', 'unsigned' => TRUE, 'not null' => FALSE, 'description' => 'The platform_listing it was matched to.'],
+      'fid' => ['type' => 'int', 'unsigned' => TRUE, 'not null' => FALSE, 'description' => 'A label PDF waiting for Cody to confirm the sale.'],
+      'status' => ['type' => 'varchar_ascii', 'length' => 16, 'not null' => TRUE, 'default' => 'open'],
+      'note' => ['type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'description' => 'What the site did with it.'],
+      'created' => ['type' => 'int', 'not null' => TRUE, 'default' => 0],
+      'changed' => ['type' => 'int', 'not null' => TRUE, 'default' => 0],
+    ],
+    'primary key' => ['id'],
+    'unique keys' => ['mail_key' => ['mail_key']],
+    'indexes' => ['status' => ['status', 'received']],
+  ];
+  return $schema;
+}

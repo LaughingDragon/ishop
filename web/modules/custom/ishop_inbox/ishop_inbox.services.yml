@@ -1,0 +1,8 @@
+services:
+  _defaults:
+    autowire: true
+  Drupal\ishop_inbox\Matcher: ~
+  Drupal\ishop_inbox\Inbox: ~
+  Drupal\ishop_inbox\Routing\RouteSubscriber:
+    tags:
+      - { name: event_subscriber }

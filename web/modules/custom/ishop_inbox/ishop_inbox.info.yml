@@ -1,0 +1,10 @@
+name: 'iShop marketplace inbox'
+type: module
+description: 'Phase 10 B: reads marketplace emails in the business Gmail (read-only IMAP) and turns them into "Needs you now" items.'
+package: iShop
+core_version_requirement: ^11.4
+dependencies:
+  - drupal:file
+  - ishop_items:ishop_items
+  - ishop_matrix:ishop_matrix
+  - ishop_office:ishop_office

@@ -1,0 +1,13 @@
+ishop_inbox.settings:
+  type: config_object
+  label: 'Marketplace inbox'
+  mapping:
+    enabled:
+      type: boolean
+      label: 'Read the business Gmail every 10 minutes'
+    days:
+      type: integer
+      label: 'How many days back each check looks'
+    enabled_since:
+      type: integer
+      label: 'When it was switched on (older mail is recorded, not shown)'

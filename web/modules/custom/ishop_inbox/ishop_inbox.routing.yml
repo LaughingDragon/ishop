@@ -1,0 +1,11 @@
+ishop_inbox.act:
+  path: '/inbox/{id}/{action}'
+  defaults:
+    _controller: '\Drupal\ishop_inbox\Controller\InboxController::act'
+  requirements:
+    _permission: 'manage platform listings'
+    _csrf_token: 'TRUE'
+    id: \d+
+    action: 'sold|done'
+  options:
+    no_cache: TRUE
