@@ -270,6 +270,23 @@ reference project is used only for its rules and formatting logic.
 - Note (2026-10-15): item photos are private files, so the public catalog needs public derivatives
   (image-style copies) of the photos it shows.
 
+## Phase 9: close the site office and hand over to Cody
+
+DRAFT (2026-10-15): written from Liam's one-line brief and TEMPORARY.md, because the earlier,
+fuller specification was not available to the site foreman. Liam to replace or confirm.
+
+- [ ] Clear TEMPORARY.md: every temporary feature switched off and removed as its section
+  says (birthday mode, its song, email timer and code), until TEMPORARY.md is empty.
+- [ ] Owner's guide for Cody: one page in the Reseller Matrix (adding items, posting,
+  Stockroom, money and the tax export, bills, calendar, to-dos), written for the phone.
+- [ ] Hand-over of accounts and services, as Liam decides: Cody's administrator account,
+  who holds the Google Cloud project, the GitHub repository, the Gmail used for site mail,
+  and the domain name (ohbah.com is shared).
+- [ ] Final backup and a restore check, then the site office's records (plans, reports,
+  punch list, decisions) exported for Liam and Cody to keep.
+- [ ] Close the site office: its pages, the site_office role and the site-foreman account
+  switched off; Claude's server access (SSH key, GitHub deploy key) removed.
+
 ## Later, only if the business grows
 
 Drupal Commerce + Commerce Stripe checkout. Do not build until Liam asks.
