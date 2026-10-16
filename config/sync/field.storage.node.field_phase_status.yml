@@ -23,6 +23,9 @@ settings:
     -
       value: done
       label: Done
+    -
+      value: removed
+      label: Removed
   allowed_values_function: ''
 module: options
 locked: false

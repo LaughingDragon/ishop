@@ -90,7 +90,7 @@ final class OfficeCommands extends DrushCommands {
    */
   #[CLI\Command(name: 'ishop:phase')]
   #[CLI\Argument(name: 'phase', description: 'Phase number, e.g. 0.5.')]
-  #[CLI\Argument(name: 'status', description: 'not_started, in_progress, blocked or done.')]
+  #[CLI\Argument(name: 'status', description: 'not_started, in_progress, blocked, done or removed.')]
   #[CLI\Option(name: 'why', description: 'Reason, kept in the revision log.')]
   public function phase(string $phase, string $status, array $options = ['why' => '']): int {
     $status = Vocabulary::normalize(Vocabulary::PHASE_STATUS, $status);

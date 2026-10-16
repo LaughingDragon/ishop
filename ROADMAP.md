@@ -132,13 +132,14 @@ Approved 2026-10-15 (punch item 78: proposal plus Claude (review)'s gaps; Liam d
 - [x] **Item** content type, plus taxonomies and photos:
   - Fields: title (counter at 60 and 70, maximum 80), photos (Media, first one is the cover), description
     (counter at 1000), flaws/condition notes, brand, size (free text), color, category, condition,
-    quantity (default 1), lifecycle status (Draft / Ready / Listed / Sold / Returned to Amazon / Donated /
-    Kept), asking price, AI price range (min/max), original price, cost paid, purchase date, purchase
-    source, order ID, Amazon ASIN, return-by date, weight, package size (L x W x H), storage location,
-    internal notes, and "show in shop" (Phase 8). No Crosslister ID.
+    quantity (default 1), lifecycle status (Draft / Ready / Listed / Sold / Donated / Kept), asking
+    price, AI price range (min/max), original price (retail value), "What I paid (if you remember)",
+    weight, package size (L x W x H), storage location, internal notes, and "show in shop" (Phase 8).
+    No Crosslister ID. (Redesign 2026-10-16: purchase date, purchase source, order ID, ASIN, return-by
+    and the status "Returned to Amazon" removed; see Phase 6.)
   - Only photos are required on the phone. A "ready to list" checklist shows what's missing.
   - Taxonomies: condition (6 terms), category (13 top-level terms), brand, storage location (empty until
-    Cody answers), purchase source (Amazon).
+    Cody answers). ~~Purchase source~~ removed in the redesign.
   - Photos: Media "Item photo" in private files. On upload: HEIC/HEIF converted to JPEG, turned the right
     way up, metadata (GPS) stripped, long edge at most 2560 px. ImageMagick's policy.xml allows only
     JPEG, PNG, WebP and HEIC/HEIF, and keeps its resource limits.
@@ -190,7 +191,7 @@ reference project is used only for its rules and formatting logic.
   /post/stale; a line on the item's listings; daily cron clean-up of old answers.)
 - [x] Bulk actions on the inventory list: the Stockroom (/room/stockroom) lists every item; tick
   items, then mark posted on a platform, change the asking price (set, or lower by %), move to a
-  storage location, or set the status (Listed, Kept, Donated, Returned to Amazon). Confirm
+  storage location, or set the status (Listed, Kept, Donated). Confirm
   first, then "What changed". Built as a custom form (big touch targets, iPhone first) rather
   than Views Bulk Operations.
 
@@ -202,14 +203,15 @@ reference project is used only for its rules and formatting logic.
 - [x] Stockroom search and filters: title search, brand, size, status, posted on a platform,
   location (including everything inside it), price range. Built in, no Search API or Facets
   (Liam, decision 178); each filtered view has its own link.
-- [x] Money page in My office: sold by platform, profit after fees, shipping and item cost,
+- [x] Money page in My office: sold by platform, "Earned after fees" (sale price minus fees and
+  shipping) as the main number, profit only where "What I paid" was entered (redesign 2026-10-16),
   average days to sell (from Date sold), longest-sitting live listings, for this season /
   month / year / last year / all time. Real data only; plain labelled bars, no Charts module.
   The "This season" scoreboard and the office glance use the same numbers (Money).
 - [x] Year-end tax export (My office): Sales CSV per calendar year (date sold, platform, sale
-  price, cost, fees, shipping, profit, totals) and a Donations CSV (date donated from the
-  item's history, estimated value entered by Cody, never guessed); blanks flagged in a Check
-  column. Mileage and expenses join when Phase 5 adds them.
+  price, fees, shipping, earned after fees, what I paid, profit, totals) and a Donations CSV
+  (date donated from the item's history, estimated value entered by Cody, never guessed); a
+  missing sale price is flagged in a Check column, a blank "What I paid" never is. Mileage and expenses join when Phase 5 adds them.
 
 ## Phase 5: daily life tools and the digest
 
@@ -233,7 +235,7 @@ reference project is used only for its rules and formatting logic.
   (Undo in "Recently done"); dated ones also show on the Calendar wall and, on the day or
   overdue, in "Needs you now"; notes with Edit/Delete.
 - [x] **Daily digest email** at about 7 a.m. Pacific: items to post, take-downs,
-  returns closing soon, bills due, today's events, and a storage check (data disk
+  bills due, today's events, and a storage check (data disk
   mounted, free space on both disks; see DiskStatus in ishop_office). Short and readable on a
   phone. Needs a working mail transport (Symfony Mailer + an SMTP relay;
   ask Liam which, never store SMTP passwords in config).
@@ -245,24 +247,18 @@ reference project is used only for its rules and formatting logic.
   then, after a full week of normal use with a clean violation log, switch
   Security Kit's CSP from report-only to enforce.
 
-## Phase 6: Amazon import and return windows
+## Phase 6: Amazon import and return windows (removed)
 
-Plan approved with changes (Liam, decision 241). Cody requests his data now (item 242).
+**Removed 2026-10-16: Cody sells household overstock already in the house; he is not
+buying items to resell** (Liam and Cody; see the redesign decision). Built on 2026-10-15
+and taken out the next day, before any real data used it.
 
-- [x] Return-by date defaults to about 30 days from the order date, labelled "about" and
-  editable per item; the screen says it's counted from the order date (delivery is usually
-  later, so it warns early). Amazon's holiday rule (bought Nov 1 to Dec 31: returnable until
-  Jan 31) is a setting, not hard-coded. "Returned" and "Keeping it" buttons on the warning.
-- [x] Upload Amazon's order history export (the "Your Orders" zip or CSV from "Request your
-  data"). A preview with ticks (open return windows pre-ticked); each ticked line becomes a
-  draft item with cost, purchase date, order ID, ASIN and quantity (one item per line).
-  Cancelled and digital orders skipped; duplicates (order + product) skipped on re-import.
-  Only the needed fields are kept; the uploaded file is deleted afterwards. (Built: /add/amazon, linked
-  from "Add item"; a card per purchase, newest first, older ones behind "Show older purchases
-  too"; matched on order ID + ASIN; Amazon as the source; return-by filled in on save.)
-- [x] Digest and dashboard warn 7 and 2 days before a return window closes (and on the
-  day): "return it or list it?" (Built with step 1: settings at My office > Return windows; "Needs you now"
-  shows the last week with Returned / Keeping it / Open; the digest names it at 7, 2 and 0 days.)
+- [x] ~~Return-by date, the holiday-returns setting, "Returned" and "Keeping it" buttons.~~
+  Removed, with the item fields order ID, ASIN, purchase source (and its vocabulary),
+  purchase date and the status "Returned to Amazon".
+- [x] ~~Import from Amazon (/add/amazon) from the "Your Orders" export.~~ Removed: page,
+  parser, routes and tests. Punch items 242 and 251 closed "Not needed".
+- [x] ~~Return-window warnings in Needs you now and the digest.~~ Removed.
 
 ## Phase 7: AI listing (Cody's own Anthropic account)
 

@@ -14,6 +14,8 @@ final class Vocabulary {
     'in_progress' => 'In progress',
     'blocked' => 'Blocked',
     'done' => 'Done',
+    // A phase taken out of the plan (Phase 6, redesign 2026-10-16).
+    'removed' => 'Removed',
   ];
 
   /**
