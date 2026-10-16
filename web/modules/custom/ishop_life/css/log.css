@@ -25,3 +25,18 @@
 .rm-bills__meta { display: block; font-size: 16px; color: var(--rm-text-soft); }
 .rm-bills__actions { display: flex; align-items: center; gap: 14px; }
 .rm-bills__actions a:not(.rm-button) { display: inline-flex; align-items: center; min-height: 44px; }
+
+/* Break room: to-dos with a big round Done button, and notes. */
+.rm-todos, .rm-notes { margin: 0 0 26px; }
+.rm-todos__list { margin: 0; padding: 0; list-style: none; }
+.rm-todos__list li { display: flex; align-items: center; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--rm-line); }
+.rm-todos__done { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border: 3px solid var(--rm-gold); border-radius: 50%; color: transparent; font-size: 24px; text-decoration: none; }
+.rm-todos__done:hover, .rm-todos__done:focus-visible { background: var(--rm-gold); color: var(--rm-ground); }
+.rm-todos__text { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow-wrap: anywhere; }
+.rm-todos__due { font-size: 16px; color: var(--rm-text-soft); }
+.rm-todos__due.is-late { color: var(--rm-gold); font-weight: 700; }
+.rm-todos__edit { display: inline-flex; align-items: center; min-height: 44px; }
+.rm-todos--done s { color: var(--rm-text-soft); }
+.rm-notes__note { margin: 0 0 12px; padding: 14px 18px; }
+.rm-notes__note h3 { margin: 0 0 6px; font-size: 1.1rem; }
+.rm-notes__note p { margin: 0 0 6px; }

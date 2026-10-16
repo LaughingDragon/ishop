@@ -1,0 +1,20 @@
+uuid: f439a5ea-d846-4a5b-92e6-04d40c492482
+langcode: en
+status: true
+dependencies:
+  module:
+    - datetime
+    - node
+id: node.field_done_on
+field_name: field_done_on
+entity_type: node
+type: datetime
+settings:
+  datetime_type: date
+module: datetime
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

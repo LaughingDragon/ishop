@@ -13,6 +13,7 @@ use Drupal\ishop_items\Controller\StaleController;
 use Drupal\ishop_items\Money;
 use Drupal\ishop_life\Bills;
 use Drupal\ishop_life\LogBook;
+use Drupal\ishop_life\Todos;
 use Drupal\ishop_life\Controller\BillsController;
 use Drupal\ishop_items\TaxExport;
 use Drupal\ishop_items\StaleNudges;
@@ -41,6 +42,7 @@ final class MatrixController extends ControllerBase {
     private readonly Money $money,
     private readonly TaxExport $taxExport,
     private readonly Bills $bills,
+    private readonly Todos $todos,
   ) {}
 
   /**
@@ -106,6 +108,19 @@ final class MatrixController extends ControllerBase {
         ],
       ];
       $due[] = $bill;
+    }
+    // To-dos due today or overdue, each with a Done button.
+    foreach ($this->todos->dueNow() as $todo) {
+      $needs[] = [
+        'text' => $this->t('To-do: @title', ['@title' => $todo->label()]),
+        'buttons' => [[
+          'label' => $this->t('Done'),
+          'url' => Todos::toggleUrl($todo, 'done', $return),
+          'ghost' => FALSE,
+        ],
+        ],
+      ];
+      $due[] = $todo;
     }
     if ($due) {
       foreach ($rooms as &$room) {
@@ -235,7 +250,7 @@ final class MatrixController extends ControllerBase {
       'my-office' => $month['count'] ? sprintf('Sold this month: $%s', number_format($month['revenue'], 2)) : 'Nothing sold yet this month',
       'mailroom' => $not_built,
       'calendar-wall' => $this->calendarGlance(),
-      'break-room' => $not_built,
+      'break-room' => Rooms::count(count($this->todos->todos(FALSE)), '%d thing on the to-do list', '%d things on the to-do list', 'To-do list is clear'),
     ];
   }
 

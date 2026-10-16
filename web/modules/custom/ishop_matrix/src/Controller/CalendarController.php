@@ -97,7 +97,12 @@ final class CalendarController extends ControllerBase {
           'soon_title' => $this->t('Next 14 days'),
           'soon' => $soon,
           'nothing_soon' => $this->t('Nothing in the next 14 days.'),
-          'kinds' => ['event' => $this->t('Event'), 'bill' => $this->t('Bill'), 'game' => $this->t('Game')],
+          'kinds' => [
+            'event' => $this->t('Event'),
+            'bill' => $this->t('Bill'),
+            'game' => $this->t('Game'),
+            'todo' => $this->t('To-do'),
+          ],
           'edit' => $this->t('Edit'),
           'delete' => $this->t('Delete'),
           'month_label' => $first->format('F Y'),

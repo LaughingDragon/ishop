@@ -27,6 +27,7 @@ final class Calendar {
     private readonly EntityTypeManagerInterface $entityTypeManager,
     private readonly AccountProxyInterface $currentUser,
     private readonly Bills $bills,
+    private readonly Todos $todos,
   ) {}
 
   /**
@@ -112,6 +113,8 @@ final class Calendar {
         ];
       }
     }
+    // Open to-dos with a date (Break room).
+    $rows = array_merge($rows, $this->todos->calendarRows($from, $to));
     return self::sort($rows);
   }
 

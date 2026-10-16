@@ -10,6 +10,8 @@ dependencies:
     - field.field.node.event.field_repeat
     - node.type.event
   module:
+    - datetime
+    - options
     - user
 id: node.event.default
 targetEntityType: node
@@ -17,30 +19,41 @@ bundle: event
 mode: default
 content:
   field_due_day:
+    type: number_integer
     label: inline
-    settings: {  }
+    settings:
+      thousand_separator: ''
+      prefix_suffix: true
     third_party_settings: {  }
     weight: 13
     region: content
   field_event_date:
+    type: datetime_default
     label: inline
-    settings: {  }
+    settings:
+      timezone_override: ''
+      format_type: medium
     third_party_settings: {  }
     weight: 10
     region: content
   field_event_time:
+    type: string
     label: inline
-    settings: {  }
+    settings:
+      link_to_entity: false
+      link_rel: canonical
     third_party_settings: {  }
     weight: 11
     region: content
   field_log_note:
+    type: basic_string
     label: inline
     settings: {  }
     third_party_settings: {  }
     weight: 14
     region: content
   field_repeat:
+    type: list_default
     label: inline
     settings: {  }
     third_party_settings: {  }

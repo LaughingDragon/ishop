@@ -1,0 +1,11 @@
+uuid: bed821a7-cb11-4793-b9c1-369f83a7374a
+langcode: en
+status: true
+dependencies: {  }
+name: Note
+type: note
+description: 'A note kept in the Break room.'
+help: null
+new_revision: true
+preview_mode: 1
+display_submitted: false

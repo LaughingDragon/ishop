@@ -34,3 +34,11 @@ function ishop_life_update_11002(): string {
   LifeStructure::ensure();
   return 'Event content type added.';
 }
+
+/**
+ * Adds to-dos and notes (Phase 5 step 4).
+ */
+function ishop_life_update_11003(): string {
+  LifeStructure::ensure();
+  return 'To-do and note content types added.';
+}

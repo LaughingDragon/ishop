@@ -1,0 +1,19 @@
+uuid: e7274d08-7c46-4332-bd95-00beba1b254e
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_log_note
+    - node.type.note
+id: node.note.field_log_note
+field_name: field_log_note
+entity_type: node
+bundle: note
+label: Text
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

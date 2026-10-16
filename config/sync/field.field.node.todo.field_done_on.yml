@@ -1,0 +1,21 @@
+uuid: 043386c8-dae6-47b4-86b8-ffaced9c4fcc
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_done_on
+    - node.type.todo
+  module:
+    - datetime
+id: node.todo.field_done_on
+field_name: field_done_on
+entity_type: node
+bundle: todo
+label: 'Done on'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

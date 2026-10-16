@@ -226,7 +226,9 @@ reference project is used only for its rules and formatting logic.
   trip), receipt photos (JPEG, no GPS, private), latest entries; Mileage and Expenses CSVs in the
   year-end tax export. Module ishop_life.
 - [ ] Private document vault (receipts, warranties, manuals), attachable to items.
-- [ ] Notes and to-dos.
+- [x] Notes and to-dos (Break room): to-dos with an optional date and a big Done button
+  (Undo in "Recently done"); dated ones also show on the Calendar wall and, on the day or
+  overdue, in "Needs you now"; notes with Edit/Delete.
 - [ ] **Daily digest email** at about 7 a.m. Pacific: items to post, take-downs,
   returns closing soon, bills due, today's events, and a storage check (data disk
   mounted, free space on both disks; see DiskStatus in ishop_office). Short and readable on a

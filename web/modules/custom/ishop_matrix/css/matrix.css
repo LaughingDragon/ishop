@@ -59,3 +59,5 @@
   .rm-cal__chip { height: 6px; margin-top: 3px; font-size: 0; }
   .rm-cal__more { display: none; }
 }
+.rm-cal__entry--todo .rm-cal__kind { border-color: var(--rm-text-soft); color: var(--rm-text); }
+.rm-cal__chip--todo { background: var(--rm-surface); color: var(--rm-text); border: 1px solid var(--rm-text-soft); }

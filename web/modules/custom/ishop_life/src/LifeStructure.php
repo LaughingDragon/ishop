@@ -24,6 +24,8 @@ final class LifeStructure {
     'expense' => ['Expense', 'Money spent for the business (supplies, packing materials, fees). Logged in My office.'],
     'bill' => ['Bill', 'A bill or subscription with a due date. Shown in "Needs you now" before it is due.'],
     'event' => ['Event', 'Something on the Calendar wall, once or repeating.'],
+    'todo' => ['To-do', 'Something to do, with an optional date. Kept in the Break room.'],
+    'note' => ['Note', 'A note kept in the Break room.'],
   ];
 
   /**
@@ -64,6 +66,9 @@ final class LifeStructure {
     'field_bill_business' => ['boolean', []],
     'field_event_date' => ['datetime', ['datetime_type' => 'date']],
     'field_event_time' => ['string', ['max_length' => 5]],
+    'field_todo_due' => ['datetime', ['datetime_type' => 'date']],
+    'field_todo_done' => ['boolean', []],
+    'field_done_on' => ['datetime', ['datetime_type' => 'date']],
   ];
 
   /**
@@ -106,6 +111,14 @@ final class LifeStructure {
       'field_repeat' => ['Repeats', TRUE, []],
       'field_due_day' => ['Day of the month', FALSE, ['min' => 1, 'max' => 31]],
       'field_log_note' => ['Note', FALSE, []],
+    ],
+    'todo' => [
+      'field_todo_due' => ['Date (optional)', FALSE, []],
+      'field_todo_done' => ['Done', FALSE, []],
+      'field_done_on' => ['Done on', FALSE, []],
+    ],
+    'note' => [
+      'field_log_note' => ['Text', FALSE, []],
     ],
   ];
 

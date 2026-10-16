@@ -1,0 +1,26 @@
+uuid: 78f18a46-56f3-4720-aa65-d25a459f3658
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.note.field_log_note
+    - node.type.note
+  module:
+    - user
+id: node.note.default
+targetEntityType: node
+bundle: note
+mode: default
+content:
+  field_log_note:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 10
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden: {  }

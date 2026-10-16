@@ -7,3 +7,4 @@ services:
     arguments: ['ishop_life']
   Drupal\ishop_life\Bills: ~
   Drupal\ishop_life\Calendar: ~
+  Drupal\ishop_life\Todos: ~

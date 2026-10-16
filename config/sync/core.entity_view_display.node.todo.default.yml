@@ -1,0 +1,40 @@
+uuid: 5ccc435a-47ba-4a57-a98d-0c2ffc511b55
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.todo.field_done_on
+    - field.field.node.todo.field_todo_done
+    - field.field.node.todo.field_todo_due
+    - node.type.todo
+  module:
+    - user
+id: node.todo.default
+targetEntityType: node
+bundle: todo
+mode: default
+content:
+  field_done_on:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 12
+    region: content
+  field_todo_done:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 11
+    region: content
+  field_todo_due:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 10
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden: {  }

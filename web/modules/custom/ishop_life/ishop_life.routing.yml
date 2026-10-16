@@ -46,3 +46,29 @@ ishop_life.bill_paid:
       node:
         type: entity:node
         bundle: [bill]
+
+ishop_life.break_room:
+  path: '/room/break-room'
+  defaults:
+    _controller: '\Drupal\ishop_life\Controller\BreakRoomController::page'
+    _title: 'Break room'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+  options:
+    no_cache: TRUE
+
+ishop_life.todo_toggle:
+  path: '/room/break-room/todo/{node}/{action}'
+  defaults:
+    _controller: '\Drupal\ishop_life\Controller\BreakRoomController::toggle'
+  requirements:
+    _entity_access: 'node.update'
+    _csrf_token: 'TRUE'
+    node: \d+
+    action: 'done|undo'
+  options:
+    parameters:
+      node:
+        type: entity:node
+        bundle: [todo]
