@@ -261,10 +261,12 @@ reference project is used only for its rules and formatting logic.
 - [x] AI module + Anthropic provider; key via the Key module: module ishop_ai, official
   Anthropic PHP SDK, /site-office/ai-setup for Cody (and webmaster) to save, test and remove his
   own key (file in secrets/, Key module "anthropic_api_key"; one tiny test call on save).
-- [ ] From an item's photos: identify the item, search the web for sold comps,
+- [x] From an item's photos: identify the item, search the web for sold comps,
   fill title/description/brand/size/condition/category, set a price range with
   links to the comps shown under "Why this price." Match the son's pipeline in
-  `app/ai_provider/claude.py`. Cody always reviews before saving.
+  `app/ai_provider/claude.py`. Cody always reviews before saving. (Built: "Write my listing" on
+  the item page and /add, background queue every minute, suggestion beside current values with
+  ticks, Why this price with sources; queued while AI is paused or at the $25 monthly cap.)
 - [ ] Bulk photo drop: a pile of photos split into items by time taken (45-minute
   gap default), per the son's `import_inbox.py`.
 - [ ] Log token usage per item so cost is visible on the money page.

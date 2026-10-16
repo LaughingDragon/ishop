@@ -1,0 +1,17 @@
+/* AI listing helper on the item page (Phase 7). */
+.ishop-ai { margin: 0 0 22px; padding: 18px 20px; border-left: 6px solid var(--rm-gold, #F2C14E); }
+.ishop-ai h2 { margin: 0 0 8px; }
+.ishop-ai__status { font-weight: 600; }
+.ishop-ai-suggestion__table { width: 100%; border-collapse: collapse; margin: 0 0 12px; }
+.ishop-ai-suggestion__table td, .ishop-ai-suggestion__table th { padding: 8px 8px 8px 0; vertical-align: top; text-align: left; border-bottom: 1px solid var(--rm-line, #3D302D); }
+.ishop-ai-suggestion__table input[type=checkbox] { width: 28px; height: 28px; accent-color: var(--rm-gold, #F2C14E); }
+.ishop-ai-suggestion__note { display: block; font-size: 0.9rem; color: var(--rm-gold, #F2C14E); }
+.ishop-ai__why { margin-top: 10px; }
+.ishop-ai__why summary { min-height: 44px; display: flex; align-items: center; font-weight: 700; cursor: pointer; }
+@media (max-width: 640px) {
+  /* Stack each suggestion as a card on the phone. */
+  .ishop-ai-suggestion__table thead { display: none; }
+  .ishop-ai-suggestion__table tr { display: block; padding: 10px 0; border-bottom: 1px solid var(--rm-line, #3D302D); }
+  .ishop-ai-suggestion__table td { display: block; border: 0; padding: 2px 0; }
+  .ishop-ai-suggestion__table td::before { content: attr(data-label) ": "; font-size: 0.85rem; color: var(--rm-text-soft, #D3C6B2); }
+}

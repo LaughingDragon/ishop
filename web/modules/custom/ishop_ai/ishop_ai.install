@@ -11,6 +11,36 @@ use Drupal\ishop_ai\AiStatus;
 use Drupal\ishop_ai\AnthropicKey;
 
 /**
+ * Implements hook_schema(): one row per AI run ("Write my listing").
+ */
+function ishop_ai_schema(): array {
+  return [
+    'ishop_ai_run' => [
+      'description' => 'AI listing runs: queued, running, done or failed. Never key material.',
+      'fields' => [
+        'id' => ['type' => 'serial', 'unsigned' => TRUE, 'not null' => TRUE],
+        'nid' => ['type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'description' => 'The item.'],
+        // Who asked.
+        'uid' => ['type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0],
+        'created' => ['type' => 'int', 'not null' => TRUE, 'default' => 0],
+        'changed' => ['type' => 'int', 'not null' => TRUE, 'default' => 0],
+        // Queued, running, done or failed.
+        'status' => ['type' => 'varchar_ascii', 'length' => 16, 'not null' => TRUE, 'default' => 'queued'],
+        // Why it waits, or what went wrong (plain words).
+        'reason' => ['type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => ''],
+        'draft' => ['type' => 'text', 'size' => 'big', 'description' => 'The suggested listing (JSON).'],
+        'usage' => ['type' => 'text', 'size' => 'medium', 'description' => 'Tokens and web searches (JSON).'],
+        'cost' => ['type' => 'numeric', 'precision' => 10, 'scale' => 4, 'description' => 'Cost in USD.'],
+        // 1 once the suggestion was used or dismissed.
+        'reviewed' => ['type' => 'int', 'size' => 'tiny', 'not null' => TRUE, 'default' => 0],
+      ],
+      'primary key' => ['id'],
+      'indexes' => ['nid' => ['nid'], 'status' => ['status'], 'created' => ['created']],
+    ],
+  ];
+}
+
+/**
  * Starts the key record for a key saved before it existed (last 4 only).
  */
 function ishop_ai_update_11001(): string {
@@ -21,4 +51,15 @@ function ishop_ai_update_11001(): string {
     return 'Key record started (default 30-day expiry; Cody can enter the real date when renewing).';
   }
   return 'Nothing to do.';
+}
+
+/**
+ * Adds the AI run table (Phase 7 step 2).
+ */
+function ishop_ai_update_11002(): string {
+  $schema = \Drupal::database()->schema();
+  if (!$schema->tableExists('ishop_ai_run')) {
+    $schema->createTable('ishop_ai_run', ishop_ai_schema()['ishop_ai_run']);
+  }
+  return 'AI run table added.';
 }

@@ -7,3 +7,5 @@ services:
   logger.channel.ishop_ai:
     parent: logger.channel_base
     arguments: ['ishop_ai']
+  Drupal\ishop_ai\ListingWriter: ~
+  Drupal\ishop_ai\AiRuns: ~

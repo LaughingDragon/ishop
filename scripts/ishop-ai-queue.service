@@ -1,0 +1,13 @@
+[Unit]
+Description=ishop: work through queued "Write my listing" AI runs
+After=mariadb.service
+
+[Service]
+Type=oneshot
+User=www-data
+Group=www-data
+Environment=HOME=/tmp
+PrivateTmp=true
+WorkingDirectory=/var/www/ishop
+TimeoutStartSec=600
+ExecStart=/var/www/ishop/vendor/bin/drush ishop:ai-run

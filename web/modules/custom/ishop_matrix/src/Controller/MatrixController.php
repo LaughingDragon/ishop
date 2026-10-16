@@ -11,6 +11,7 @@ use Drupal\Core\Url;
 use Drupal\Core\Cache\Cache;
 use Drupal\ishop_items\Controller\StaleController;
 use Drupal\ishop_items\Money;
+use Drupal\ishop_ai\AiRuns;
 use Drupal\ishop_ai\AiStatus;
 use Drupal\ishop_life\Bills;
 use Drupal\ishop_office\Plugin\Mail\IshopMail;
@@ -108,6 +109,18 @@ final class MatrixController extends ControllerBase {
         'action' => $this->t('Renew'),
         'ghost' => FALSE,
       ];
+    }
+    // AI drafts ready to review (newest first, a few at most).
+    foreach (array_slice(\Drupal::service(AiRuns::class)->unreviewed(), 0, 3) as $run) {
+      $item = $this->entityTypeManager()->getStorage('node')->load($run['nid']);
+      if ($item) {
+        $needs[] = [
+          'text' => $this->t('AI draft ready: @item. Review it and choose what to use.', ['@item' => $item->label()]),
+          'url' => $item->toUrl('canonical', ['fragment' => 'ai'])->toString(),
+          'action' => $this->t('Review'),
+          'ghost' => TRUE,
+        ];
+      }
     }
     if ($mail = IshopMail::problem()) {
       $needs[] = [

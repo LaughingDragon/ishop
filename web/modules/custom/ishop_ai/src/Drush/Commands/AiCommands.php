@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\ishop_ai\Drush\Commands;
 
 use Drupal\ishop_ai\AiKeyManager;
+use Drupal\ishop_ai\AiRuns;
 use Drupal\ishop_ai\AiStatus;
 use Drush\Attributes as CLI;
 use Drush\Commands\AutowireTrait;
@@ -20,8 +21,24 @@ final class AiCommands extends DrushCommands {
   public function __construct(
     private readonly AiKeyManager $keys,
     private readonly AiStatus $status,
+    private readonly AiRuns $runs,
   ) {
     parent::__construct();
+  }
+
+  /**
+   * Works through queued "Write my listing" runs (run every minute).
+   */
+  #[CLI\Command(name: 'ishop:ai-run')]
+  public function run(): int {
+    // A run takes a minute or two; stop starting new ones after 50 seconds
+    // so the next timer tick can pick up.
+    $start = time();
+    do {
+      $message = $this->runs->processNext();
+      $this->logger()->notice($message);
+    } while (str_starts_with($message, 'Done') && time() - $start < 50);
+    return self::EXIT_SUCCESS;
   }
 
   /**
