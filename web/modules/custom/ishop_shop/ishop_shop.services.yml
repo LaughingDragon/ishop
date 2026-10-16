@@ -1,0 +1,11 @@
+services:
+  _defaults:
+    autowire: true
+  logger.channel.ishop_shop:
+    parent: logger.channel_base
+    arguments: ['ishop_shop']
+  Drupal\ishop_shop\Shop: ~
+  Drupal\ishop_shop\ShopPhotos: ~
+  Drupal\ishop_shop\EventSubscriber\ShopSubscriber:
+    tags:
+      - { name: event_subscriber }

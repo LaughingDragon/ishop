@@ -1,0 +1,21 @@
+/* Public shop (Phase 8) in the Reseller Matrix look. */
+.shop-preview { background: var(--rm-raised); border: 2px solid var(--rm-gold); border-radius: var(--rm-radius); padding: 12px 16px; margin: 0 0 18px; }
+.shop-filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 18px; }
+.shop-filters a { text-decoration: none; min-height: 40px; }
+.shop-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr)); }
+.shop-card a { display: flex; flex-direction: column; gap: 6px; height: 100%; background: var(--rm-surface); border: 1.5px solid var(--rm-line); border-radius: var(--rm-radius); overflow: hidden; color: var(--rm-text); text-decoration: none; padding-bottom: 12px; }
+.shop-card a:hover, .shop-card a:focus-visible { border-color: var(--rm-gold); }
+.shop-card img, .shop-card__nophoto { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; background: var(--rm-raised); }
+.shop-card__title, .shop-card__meta { padding: 0 12px; }
+.shop-card__title { font-weight: 700; }
+.shop-card__meta { color: var(--rm-text-soft); }
+.shop-card__meta strong { color: var(--rm-gold); }
+.shop-photos { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); margin: 0 0 16px; }
+.shop-photos img { width: 100%; height: auto; border-radius: var(--rm-radius-inner); background: var(--rm-raised); }
+.shop-photos img:first-child { grid-column: 1 / -1; max-height: 80vh; object-fit: contain; }
+.shop-item__price { font-family: var(--rm-font-sign); font-size: 32px; color: var(--rm-gold); margin: 0 0 8px; }
+.shop-item__facts { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; margin: 0 0 16px; }
+.shop-item__facts dt { color: var(--rm-text-soft); }
+.shop-item__facts dd { margin: 0; }
+.shop-item__text { margin: 0 0 16px; overflow-wrap: anywhere; }
+.shop-buy ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }

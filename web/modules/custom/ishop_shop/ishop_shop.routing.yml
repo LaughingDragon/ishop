@@ -1,0 +1,36 @@
+# Public routes: open to everyone, but they answer "not found" while the
+# switch is off (Shop::visible()), except to Liam and Cody (preview).
+ishop_shop.catalog:
+  path: '/shop'
+  defaults:
+    _controller: '\Drupal\ishop_shop\Controller\ShopController::catalog'
+    _title: 'Shop'
+  requirements:
+    _access: 'TRUE'
+
+ishop_shop.sitemap:
+  path: '/shop/sitemap.xml'
+  defaults:
+    _controller: '\Drupal\ishop_shop\Controller\ShopController::sitemap'
+  methods: [GET]
+  requirements:
+    _access: 'TRUE'
+
+ishop_shop.item:
+  path: '/shop/{slug}'
+  defaults:
+    _controller: '\Drupal\ishop_shop\Controller\ShopController::item'
+    _title_callback: '\Drupal\ishop_shop\Controller\ShopController::itemTitle'
+  requirements:
+    _access: 'TRUE'
+    slug: '[a-z0-9-]*\d+'
+
+ishop_shop.switch:
+  path: '/site-office/public-shop'
+  defaults:
+    _form: '\Drupal\ishop_shop\Form\ShopSwitchForm'
+    _title: 'Public shop'
+  requirements:
+    _custom_access: '\Drupal\ishop_shop\Form\ShopSwitchForm::access'
+  options:
+    no_cache: TRUE

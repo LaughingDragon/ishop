@@ -1,0 +1,11 @@
+name: 'iShop public shop'
+type: module
+description: 'Phase 8: the public catalog at /shop (items with "Show in shop" ticked), its public photo copies and one switch that starts off.'
+package: iShop
+core_version_requirement: ^11.4
+dependencies:
+  - drupal:image
+  - drupal:media
+  - drupal:node
+  - ishop_items:ishop_items
+  - ishop_matrix:ishop_matrix

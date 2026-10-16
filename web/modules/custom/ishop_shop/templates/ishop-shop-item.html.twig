@@ -1,0 +1,40 @@
+{#
+/**
+ * @file
+ * One item in the public shop.
+ *
+ * Only public fields are passed in (Shop::PUBLIC_FIELDS). links: the live
+ * marketplace listings (label, url); buyers buy there.
+ */
+#}
+<article class="shop-item">
+  {% if preview %}<p class="shop-preview" role="status">{{ preview }}</p>{% endif %}
+  <p><a href="{{ back }}">&larr; {{ 'All items'|t }}</a></p>
+  {% if photos %}
+    <div class="shop-photos">
+      {% for p in photos %}
+        <img src="{{ p }}" alt="{{ loop.first ? title_text : '' }}"{% if not loop.first %} loading="lazy"{% endif %}>
+      {% endfor %}
+    </div>
+  {% endif %}
+  <p class="shop-item__price">{{ price }}</p>
+  <dl class="shop-item__facts">
+    {% if condition %}<dt>{{ 'Condition'|t }}</dt><dd>{{ condition }}</dd>{% endif %}
+    {% if size %}<dt>{{ 'Size'|t }}</dt><dd>{{ size }}</dd>{% endif %}
+  </dl>
+  {% if description %}<div class="shop-item__text">{{ description|nl2br }}</div>{% endif %}
+  {% if flaws %}<h2>{{ 'Flaws'|t }}</h2><div class="shop-item__text">{{ flaws|nl2br }}</div>{% endif %}
+  <section class="rm-card shop-buy">
+    <h2>{{ 'Buy it'|t }}</h2>
+    {% if links %}
+      <p>{{ 'Buy on the marketplace you like. You pay there, with its buyer protection.'|t }}</p>
+      <ul>
+        {% for l in links %}
+          <li><a class="rm-button rm-button--gold" href="{{ l.url }}" rel="nofollow noopener" target="_blank">{{ 'Buy on @platform'|t({'@platform': l.label}) }}</a></li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>{{ 'Not on a marketplace yet. Check back soon.'|t }}</p>
+    {% endif %}
+  </section>
+</article>

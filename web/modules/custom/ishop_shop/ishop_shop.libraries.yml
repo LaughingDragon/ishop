@@ -1,0 +1,4 @@
+shop:
+  css:
+    component:
+      css/shop.css: {}

@@ -1,0 +1,34 @@
+{#
+/**
+ * @file
+ * The public shop: photo cards, newest first.
+ *
+ * Variables: cards (title, price, url, photo, condition), filters (label,
+ * url, active), preview (notice text while the shop is off, or NULL).
+ */
+#}
+<div class="shop">
+  {% if preview %}<p class="shop-preview" role="status">{{ preview }}</p>{% endif %}
+  {% if filters %}
+    <nav class="shop-filters" aria-label="{{ 'Categories'|t }}">
+      {% for f in filters %}
+        <a class="rm-chip{% if f.active %} rm-chip--live{% endif %}" href="{{ f.url }}"{% if f.active %} aria-current="page"{% endif %}>{{ f.label }}</a>
+      {% endfor %}
+    </nav>
+  {% endif %}
+  {% if cards %}
+    <ul class="shop-grid">
+      {% for c in cards %}
+        <li class="shop-card">
+          <a href="{{ c.url }}">
+            {% if c.photo %}<img src="{{ c.photo }}" alt="" loading="lazy">{% else %}<span class="shop-card__nophoto" aria-hidden="true"></span>{% endif %}
+            <span class="shop-card__title">{{ c.title }}</span>
+            <span class="shop-card__meta"><strong>{{ c.price }}</strong>{% if c.condition %} · {{ c.condition }}{% endif %}</span>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="rm-card">{{ 'Nothing in the shop right now. Check back soon.'|t }}</p>
+  {% endif %}
+</div>

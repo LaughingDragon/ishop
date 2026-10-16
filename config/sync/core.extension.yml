@@ -35,6 +35,7 @@ module:
   ishop_life: 0
   ishop_matrix: 0
   ishop_office: 0
+  ishop_shop: 0
   ishop_ui: 0
   key: 0
   layout_builder: 0
