@@ -35,7 +35,7 @@ final class PlatformCategories {
   /**
    * Shown when the item has no category yet.
    */
-  public const NEEDS_CATEGORY = 'No category yet';
+  public const NEEDS_CATEGORY = 'Set the category first';
 
   /**
    * Shown when the category is too general to match (for example "Other").

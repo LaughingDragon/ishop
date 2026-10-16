@@ -205,15 +205,19 @@ final class PostController extends ControllerBase {
    */
   public static function listingValues(NodeInterface $node): array {
     $price = $node->get('field_asking_price')->value;
+    $category = ListingsGridForm::eligibilityFacts($node)['category'] ?: NULL;
+    // Size is for clothing and shoes only (item 274): an older AI draft put
+    // "5000mAh" in a power bank's Size, so it stays out of the paste text.
+    $size = $category === NULL || PlatformCategories::hasSize($category) ? $node->get('field_size')->value : NULL;
     return [
       'title' => (string) $node->label(),
       'description' => (string) ($node->get('field_description')->value ?? ''),
       'brand' => $node->get('field_brand')->entity?->label(),
-      'size' => $node->get('field_size')->value,
+      'size' => $size,
       'color' => $node->get('field_color')->value,
       'condition' => $node->get('field_condition')->entity?->label(),
       'condition_notes' => $node->get('field_flaws')->value,
-      'category' => ListingsGridForm::eligibilityFacts($node)['category'] ?: NULL,
+      'category' => $category,
       'price' => $price === NULL || $price === '' ? NULL : (float) $price,
     ];
   }
