@@ -35,16 +35,6 @@ final class DiskStatus {
   public const BACKUPS_DIR = '/var/backups/ishop';
 
   /**
-   * Result of the last off-server backup copy (written by ishop-offsite.sh).
-   */
-  public const OFFSITE_STATUS = '/var/backups/ishop/offsite-status.json';
-
-  /**
-   * Hours after which the last good off-server copy counts as stale.
-   */
-  public const OFFSITE_STALE_HOURS = 36;
-
-  /**
    * Warn when a disk has less than this share free.
    */
   public const LOW_FREE_PERCENT = 15;
@@ -104,39 +94,7 @@ final class DiskStatus {
       'local_backups_online' => $backups,
       'boot_disk' => self::space('/'),
       'data_disk' => $mounted ? self::space(self::DATA_MOUNT) : NULL,
-      'offsite_backup' => self::offsite(),
     ];
-  }
-
-  /**
-   * The last off-server backup copy, or NULL if there has never been one.
-   *
-   * @return array{time: string, ok: bool, bucket: string, backup_files: int, photos: int, message: string}|null
-   *   As recorded by scripts/ishop-offsite.sh.
-   */
-  public static function offsite(): ?array {
-    if (!is_readable(self::OFFSITE_STATUS)) {
-      return NULL;
-    }
-    $data = json_decode((string) file_get_contents(self::OFFSITE_STATUS), TRUE);
-    return is_array($data) && isset($data['time'], $data['ok']) ? $data : NULL;
-  }
-
-  /**
-   * The off-server backup problem, if any, at $now (Unix time).
-   */
-  public static function offsiteProblem(?array $offsite, int $now): ?string {
-    if ($offsite === NULL) {
-      return 'There is no off-server backup yet: the database and photos exist only on this VM.';
-    }
-    if (!$offsite['ok']) {
-      return sprintf('The last off-server backup failed (%s): %s', substr((string) $offsite['time'], 0, 16), $offsite['message']);
-    }
-    $age = ($now - (int) strtotime((string) $offsite['time'])) / 3600;
-    if ($age > self::OFFSITE_STALE_HOURS) {
-      return sprintf('The last off-server backup is %d hours old.', (int) $age);
-    }
-    return NULL;
   }
 
   /**

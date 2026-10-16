@@ -9,7 +9,6 @@ services:
   Drupal\ishop_items\EventSubscriber\WebpTypeSubscriber:
     tags:
       - { name: event_subscriber }
-  Drupal\ishop_items\OffsiteReminder: ~
   Drupal\ishop_items\StaleNudges: ~
   Drupal\ishop_items\BulkActions: ~
   Drupal\ishop_items\StockroomFilters: ~

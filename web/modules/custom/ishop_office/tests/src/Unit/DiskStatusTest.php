@@ -24,20 +24,6 @@ final class DiskStatusTest extends UnitTestCase {
   }
 
   /**
-   * Off-server backup: none, failed, stale, fine.
-   */
-  public function testOffsiteProblem(): void {
-    $now = strtotime('2026-10-16T12:00:00-07:00');
-    $this->assertStringContainsString('no off-server backup yet', DiskStatus::offsiteProblem(NULL, $now));
-    $failed = ['time' => '2026-10-16T02:45:00-07:00', 'ok' => FALSE, 'message' => 'bucket not found'];
-    $this->assertStringContainsString('failed', DiskStatus::offsiteProblem($failed, $now));
-    $old = ['time' => '2026-10-14T02:45:00-07:00', 'ok' => TRUE, 'message' => ''];
-    $this->assertSame('The last off-server backup is 57 hours old.', DiskStatus::offsiteProblem($old, $now));
-    $fresh = ['time' => '2026-10-16T02:45:00-07:00', 'ok' => TRUE, 'message' => ''];
-    $this->assertNull(DiskStatus::offsiteProblem($fresh, $now));
-  }
-
-  /**
    * Problems: missing data disk and low space, in plain sentences.
    */
   public function testProblems(): void {
