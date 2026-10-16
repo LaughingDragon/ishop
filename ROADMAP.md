@@ -338,6 +338,32 @@ fuller specification was not available to the site foreman. Liam to replace or c
 - [ ] Close the site office: its pages, the site_office role and the site-foreman account
   switched off; Claude's server access (SSH key, GitHub deploy key) removed.
 
+## Phase 10: shipping and marketplace mail
+
+Approved by Liam 2026-10-16 ("build it, one report per part"). Built before Phase 9 Stage B, so its
+reports and Cody's setup items still have the site office; Phase 9 Stage A continues alongside.
+All of Cody's marketplace accounts use the business Gmail.
+
+- [x] **A. Shipping room** (/room/shipping-room): sold-and-unshipped items oldest first, each with
+  its ship-by date (estimated from the platform's usual handling time until the real one is known),
+  label PDF (private; deleted 30 days after delivery: it holds the buyer's address), weight and
+  package size (Physical Fields 1.5) and packing note. Shipped records the tracking number (carrier
+  worked out from the number; a scanned USPS barcode loses its ZIP prefix) and links to the
+  carrier's own tracking page; Delivered finishes the sale, and the Money page shows delivered,
+  on the way and to ship. Every step can be undone. "Needs you now" and the digest list sales to ship.
+- [ ] **B. Marketplace inbox:** IMAP read of the business Gmail (app password stored like the SMTP
+  one; Cody enters it on Mail setup), only from known marketplace senders (eBay, Poshmark, Mercari,
+  Depop, Grailed, Vinted, Facebook). Reads sold, offer, ship-by, label attached, shipping delay,
+  return requested, case/dispute and payout emails: "Needs you now" items, labels attached to the
+  matching item, sold emails start the Sold-here cascade after one tap from Cody. Other marketplace
+  mail: "New message from X: open it". Stores only what is needed (no buyer addresses beyond the
+  label), marks mail processed, never sends or deletes mail. Tested on real emails already in the
+  inbox before it is switched on.
+- [ ] **C. eBay Sell APIs** through OAuth consent from Cody's own eBay account (developer account in
+  Cody's name, set up from a punch item with plain steps): orders and ship-by, returns, cases.
+  Revocable token stored like other secrets, with a renewal reminder before it expires. No
+  passwords, cookies or page scraping, ever.
+
 ## Later, only if the business grows
 
 Drupal Commerce + Commerce Stripe checkout. Do not build until Liam asks.
