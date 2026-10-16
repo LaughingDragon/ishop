@@ -76,7 +76,8 @@ final class ListingWriterTest extends UnitTestCase {
   }
 
   /**
-   * The schema keeps every field of the old app's ListingDraft, all required.
+   * The schema keeps every field of the old app's ListingDraft, all required,
+   * plus the search words for Check sold prices.
    */
   public function testSchema(): void {
     $schema = ListingWriter::schema();
@@ -95,6 +96,7 @@ final class ListingWriterTest extends UnitTestCase {
       'suggested_price',
       'research_notes',
       'sources',
+      'search_query',
     ], $schema['required']);
     $this->assertFalse($schema['additionalProperties']);
     $this->assertArrayNotHasKey('enum', $schema['properties']['category']);
