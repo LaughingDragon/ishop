@@ -37,7 +37,8 @@
         "drupal/seckit": "^2.0",
         "drupal/tfa": "^1.13",
         "drupal/webform": "^6.3",
-        "drush/drush": "^13"
+        "drush/drush": "^13",
+        "zbateson/mail-mime-parser": "^4.0"
     },
     "conflict": {
         "drupal/drupal": "*"
