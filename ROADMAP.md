@@ -300,9 +300,9 @@ Insights API, any server-side eBay login.
   item, category (site list only), condition, title, description. Web search only above a
   value threshold ($15, a setting). Research reused for near-identical items. Cost per item
   measured; target a few cents.
-- [ ] **eBay as a platform**, only if Cody says yes (item 267): listing row, Sold-here
+- [x] **eBay as a platform** (Cody said yes, items 267/278; go in item 280): listing row, Sold-here
   cascade, nudges, bulk actions, Money page, tax export, eligibility and paste-ready text
-  (from the son's surviving eBay formatter).
+  (from the son's surviving eBay formatter). Done 98ef039, report 2026-10-16-4.
 
 ## Phase 8: public catalog (built, switched off)
 
