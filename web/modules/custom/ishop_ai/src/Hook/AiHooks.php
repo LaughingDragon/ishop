@@ -14,6 +14,7 @@ use Drupal\Core\Url;
 use Drupal\ishop_ai\AiRuns;
 use Drupal\ishop_ai\AiStatus;
 use Drupal\ishop_ai\Form\SuggestionForm;
+use Drupal\ishop_items\PriceBook;
 use Drupal\ishop_items\SoldSearch;
 use Drupal\node\NodeInterface;
 
@@ -29,6 +30,7 @@ final class AiHooks {
     private readonly AiRuns $runs,
     private readonly FormBuilderInterface $formBuilder,
     private readonly AccountProxyInterface $currentUser,
+    private readonly PriceBook $priceBook,
   ) {}
 
   /**
@@ -94,10 +96,13 @@ final class AiHooks {
     if ($draft) {
       $build['ishop_ai']['why'] = [
         '#type' => 'inline_template',
-        '#template' => '<details class="ishop-ai__why"{% if open %} open{% endif %}><summary>{{ title }}</summary><p><strong>{{ price }}</strong></p>{% if notes %}<p>{{ notes }}</p>{% else %}<p>{{ no_search }}</p>{% endif %}{% if sources %}<ul>{% for s in sources %}<li>{% if s.url %}<a href="{{ s.url }}" rel="noopener noreferrer" target="_blank">{{ s.text }}</a>{% else %}{{ s.text }}{% endif %}</li>{% endfor %}</ul>{% endif %}</details>',
+        '#template' => '<details class="ishop-ai__why"{% if open %} open{% endif %}><summary>{{ title }}</summary>{% if book %}<p class="ishop-ai__book"><strong>{{ book }}</strong></p>{% endif %}<p>{% if book %}{{ ai_label }} {% endif %}<strong>{{ price }}</strong></p>{% if notes %}<p>{{ notes }}</p>{% else %}<p>{{ no_search }}</p>{% endif %}{% if sources %}<ul>{% for s in sources %}<li>{% if s.url %}<a href="{{ s.url }}" rel="noopener noreferrer" target="_blank">{{ s.text }}</a>{% else %}{{ s.text }}{% endif %}</li>{% endfor %}</ul>{% endif %}</details>',
         '#context' => [
           'open' => !$run['reviewed'],
           'title' => $this->t('Why this price'),
+          // Cody's own sales first (price book), then the AI's estimate.
+          'book' => ($book = $this->priceBook->similar($node)) ? PriceBook::sentence($book) : NULL,
+          'ai_label' => $this->t('AI estimate:'),
           'price' => SuggestionForm::suggested($draft, 'price'),
           'notes' => (string) ($draft['research_notes'] ?? ''),
           'no_search' => $this->t('The price search found nothing useful this time, so this price is an estimate from the photos alone.'),

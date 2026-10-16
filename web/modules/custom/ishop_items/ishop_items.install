@@ -7,6 +7,7 @@
 
 declare(strict_types=1);
 
+use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\ishop_items\Platforms;
@@ -287,4 +288,36 @@ function ishop_items_update_11007(): string {
     $added[] = $nid;
   }
   return 'eBay added: image style post_ebay; To post rows for items ' . ($added ? implode(', ', $added) : 'none');
+}
+
+/**
+ * Adds the price book fields: category and condition when sold (item 274).
+ *
+ * Existing sales get the item's current category and condition.
+ */
+function ishop_items_update_11008(): string {
+  $manager = \Drupal::entityDefinitionUpdateManager();
+  $labels = [
+    'sold_category' => t('Category when sold'),
+    'sold_condition' => t('Condition when sold'),
+  ];
+  foreach ($labels as $name => $label) {
+    if (!$manager->getFieldStorageDefinition($name, 'platform_listing')) {
+      $manager->installFieldStorageDefinition($name, 'platform_listing', 'ishop_items', BaseFieldDefinition::create('entity_reference')
+        ->setLabel($label)
+        ->setRevisionable(TRUE)
+        ->setSetting('target_type', 'taxonomy_term'));
+    }
+  }
+  $storage = \Drupal::entityTypeManager()->getStorage('platform_listing');
+  $filled = [];
+  foreach ($storage->loadByProperties(['status' => Platforms::SOLD_HERE]) as $listing) {
+    // PlatformListing::preSave() fills both from the item.
+    $listing->setRevisionLogMessage('Price book: category and condition recorded (2026-10-16).');
+    $listing->setRevisionUserId(2);
+    $listing->setNewRevision();
+    $listing->save();
+    $filled[] = $listing->id();
+  }
+  return 'Price book fields added; sales filled in: ' . ($filled ? implode(', ', $filled) : 'none');
 }

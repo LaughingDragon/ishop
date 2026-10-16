@@ -114,6 +114,17 @@ final class PlatformListing extends ContentEntityBase implements RevisionLogInte
     elseif ($this->getStatus() !== Platforms::SOLD_HERE && !$this->get('date_sold')->isEmpty()) {
       $this->set('date_sold', NULL);
     }
+    // The price book (Phase 7.5) keeps each sale's category and condition as
+    // they were when it sold, so editing the item later doesn't move it.
+    $item = $this->getItem();
+    if ($this->getStatus() === Platforms::SOLD_HERE && $item && $this->get('sold_category')->isEmpty()) {
+      $this->set('sold_category', $item->get('field_category')->target_id);
+      $this->set('sold_condition', $item->get('field_condition')->target_id);
+    }
+    elseif ($this->getStatus() !== Platforms::SOLD_HERE) {
+      $this->set('sold_category', NULL);
+      $this->set('sold_condition', NULL);
+    }
   }
 
   /**
@@ -218,6 +229,16 @@ final class PlatformListing extends ContentEntityBase implements RevisionLogInte
       ->setSetting('max_length', 255)
       ->setDisplayOptions('form', ['type' => 'string_textfield', 'weight' => 12])
       ->setDisplayOptions('view', ['label' => 'inline', 'type' => 'string', 'weight' => 12]);
+
+    // The price book: the item's category and condition when it sold.
+    $fields['sold_category'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('Category when sold'))
+      ->setRevisionable(TRUE)
+      ->setSetting('target_type', 'taxonomy_term');
+    $fields['sold_condition'] = BaseFieldDefinition::create('entity_reference')
+      ->setLabel(t('Condition when sold'))
+      ->setRevisionable(TRUE)
+      ->setSetting('target_type', 'taxonomy_term');
 
     // Bookkeeping for the "Sold here" cascade, so un-marking can undo it.
     $fields['cascade_sale'] = BaseFieldDefinition::create('entity_reference')

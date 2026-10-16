@@ -19,6 +19,7 @@ use Drupal\ishop_items\Cleared;
 use Drupal\ishop_items\Form\PriceCheckForm;
 use Drupal\ishop_items\ListingManager;
 use Drupal\ishop_items\PhotoPrep;
+use Drupal\ishop_items\PriceBook;
 use Drupal\ishop_office\DiskStatus;
 use Drupal\ishop_items\ReadyCheck;
 use Drupal\ishop_items\SoldSearch;
@@ -47,6 +48,7 @@ final class ItemHooks {
     private readonly AccountProxyInterface $currentUser,
     private readonly ConfigFactoryInterface $configFactory,
     private readonly ModuleHandlerInterface $moduleHandler,
+    private readonly PriceBook $priceBook,
   ) {}
 
   /**
@@ -503,6 +505,14 @@ final class ItemHooks {
       '#attributes' => ['id' => 'sold-prices', 'class' => ['rm-card', 'ishop-sold-prices']],
       'title' => ['#type' => 'html_tag', '#tag' => 'h2', '#value' => $this->t('Check sold prices')],
     ];
+    // Cody's own sales come first, before any search or AI estimate.
+    if ($book = $this->priceBook->similar($node)) {
+      $panel['book'] = [
+        '#type' => 'inline_template',
+        '#template' => '<p class="ishop-sold-prices__book"><strong>{{ text }}</strong></p>',
+        '#context' => ['text' => PriceBook::sentence($book)],
+      ];
+    }
     if (!$links) {
       $panel['empty'] = [
         '#type' => 'html_tag',
