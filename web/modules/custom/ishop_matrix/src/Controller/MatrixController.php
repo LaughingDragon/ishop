@@ -469,7 +469,7 @@ final class MatrixController extends ControllerBase {
           '@avg' => number_format($spend['cost'] / max(1, $spend['items']), 2),
         ])
         : $this->t('No AI runs in this period.'),
-      'month' => $this->t('This month so far: $@spent of the site\'s $@cap monthly AI cap (your Anthropic account limit is $32).', [
+      'month' => $this->t('This month so far: $@spent of the site\'s $@cap monthly AI cap (the same as your Anthropic account limit).', [
         '@spent' => number_format($runs->monthCost(), 2),
         '@cap' => (int) AiRuns::MONTHLY_CAP,
       ]),

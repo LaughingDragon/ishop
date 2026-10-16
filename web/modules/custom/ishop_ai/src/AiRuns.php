@@ -27,9 +27,10 @@ final class AiRuns {
   /**
    * Site-side monthly AI cap in USD.
    *
-   * Liam, decision 226: under Cody's $32 Anthropic limit.
+   * Matches Cody's $32 monthly limit on his Anthropic account (item 27).
+   * Was $25 (decision 226); raised to match on 2026-10-16 at Liam's request.
    */
-  public const MONTHLY_CAP = 25.0;
+  public const MONTHLY_CAP = 32.0;
 
   public function __construct(
     private readonly Connection $database,
