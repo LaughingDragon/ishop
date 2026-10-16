@@ -7,3 +7,4 @@ dependencies:
   - ishop_items:ishop_items
   - ishop_office:ishop_office
   - ishop_life:ishop_life
+  - ishop_ai:ishop_ai

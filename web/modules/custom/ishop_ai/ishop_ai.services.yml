@@ -2,3 +2,8 @@ services:
   _defaults:
     autowire: true
   Drupal\ishop_ai\AnthropicKey: ~
+  Drupal\ishop_ai\AiStatus: ~
+  Drupal\ishop_ai\AiKeyManager: ~
+  logger.channel.ishop_ai:
+    parent: logger.channel_base
+    arguments: ['ishop_ai']

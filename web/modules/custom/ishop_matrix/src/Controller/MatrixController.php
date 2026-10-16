@@ -11,7 +11,9 @@ use Drupal\Core\Url;
 use Drupal\Core\Cache\Cache;
 use Drupal\ishop_items\Controller\StaleController;
 use Drupal\ishop_items\Money;
+use Drupal\ishop_ai\AiStatus;
 use Drupal\ishop_life\Bills;
+use Drupal\ishop_office\Plugin\Mail\IshopMail;
 use Drupal\ishop_life\LogBook;
 use Drupal\ishop_life\Todos;
 use Drupal\ishop_life\Vault;
@@ -95,6 +97,24 @@ final class MatrixController extends ControllerBase {
         'url' => Url::fromRoute('ishop_items.stale')->toString(),
         'action' => $this->t('See them all'),
         'ghost' => TRUE,
+      ];
+    }
+    // The AI key (expiring, expired or paused) and email that stopped
+    // working: shown at once, with a Renew button.
+    if ($ai = AiStatus::needsLine(\Drupal::service(AiStatus::class)->get(), AiStatus::today())) {
+      $needs[] = [
+        'text' => $ai,
+        'url' => Url::fromRoute('ishop_ai.setup', [], ['fragment' => 'renew'])->toString(),
+        'action' => $this->t('Renew'),
+        'ghost' => FALSE,
+      ];
+    }
+    if ($mail = IshopMail::problem()) {
+      $needs[] = [
+        'text' => $mail,
+        'url' => Url::fromRoute('ishop_office.mail_setup')->toString(),
+        'action' => $this->t('Renew'),
+        'ghost' => FALSE,
       ];
     }
     // Bills due within 3 days (or overdue), each with a Paid button.

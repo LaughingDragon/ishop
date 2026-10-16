@@ -39,18 +39,23 @@ final class AnthropicKey {
   /**
    * Whether a key is saved.
    */
-  public static function has(): bool {
-    return is_file(self::FILE) && filesize(self::FILE) > 0;
+  public static function has(string $file = self::FILE): bool {
+    return is_file($file) && filesize($file) > 0;
   }
 
   /**
    * The saved key, or NULL. For API calls only: never display or log it.
+   *
+   * The real key is read through the Key module; a test file (another
+   * path) is read directly.
    */
-  public static function get(): ?string {
-    if (!self::has()) {
+  public static function get(string $file = self::FILE): ?string {
+    if (!self::has($file)) {
       return NULL;
     }
-    $key = \Drupal::service('key.repository')->getKey(self::KEY_ID)?->getKeyValue();
+    $key = $file === self::FILE
+      ? \Drupal::service('key.repository')->getKey(self::KEY_ID)?->getKeyValue()
+      : file_get_contents($file);
     $key = trim((string) $key);
     return $key === '' ? NULL : $key;
   }
@@ -60,6 +65,13 @@ final class AnthropicKey {
    */
   public static function mask(string $key): string {
     return strlen($key) > 12 ? 'sk-ant-…' . substr($key, -4) : '(hidden)';
+  }
+
+  /**
+   * The last 4 characters of a key (all that is ever recorded).
+   */
+  public static function last4(string $key): string {
+    return substr($key, -4);
   }
 
   /**
@@ -73,13 +85,12 @@ final class AnthropicKey {
   /**
    * Saves the key atomically, readable by owner and group only.
    */
-  public static function save(string $key): bool {
-    $dir = dirname(self::FILE);
-    $tmp = @tempnam($dir, '.tmp-');
+  public static function save(string $key, string $file = self::FILE): bool {
+    $tmp = @tempnam(dirname($file), '.tmp-');
     if ($tmp === FALSE) {
       return FALSE;
     }
-    $ok = file_put_contents($tmp, $key . "\n") !== FALSE && chmod($tmp, 0640) && rename($tmp, self::FILE);
+    $ok = file_put_contents($tmp, $key . "\n") !== FALSE && chmod($tmp, 0640) && rename($tmp, $file);
     if (!$ok) {
       @unlink($tmp);
     }
@@ -89,8 +100,8 @@ final class AnthropicKey {
   /**
    * Deletes the key.
    */
-  public static function remove(): void {
-    @unlink(self::FILE);
+  public static function remove(string $file = self::FILE): void {
+    @unlink($file);
   }
 
   /**
@@ -99,10 +110,11 @@ final class AnthropicKey {
    * A 16-token message (a fraction of a cent), which also proves the account
    * has credit.
    *
-   * @return string|null
-   *   NULL when the key works, or a plain-English reason (key masked).
+   * @return array{ok: bool, kind: string, message: string}
+   *   kind: ok, auth, credit, permission, rate, connection or other; message
+   *   in plain English, with the key masked.
    */
-  public static function test(string $key): ?string {
+  public static function test(string $key): array {
     try {
       $client = new Client(apiKey: $key);
       $client->messages->create(
@@ -111,30 +123,39 @@ final class AnthropicKey {
         messages: [['role' => 'user', 'content' => 'Reply with OK.']],
         outputConfig: ['effort' => 'low'],
       );
-      return NULL;
+      return ['ok' => TRUE, 'kind' => 'ok', 'message' => 'Key works.'];
     }
     catch (AuthenticationException) {
-      $reason = 'Anthropic did not accept this key. Check it was copied in full, or create a new one.';
+      [
+        $kind,
+        $reason,
+      ] = ['auth', 'Anthropic did not accept this key. Check it was copied in full, or create a new one.'];
     }
     catch (PermissionDeniedException) {
-      $reason = 'This key is not allowed to use the model the site needs. Check the key\'s workspace in the Anthropic Console.';
+      [
+        $kind,
+        $reason,
+      ] = [
+        'permission',
+        'This key is not allowed to use the model the site needs. Check the key\'s workspace in the Anthropic Console.',
+      ];
     }
     catch (RateLimitException) {
-      $reason = 'Anthropic says too many requests right now. Wait a minute and save again.';
+      [$kind, $reason] = ['rate', 'Anthropic says too many requests right now. Wait a minute and try again.'];
     }
     catch (APIStatusException $e) {
-      $reason = $e->type?->value === 'billing_error'
-        ? 'The key works, but the account has no credit. Add credit in the Anthropic Console (Billing), then save again.'
-        : 'Anthropic returned an error: ' . $e->getMessage();
+      [$kind, $reason] = $e->type?->value === 'billing_error'
+        ? ['credit', 'The account has no credit. Add credit in the Anthropic Console (Billing), then try again.']
+        : ['other', 'Anthropic returned an error: ' . $e->getMessage()];
     }
     catch (APIConnectionException) {
-      $reason = 'The server could not reach Anthropic. Try again in a minute.';
+      [$kind, $reason] = ['connection', 'The server could not reach Anthropic. Try again in a minute.'];
     }
     catch (\Throwable $e) {
-      $reason = 'Unexpected error: ' . $e->getMessage();
+      [$kind, $reason] = ['other', 'Unexpected error: ' . $e->getMessage()];
     }
     // Belt and braces: never echo the key back.
-    return str_replace($key, self::mask($key), $reason);
+    return ['ok' => FALSE, 'kind' => $kind, 'message' => str_replace($key, self::mask($key), $reason)];
   }
 
 }

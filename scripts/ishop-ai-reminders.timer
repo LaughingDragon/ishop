@@ -1,0 +1,9 @@
+[Unit]
+Description=ishop: AI key reminder check daily at 07:05 Pacific
+
+[Timer]
+OnCalendar=*-*-* 07:05:00 America/Los_Angeles
+Persistent=true
+
+[Install]
+WantedBy=timers.target

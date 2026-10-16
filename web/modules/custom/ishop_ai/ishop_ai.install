@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Install and update hooks for the AI helpers.
+ */
+
+declare(strict_types=1);
+
+use Drupal\ishop_ai\AiStatus;
+use Drupal\ishop_ai\AnthropicKey;
+
+/**
+ * Starts the key record for a key saved before it existed (last 4 only).
+ */
+function ishop_ai_update_11001(): string {
+  $status = \Drupal::service(AiStatus::class);
+  if (!$status->get()['configured'] && ($key = AnthropicKey::get())) {
+    $status->recordSaved(AnthropicKey::last4($key), AiStatus::defaultExpiry(AiStatus::today()));
+    unset($key);
+    return 'Key record started (default 30-day expiry; Cody can enter the real date when renewing).';
+  }
+  return 'Nothing to do.';
+}

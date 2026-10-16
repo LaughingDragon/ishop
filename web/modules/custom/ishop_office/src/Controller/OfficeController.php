@@ -233,8 +233,11 @@ final class OfficeController extends ControllerBase {
         'configured' => MailSetupForm::savedAddress() !== '' && MailSetupForm::hasPassword(),
         'last' => \Drupal::state()->get(IshopMail::STATE_LAST),
         'last_ok' => \Drupal::state()->get(IshopMail::STATE_LAST_OK),
+        'problem' => IshopMail::problem(),
       ],
     ];
+    // Other modules add their sections (ishop_ai: "ai"). No secrets, ever.
+    \Drupal::moduleHandler()->alter('ishop_office_status', $data);
     $response = new CacheableJsonResponse($data);
     $response->setEncodingOptions(JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     $response->headers->set('X-Robots-Tag', 'noindex, nofollow');

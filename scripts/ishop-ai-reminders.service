@@ -1,0 +1,12 @@
+[Unit]
+Description=ishop: AI key expiry reminder to Cody (7, 2 and 0 days before)
+After=mariadb.service
+
+[Service]
+Type=oneshot
+User=www-data
+Group=www-data
+Environment=HOME=/tmp
+PrivateTmp=true
+WorkingDirectory=/var/www/ishop
+ExecStart=/var/www/ishop/vendor/bin/drush ishop:ai-reminders
