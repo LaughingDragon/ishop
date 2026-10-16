@@ -7,6 +7,7 @@ namespace Drupal\ishop_items\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\ishop_items\Eligibility;
+use Drupal\ishop_items\PlatformCategories;
 use Drupal\ishop_items\Entity\PlatformListing;
 use Drupal\ishop_items\ListingManager;
 use Drupal\ishop_items\Platforms;
@@ -78,7 +79,7 @@ final class ListingsGridForm extends FormBase {
     $facts = self::eligibilityFacts($item);
     foreach ($this->listings->forItem($item) as $platform => $listing) {
       $name = Platforms::PLATFORMS[$platform];
-      $eligibility = Eligibility::evaluate($facts + [
+      $eligibility = PlatformCategories::evaluate($facts + [
         'override' => $listing->get('eligibility_override')->value,
         'override_note' => $listing->get('eligibility_note')->value,
       ], $platform);

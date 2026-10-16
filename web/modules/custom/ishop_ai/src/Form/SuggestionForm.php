@@ -9,6 +9,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\ishop_ai\AiRuns;
 use Drupal\ishop_ai\ListingWriter;
+use Drupal\ishop_items\PlatformCategories;
 use Drupal\ishop_items\ReadyCheck;
 use Drupal\node\NodeInterface;
 
@@ -80,24 +81,32 @@ final class SuggestionForm extends FormBase {
   }
 
   /**
-   * The site's category term that matches the AI's category path, or NULL.
+   * The site's category paths, keyed by term ID ("Parent > Child").
    *
-   * Compares the path's first part (and then each part) with the top-level
-   * category names, ignoring case and "&"/"and".
+   * @return string[]
+   *   Paths by term ID.
+   */
+  private function categoryPaths(): array {
+    $paths = [];
+    foreach ($this->entityTypeManager->getStorage('taxonomy_term')->loadTree('category') as $term) {
+      $parent = (int) ($term->parents[0] ?? 0);
+      $paths[(int) $term->tid] = ($parent && isset($paths[$parent]) ? $paths[$parent] . ' > ' : '') . $term->name;
+    }
+    return $paths;
+  }
+
+  /**
+   * The site's category term closest to the AI's category (never NULL).
+   *
+   * Newer drafts already name one of the site's categories; older ones have
+   * free text such as "Home & Garden > Holiday & Seasonal Decor", which gets
+   * the closest match (2026-10-16, Liam: "Use the suggested category" must
+   * always work).
    */
   public function categoryTerm(string $path): ?int {
-    $norm = fn (string $s) => preg_replace('/[^a-z]+/', ' ', str_replace('&', 'and', strtolower($s)));
-    $terms = [];
-    foreach ($this->entityTypeManager->getStorage('taxonomy_term')->loadTree('category', 0, 1) as $term) {
-      $terms[trim($norm($term->name))] = (int) $term->tid;
-    }
-    foreach (array_map('trim', explode('>', $path)) as $part) {
-      $key = trim($norm($part));
-      if ($key !== '' && isset($terms[$key])) {
-        return $terms[$key];
-      }
-    }
-    return NULL;
+    $paths = $this->categoryPaths();
+    $found = array_search(PlatformCategories::closest($path, $paths), $paths, TRUE);
+    return $found === FALSE ? NULL : (int) $found;
   }
 
   /**
@@ -116,19 +125,31 @@ final class SuggestionForm extends FormBase {
       '#header' => [$this->t('Use'), $this->t('Field'), $this->t('Now'), $this->t('AI suggestion')],
       '#attributes' => ['class' => ['ishop-ai-suggestion__table']],
     ];
+    $paths = $this->categoryPaths();
+    $category = PlatformCategories::closest((string) ($draft['category'] ?? ''), $paths);
     foreach (self::FIELDS as $field => $label) {
       $suggested = self::suggested($draft, $field);
-      if ($suggested === '') {
+      if ($suggested === '' && !($field === 'category' && !empty($draft['new_category_idea']))) {
+        continue;
+      }
+      // Size is for clothing and shoes only (Liam, 2026-10-16).
+      if ($field === 'size' && !PlatformCategories::hasSize($category)) {
         continue;
       }
       $now = self::current($item, $field);
       $usable = TRUE;
-      $note = '';
+      $note = [];
       if ($field === 'condition' && !in_array($suggested, ListingWriter::CONDITIONS, TRUE)) {
-        [$usable, $note] = [FALSE, (string) $this->t('Not one of the site\'s conditions: pick one yourself.')];
+        [$usable, $note] = [FALSE, [$this->t('Not one of the site\'s conditions: pick one yourself.')]];
       }
-      if ($field === 'category' && $this->categoryTerm($suggested) === NULL) {
-        [$usable, $note] = [FALSE, (string) $this->t('No matching category on the site: pick one yourself.')];
+      if ($field === 'category') {
+        if ($suggested !== '' && $suggested !== $category) {
+          $note[] = $this->t('Closest site category. The AI said: @said', ['@said' => $suggested]);
+        }
+        if (!empty($draft['new_category_idea'])) {
+          $note[] = $this->t('Nothing on the site fits well. Consider adding a category: @idea', ['@idea' => $draft['new_category_idea']]);
+        }
+        $suggested = $category;
       }
       $empty = $now === '' || ($field === 'title' && str_starts_with($now, ReadyCheck::DEFAULT_TITLE_PREFIX));
       $form['rows'][$field] = [
@@ -150,7 +171,7 @@ final class SuggestionForm extends FormBase {
         ],
         'ai' => [
           '#type' => 'inline_template',
-          '#template' => '<span class="ishop-ai-suggestion__value">{{ value|nl2br }}</span>{% if note %}<span class="ishop-ai-suggestion__note">{{ note }}</span>{% endif %}',
+          '#template' => '<span class="ishop-ai-suggestion__value">{{ value|nl2br }}</span>{% for n in note %}<span class="ishop-ai-suggestion__note">{{ n }}</span>{% endfor %}',
           '#context' => ['value' => $suggested, 'note' => $note],
           '#wrapper_attributes' => ['data-label' => (string) $this->t('AI suggestion')],
         ],

@@ -81,6 +81,7 @@ final class ListingWriterTest extends UnitTestCase {
       'title',
       'description',
       'category',
+      'new_category_idea',
       'condition',
       'condition_notes',
       'brand',
@@ -93,6 +94,15 @@ final class ListingWriterTest extends UnitTestCase {
       'sources',
     ], $schema['required']);
     $this->assertFalse($schema['additionalProperties']);
+    $this->assertArrayNotHasKey('enum', $schema['properties']['category']);
+  }
+
+  /**
+   * With the site's categories, the AI must pick one of them.
+   */
+  public function testSchemaCategories(): void {
+    $schema = ListingWriter::schema(['Electronics', 'Home & Kitchen > Holiday & Seasonal', 'Other']);
+    $this->assertSame(['Electronics', 'Home & Kitchen > Holiday & Seasonal', 'Other'], $schema['properties']['category']['enum']);
   }
 
 }

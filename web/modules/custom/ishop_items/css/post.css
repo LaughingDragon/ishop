@@ -19,6 +19,7 @@
 
 .rm-card.ishop-post__callout { margin: 0 0 14px; padding: 12px 16px; border-left: 6px solid var(--rm-gold, #F2C14E); }
 .rm-card.ishop-post__callout--no { border-left-color: var(--rm-red, #C8312B); }
+.rm-card.ishop-post__callout--yes { border-left-color: var(--rm-ok, #2E7D4A); }
 
 .ishop-post__field { margin: 0 0 18px; }
 .ishop-post__field-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; margin: 0 0 4px; }

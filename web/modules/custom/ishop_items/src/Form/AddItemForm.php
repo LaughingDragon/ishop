@@ -371,8 +371,10 @@ final class AddItemForm extends FormBase {
    */
   private function terms(string $vid): array {
     $options = [];
-    foreach (\Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree($vid, 0, 1) as $term) {
-      $options[$term->tid] = $term->name;
+    // Child terms (e.g. Holiday & Seasonal under Home & Kitchen) are
+    // indented with "-", as on the item edit form.
+    foreach (\Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree($vid) as $term) {
+      $options[$term->tid] = str_repeat('-', (int) $term->depth) . $term->name;
     }
     return $options;
   }

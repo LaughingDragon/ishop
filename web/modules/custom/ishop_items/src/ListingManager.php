@@ -61,7 +61,7 @@ final class ListingManager {
       if (!$item || !$item->access('view') || in_array((string) $item->get('field_item_status')->value, Stale::ITEM_DONE, TRUE)) {
         continue;
       }
-      $verdict = Eligibility::evaluate(ListingsGridForm::eligibilityFacts($item) + [
+      $verdict = PlatformCategories::evaluate(ListingsGridForm::eligibilityFacts($item) + [
         'override' => $listing->get('eligibility_override')->value,
         'override_note' => $listing->get('eligibility_note')->value,
       ], $platform)['verdict'];

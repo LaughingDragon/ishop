@@ -31,6 +31,10 @@
     <div class="rm-card ishop-post__callout ishop-post__callout--no" role="note">
       <strong>{{ eligibility.label }}{% if eligibility.overridden %} ({{ 'set by hand'|t }}){% endif %}:</strong> {{ eligibility.reason }}
     </div>
+  {% elseif eligibility.verdict == 'yes' and eligibility.platform_category %}
+    <div class="rm-card ishop-post__callout ishop-post__callout--yes" role="note">
+      <strong>{{ eligibility.label }}{% if eligibility.overridden %} ({{ 'set by hand'|t }}){% endif %}:</strong> {{ eligibility.reason }}
+    </div>
   {% elseif eligibility.verdict == 'check' %}
     <div class="rm-card ishop-post__callout ishop-post__callout--check" role="note">
       <strong>{{ eligibility.label }}{% if eligibility.overridden %} ({{ 'set by hand'|t }}){% endif %}:</strong> {{ eligibility.reason }}

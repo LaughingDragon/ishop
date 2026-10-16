@@ -9,6 +9,7 @@ use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Url;
 use Drupal\image\Entity\ImageStyle;
 use Drupal\ishop_items\Eligibility;
+use Drupal\ishop_items\PlatformCategories;
 use Drupal\ishop_items\Form\ListingsGridForm;
 use Drupal\ishop_items\Hook\ItemHooks;
 use Drupal\ishop_items\ListingManager;
@@ -229,7 +230,7 @@ final class PostController extends ControllerBase {
    * The eligibility verdict, with the listing's manual override if any.
    */
   private function eligibility(array $facts, $listing, string $platform): array {
-    return Eligibility::evaluate($facts + [
+    return PlatformCategories::evaluate($facts + [
       'override' => $listing?->get('eligibility_override')->value,
       'override_note' => $listing?->get('eligibility_note')->value,
     ], $platform);

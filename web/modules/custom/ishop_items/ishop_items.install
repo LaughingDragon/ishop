@@ -30,3 +30,20 @@ function ishop_items_update_11002(): string {
   }
   return 'Date sold added to platform listings.';
 }
+
+/**
+ * Adds the category "Holiday & Seasonal" under "Home & Kitchen" (2026-10-16).
+ */
+function ishop_items_update_11003(): string {
+  $storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+  if ($storage->loadByProperties(['vid' => 'category', 'name' => 'Holiday & Seasonal'])) {
+    return 'Holiday & Seasonal already exists.';
+  }
+  $home = $storage->loadByProperties(['vid' => 'category', 'name' => 'Home & Kitchen']);
+  $storage->create([
+    'vid' => 'category',
+    'name' => 'Holiday & Seasonal',
+    'parent' => $home ? [(int) reset($home)->id()] : [0],
+  ])->save();
+  return 'Added the category Holiday & Seasonal under Home & Kitchen.';
+}

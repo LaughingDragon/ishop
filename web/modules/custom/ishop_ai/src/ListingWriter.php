@@ -8,6 +8,7 @@ use Anthropic\Client;
 use Anthropic\Core\Exceptions\APIStatusException;
 use Anthropic\Core\Exceptions\AuthenticationException;
 use Anthropic\Core\Exceptions\PermissionDeniedException;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\image\Entity\ImageStyle;
 use Drupal\node\NodeInterface;
@@ -36,13 +37,59 @@ final class ListingWriter {
   public const MAX_CONTINUATIONS = 3;
 
   /**
-   * Prices (USD), checked 2026-10-15 on Anthropic's pricing page.
+   * Web search price (USD per search), checked 2026-10-15.
    */
-  public const PRICE_INPUT_PER_MTOK = 4.0;
-  public const PRICE_OUTPUT_PER_MTOK = 20.0;
-  public const PRICE_CACHE_WRITE_PER_MTOK = 5.0;
-  public const PRICE_CACHE_READ_PER_MTOK = 0.20;
   public const PRICE_PER_SEARCH = 0.01;
+
+  /**
+   * Per-model prices in USD per million tokens.
+   *
+   * Input, output, cache write, cache read. Opus checked 2026-10-15 on
+   * Anthropic's pricing page; Claude Sonnet 5.5 added 2026-10-16 (cache write
+   * taken as 1.25x input, as for Opus).
+   */
+  public const MODEL_PRICES = [
+    'claude-opus-5-5' => [4.0, 20.0, 5.0, 0.20],
+    'claude-sonnet-5-5' => [2.0, 10.0, 2.5, 0.20],
+  ];
+
+  /**
+   * How a run is made.
+   *
+   * These defaults are what Cody's runs use; the cost test (2026-10-16)
+   * passes others.
+   */
+  public const DEFAULTS = [
+    'model' => self::MODEL,
+    'style' => 'ai_input',
+    'max_searches' => 5,
+    'allowed_domains' => [],
+    'sold_comps' => FALSE,
+  ];
+
+  /**
+   * Resale sites for the cost test's narrowed search.
+   */
+  public const RESALE_DOMAINS = [
+    'ebay.com',
+    'poshmark.com',
+    'mercari.com',
+    'depop.com',
+    'grailed.com',
+    'vinted.com',
+    'stockx.com',
+  ];
+
+  /**
+   * Extra instruction when sold_comps is on (cost test).
+   */
+  public const SOLD_COMPS_PROMPT = <<<'PROMPT'
+
+Also fill sold_comps with every COMPLETED SALE you actually saw in the search results:
+the sold price, the date it sold (as shown), the listing title and the exact URL of
+the search result it came from. Asking prices and items still for sale do not count.
+Leave sold_comps empty if you saw no completed sales.
+PROMPT;
 
   /**
    * Conditions the site uses (the condition vocabulary).
@@ -90,22 +137,54 @@ PROMPT;
 
   public function __construct(
     private readonly FileSystemInterface $fileSystem,
+    private readonly EntityTypeManagerInterface $entityTypeManager,
   ) {}
 
   /**
-   * The listing fields, as in the old app's ListingDraft (descriptions kept).
+   * The site's category paths ("Parent > Child"), for the schema's list.
+   *
+   * @return string[]
+   *   Paths in the vocabulary's order.
    */
-  public static function schema(): array {
+  public function categories(): array {
+    $names = [];
+    $paths = [];
+    foreach ($this->entityTypeManager->getStorage('taxonomy_term')->loadTree('category') as $term) {
+      $names[(int) $term->tid] = $term->name;
+      $parent = (int) ($term->parents[0] ?? 0);
+      $paths[(int) $term->tid] = ($parent && isset($paths[$parent]) ? $paths[$parent] . ' > ' : '') . $term->name;
+    }
+    return array_values($paths);
+  }
+
+  /**
+   * The listing fields, as in the old app's ListingDraft (descriptions kept).
+   *
+   * Changed 2026-10-16 (after Liam's first real item): category must be
+   * one of the site's own categories (closest match), with new_category_idea
+   * when none fits well; size is for clothing and shoes only.
+   *
+   * @param string[] $categories
+   *   The site's category paths; empty keeps the old free-text category.
+   */
+  public static function schema(array $categories = []): array {
     $string = fn (string $description) => ['type' => 'string', 'description' => $description];
     $number = fn (string $description) => ['type' => 'number', 'description' => $description];
     $properties = [
       'title' => $string('Keyword-rich title a buyer would search for, under 80 characters'),
       'description' => $string('Honest, appealing description: what it is, material, fit, flaws'),
-      'category' => $string('General category path, e.g. "Women\'s Clothing > Dresses"'),
+      'category' => $categories
+        ? [
+          'type' => 'string',
+          'enum' => array_values($categories),
+          'description' => 'The closest of the seller\'s own categories. Pick "Other" only if nothing else is close',
+        ]
+        : $string('General category path, e.g. "Women\'s Clothing > Dresses"'),
+      'new_category_idea' => $string('Empty string if one of the categories fits well. If none fits well, a short name for a category the seller could add, e.g. "Home & Kitchen > Holiday & Seasonal"'),
       'condition' => $string('One of: "New with tags", "New without tags", "Like new", "Good", "Fair", "Poor"'),
       'condition_notes' => $string('Specific flaws visible in the photos; empty string if none'),
       'brand' => $string('Brand name only if readable on a tag or logo; empty string otherwise'),
-      'size' => $string('Size only if readable on a tag; empty string otherwise'),
+      'size' => $string('Clothing or shoe size only, and only if readable on a tag. Empty string for anything that is not clothing or shoes (no capacities, dimensions or piece counts here)'),
       'color' => $string('Main color or colors'),
       'price_min' => $number('Low end of a realistic USD resale price range'),
       'price_max' => $number('High end of a realistic USD resale price range'),
@@ -127,8 +206,8 @@ PROMPT;
    * @return string[]
    *   Base64 strings.
    */
-  public function photos(NodeInterface $item): array {
-    $style = ImageStyle::load('ai_input');
+  public function photos(NodeInterface $item, string $style_name = 'ai_input'): array {
+    $style = ImageStyle::load($style_name);
     $images = [];
     foreach ($item->get('field_photos') as $reference) {
       $file = $reference->entity?->get('field_media_image_1')->entity;
@@ -160,8 +239,9 @@ PROMPT;
    * @throws \Anthropic\Core\Exceptions\APIException
    *   Refused key or no credit: the caller pauses AI.
    */
-  public function write(NodeInterface $item, string $key): array {
-    $images = $this->photos($item);
+  public function write(NodeInterface $item, string $key, array $options = []): array {
+    $options += self::DEFAULTS;
+    $images = $this->photos($item, $options['style']);
     if (!$images) {
       throw new \RuntimeException('This item has no photos yet, so there is nothing for the AI to look at.');
     }
@@ -169,7 +249,25 @@ PROMPT;
     foreach ($images as $data) {
       $content[] = ['type' => 'image', 'source' => ['type' => 'base64', 'mediaType' => 'image/jpeg', 'data' => $data]];
     }
-    $content[] = ['type' => 'text', 'text' => self::PROMPT];
+    $content[] = ['type' => 'text', 'text' => self::PROMPT . ($options['sold_comps'] ? self::SOLD_COMPS_PROMPT : '')];
+    $schema = self::schema($this->categories());
+    if ($options['sold_comps']) {
+      $schema['properties']['sold_comps'] = [
+        'type' => 'array',
+        'items' => [
+          'type' => 'object',
+          'properties' => [
+            'price' => ['type' => 'number'],
+            'sold_date' => ['type' => 'string'],
+            'title' => ['type' => 'string'],
+            'url' => ['type' => 'string'],
+          ],
+          'required' => ['price', 'sold_date', 'title', 'url'],
+          'additionalProperties' => FALSE,
+        ],
+      ];
+      $schema['required'][] = 'sold_comps';
+    }
     $client = new Client(apiKey: $key);
 
     $usage = [
@@ -178,10 +276,10 @@ PROMPT;
       'cache_write' => 0,
       'cache_read' => 0,
       'searches' => 0,
-      'model' => self::MODEL,
+      'model' => $options['model'],
     ];
     try {
-      [$response, $blocks] = $this->generate($client, $content, TRUE, $usage);
+      [$response, $blocks] = $this->generate($client, $content, TRUE, $usage, $options, $schema);
     }
     catch (AuthenticationException | PermissionDeniedException $e) {
       throw $e;
@@ -191,10 +289,10 @@ PROMPT;
         throw $e;
       }
       // Research is a bonus, never a requirement: retry from the photos alone.
-      [$response, $blocks] = $this->generate($client, $content, FALSE, $usage);
+      [$response, $blocks] = $this->generate($client, $content, FALSE, $usage, $options, $schema);
     }
     catch (\Throwable) {
-      [$response, $blocks] = $this->generate($client, $content, FALSE, $usage);
+      [$response, $blocks] = $this->generate($client, $content, FALSE, $usage, $options, $schema);
     }
 
     // A refusal is an HTTP 200 with empty or partial content: check first.
@@ -211,7 +309,7 @@ PROMPT;
       throw new \RuntimeException('The AI did not return a usable listing. Please try again.');
     }
     $searched = self::cleanResearch($draft, $blocks);
-    return ['draft' => $draft, 'usage' => $usage, 'searched' => $searched];
+    return ['draft' => $draft, 'usage' => $usage, 'searched' => $searched, 'blocks' => $blocks];
   }
 
   /**
@@ -220,26 +318,30 @@ PROMPT;
    * @return array{0: object, 1: array}
    *   The final response and every content block seen (as plain arrays).
    */
-  private function generate(Client $client, array $content, bool $search, array &$usage): array {
+  private function generate(Client $client, array $content, bool $search, array &$usage, array $options, array $schema): array {
     $messages = [['role' => 'user', 'content' => $content]];
     $blocks = [];
     $response = NULL;
     for ($i = 0; $i <= self::MAX_CONTINUATIONS; $i++) {
       $args = [
-        'model' => self::MODEL,
+        'model' => $options['model'],
         'maxTokens' => self::MAX_TOKENS,
         'messages' => $messages,
         // Research needs some deliberation; more mostly buys more searches.
         'outputConfig' => [
           'effort' => 'medium',
-          'format' => ['type' => 'json_schema', 'schema' => self::schema()],
+          'format' => ['type' => 'json_schema', 'schema' => $schema],
         ],
         // Server-side refusal fallback (recommended for Claude Opus 5.5).
         'betas' => ['server-side-fallback-2026-07-01'],
         'fallbacks' => 'default',
       ];
       if ($search) {
-        $args['tools'] = [['type' => 'web_search_20260209', 'name' => 'web_search', 'maxUses' => 5]];
+        $tool = ['type' => 'web_search_20260209', 'name' => 'web_search', 'maxUses' => $options['max_searches']];
+        if ($options['allowed_domains']) {
+          $tool['allowedDomains'] = $options['allowed_domains'];
+        }
+        $args['tools'] = [$tool];
       }
       $response = $client->beta->messages->create(...$args);
       self::addUsage($usage, $response->usage);
@@ -268,11 +370,12 @@ PROMPT;
    * The cost of a run in USD, from its usage.
    */
   public static function cost(array $usage): float {
+    [$in, $out, $write, $read] = self::MODEL_PRICES[$usage['model'] ?? self::MODEL] ?? self::MODEL_PRICES[self::MODEL];
     return round(
-      $usage['input'] / 1e6 * self::PRICE_INPUT_PER_MTOK
-      + $usage['output'] / 1e6 * self::PRICE_OUTPUT_PER_MTOK
-      + ($usage['cache_write'] ?? 0) / 1e6 * self::PRICE_CACHE_WRITE_PER_MTOK
-      + ($usage['cache_read'] ?? 0) / 1e6 * self::PRICE_CACHE_READ_PER_MTOK
+      $usage['input'] / 1e6 * $in
+      + $usage['output'] / 1e6 * $out
+      + ($usage['cache_write'] ?? 0) / 1e6 * $write
+      + ($usage['cache_read'] ?? 0) / 1e6 * $read
       + ($usage['searches'] ?? 0) * self::PRICE_PER_SEARCH,
       4,
     );

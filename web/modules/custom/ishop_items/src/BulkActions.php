@@ -133,7 +133,7 @@ final class BulkActions {
         if ($listing && !in_array($listing->getStatus(), [Platforms::TO_POST, Platforms::TAKE_DOWN], TRUE)) {
           return ['before' => "$name: $now", 'after' => '', 'skip' => "$name says \"$now\""];
         }
-        $verdict = Eligibility::evaluate(ListingsGridForm::eligibilityFacts($item) + [
+        $verdict = PlatformCategories::evaluate(ListingsGridForm::eligibilityFacts($item) + [
           'override' => $listing?->get('eligibility_override')->value,
           'override_note' => $listing?->get('eligibility_note')->value,
         ], $platform)['verdict'];
