@@ -232,11 +232,14 @@ reference project is used only for its rules and formatting logic.
 - [x] Notes and to-dos (Break room): to-dos with an optional date and a big Done button
   (Undo in "Recently done"); dated ones also show on the Calendar wall and, on the day or
   overdue, in "Needs you now"; notes with Edit/Delete.
-- [ ] **Daily digest email** at about 7 a.m. Pacific: items to post, take-downs,
+- [x] **Daily digest email** at about 7 a.m. Pacific: items to post, take-downs,
   returns closing soon, bills due, today's events, and a storage check (data disk
   mounted, free space on both disks; see DiskStatus in ishop_office). Short and readable on a
   phone. Needs a working mail transport (Symfony Mailer + an SMTP relay;
   ask Liam which, never store SMTP passwords in config).
+  (Built 2026-10-15: drush ishop:digest, ishop-digest.timer 07:00; test to webmaster only sent;
+  Cody's copy starts after Liam's OK, item 227; skipped on the birthday; off switch on Cody's
+  account page.)
 - [ ] **Enforce the content security policy** (moved here from punch item 51 at
   Liam's request, 2026-10-15): it stays report-only until this phase is done;
   then, after a full week of normal use with a clean violation log, switch
