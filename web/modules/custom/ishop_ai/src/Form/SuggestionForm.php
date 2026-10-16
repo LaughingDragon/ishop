@@ -129,7 +129,7 @@ final class SuggestionForm extends FormBase {
     $category = PlatformCategories::closest((string) ($draft['category'] ?? ''), $paths);
     foreach (self::FIELDS as $field => $label) {
       $suggested = self::suggested($draft, $field);
-      if ($suggested === '' && !($field === 'category' && !empty($draft['new_category_idea']))) {
+      if ($suggested === '' && $field !== 'category') {
         continue;
       }
       // Size is for clothing and shoes only (Liam, 2026-10-16).
@@ -146,7 +146,8 @@ final class SuggestionForm extends FormBase {
         if ($suggested !== '' && $suggested !== $category) {
           $note[] = $this->t('Closest site category. The AI said: @said', ['@said' => $suggested]);
         }
-        if (!empty($draft['new_category_idea'])) {
+        // The AI sometimes "suggests" a category the site already has.
+        if (!empty($draft['new_category_idea']) && PlatformCategories::closest($draft['new_category_idea'], $paths) !== $draft['new_category_idea']) {
           $note[] = $this->t('Nothing on the site fits well. Consider adding a category: @idea', ['@idea' => $draft['new_category_idea']]);
         }
         $suggested = $category;

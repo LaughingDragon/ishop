@@ -65,6 +65,8 @@ final class ListingWriter {
     'max_searches' => 5,
     'allowed_domains' => [],
     'sold_comps' => FALSE,
+    // NULL = self::PROMPT.
+    'prompt' => NULL,
   ];
 
   /**
@@ -180,7 +182,7 @@ PROMPT;
           'description' => 'The closest of the seller\'s own categories. Pick "Other" only if nothing else is close',
         ]
         : $string('General category path, e.g. "Women\'s Clothing > Dresses"'),
-      'new_category_idea' => $string('Empty string if one of the categories fits well. If none fits well, a short name for a category the seller could add, e.g. "Home & Kitchen > Holiday & Seasonal"'),
+      'new_category_idea' => $string('Empty string if one of the categories fits well (including the one you picked). If none fits well, a short name for a category the seller could add, e.g. "Home & Kitchen > Holiday & Seasonal"'),
       'condition' => $string('One of: "New with tags", "New without tags", "Like new", "Good", "Fair", "Poor"'),
       'condition_notes' => $string('Specific flaws visible in the photos; empty string if none'),
       'brand' => $string('Brand name only if readable on a tag or logo; empty string otherwise'),
@@ -249,7 +251,8 @@ PROMPT;
     foreach ($images as $data) {
       $content[] = ['type' => 'image', 'source' => ['type' => 'base64', 'mediaType' => 'image/jpeg', 'data' => $data]];
     }
-    $content[] = ['type' => 'text', 'text' => self::PROMPT . ($options['sold_comps'] ? self::SOLD_COMPS_PROMPT : '')];
+    $prompt = ($options['prompt'] ?? self::PROMPT) . ($options['sold_comps'] ? self::SOLD_COMPS_PROMPT : '');
+    $content[] = ['type' => 'text', 'text' => $prompt];
     $schema = self::schema($this->categories());
     if ($options['sold_comps']) {
       $schema['properties']['sold_comps'] = [

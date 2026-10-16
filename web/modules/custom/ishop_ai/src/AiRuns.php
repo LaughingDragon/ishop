@@ -75,7 +75,8 @@ final class AiRuns {
    */
   public function latest(int $nid): ?array {
     $row = $this->database->select('ishop_ai_run', 'r')->fields('r')
-      ->condition('nid', $nid)->orderBy('id', 'DESC')->range(0, 1)
+      // Cost-test runs (status "test") count in spend but are never drafts.
+      ->condition('nid', $nid)->condition('status', 'test', '<>')->orderBy('id', 'DESC')->range(0, 1)
       ->execute()->fetchAssoc();
     return $row ? self::decode($row) : NULL;
   }
