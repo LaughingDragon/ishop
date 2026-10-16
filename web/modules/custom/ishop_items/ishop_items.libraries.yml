@@ -65,3 +65,7 @@ sold_search:
   dependencies:
     - core/drupal
     - core/once
+shipping:
+  css:
+    component:
+      css/shipping.css: {}

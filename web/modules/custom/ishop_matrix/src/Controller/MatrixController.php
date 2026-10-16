@@ -22,6 +22,9 @@ use Drupal\ishop_life\Controller\BillsController;
 use Drupal\ishop_items\TaxExport;
 use Drupal\ishop_items\StaleNudges;
 use Drupal\ishop_items\Platforms;
+use Drupal\ishop_items\ShipBy;
+use Drupal\ishop_items\Shipping;
+use Drupal\ishop_items\Stale;
 use Drupal\ishop_matrix\Birthday;
 use Drupal\ishop_matrix\Form\SeasonForm;
 use Drupal\ishop_matrix\Rooms;
@@ -36,6 +39,11 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * only, and say so plainly when there is nothing.
  */
 final class MatrixController extends ControllerBase {
+
+  /**
+   * How many sales to ship "Needs you now" lists before "N more".
+   */
+  private const SHIP_LIMIT = 3;
 
   public function __construct(
     private readonly DateFormatterInterface $dateFormatter,
@@ -206,7 +214,7 @@ final class MatrixController extends ControllerBase {
   }
 
   /**
-   * The "Needs you now" rows: take-downs after a sale.
+   * The "Needs you now" rows: take-downs after a sale, sales to ship.
    */
   public function needs(int $now): array {
     $rows = [];
@@ -239,6 +247,32 @@ final class MatrixController extends ControllerBase {
       ];
     }
 
+    // Sales to ship (Phase 10 A): the most urgent few, then a count.
+    $to_ship = \Drupal::service(Shipping::class)->toShip();
+    usort($to_ship, fn ($a, $b) => [(string) $a->get('ship_by')->value, $a->id()] <=> [(string) $b->get('ship_by')->value, $b->id()]);
+    $today = Stale::today();
+    foreach (array_slice($to_ship, 0, self::SHIP_LIMIT) as $sale) {
+      $ship_by = (string) $sale->get('ship_by')->value;
+      $rows[] = [
+        'text' => $this->t('Ship @item (sold on @platform): @when.', [
+          '@item' => $sale->getItem()->label(),
+          '@platform' => Platforms::PLATFORMS[$sale->getPlatform()],
+          '@when' => $ship_by === '' ? $this->t('no ship-by date yet') : ShipBy::words($ship_by, $today),
+        ]),
+        'url' => Url::fromRoute('ishop_items.shipping_room', [], ['fragment' => 'sale-' . $sale->id()])->toString(),
+        'action' => $this->t('Ship it'),
+        'ghost' => FALSE,
+      ];
+    }
+    if (count($to_ship) > self::SHIP_LIMIT) {
+      $rows[] = [
+        'text' => $this->formatPlural(count($to_ship) - self::SHIP_LIMIT, '1 more sale to ship.', '@count more sales to ship.'),
+        'url' => Url::fromRoute('ishop_items.shipping_room')->toString(),
+        'action' => $this->t('Shipping room'),
+        'ghost' => TRUE,
+      ];
+    }
+
     return $rows;
   }
 
@@ -255,11 +289,14 @@ final class MatrixController extends ControllerBase {
     // Same numbers as the Money page: sales by Date sold this month.
     $month = Money::summarize($this->money->sales($this->dateFormatter->format($now, 'custom', 'Y-m-01'), NULL));
 
-    $not_built = (string) $this->t('Not built yet');
+    $to_ship = \Drupal::service(Shipping::class)->toShip();
+    $first = $to_ship ? min(array_map(fn ($sale) => (string) $sale->get('ship_by')->value ?: '9999-12-31', $to_ship)) : NULL;
     return [
       'front-desk' => Rooms::count(count($needs), '%d thing needs you', '%d things need you', 'Nothing needs you right now'),
       'stockroom' => Rooms::count($on_hand, '%d item on the game room table', '%d items on the game room table', 'No items yet'),
-      'shipping-room' => $not_built,
+      'shipping-room' => $to_ship
+        ? Rooms::count(count($to_ship), '%d sale to ship', '%d sales to ship', '') . ($first !== '9999-12-31' ? ', ' . lcfirst(ShipBy::words($first, Stale::today())) : '')
+        : 'Nothing to ship',
       'my-office' => $month['count'] ? sprintf('Sold this month: $%s', number_format($month['revenue'], 2)) : 'Nothing sold yet this month',
       'mailroom' => Rooms::count(count(\Drupal::service(Vault::class)->documents()), '%d document in the vault', '%d documents in the vault', 'The vault is empty'),
       'calendar-wall' => $this->calendarGlance(),
@@ -397,6 +434,15 @@ final class MatrixController extends ControllerBase {
             '@earned' => $dollars($sum['earned']),
           ]) : NULL,
           $sum['with_cost'] ? $this->formatPlural($sum['with_cost'], 'Profit over what you paid: @profit, on the 1 sale where you entered what you paid.', 'Profit over what you paid: @profit, on the @count sales where you entered what you paid.', ['@profit' => $dollars($sum['profit'])]) : NULL,
+          // Phase 10 A: delivered sales are done; the rest are still out.
+          $sum['count'] ? $this->t('Delivered: @d (@d_earned earned). On the way: @w (@w_earned). To ship: @t (@t_earned).', [
+            '@d' => $sum['stages'][Shipping::DELIVERED]['count'],
+            '@d_earned' => $dollars($sum['stages'][Shipping::DELIVERED]['earned']),
+            '@w' => $sum['stages'][Shipping::ON_THE_WAY]['count'],
+            '@w_earned' => $dollars($sum['stages'][Shipping::ON_THE_WAY]['earned']),
+            '@t' => $sum['stages'][Shipping::TO_SHIP]['count'],
+            '@t_earned' => $dollars($sum['stages'][Shipping::TO_SHIP]['earned']),
+          ]) : NULL,
           $sum['missing_price'] ? $this->formatPlural($sum['missing_price'], '1 sale has no sale price entered, so it adds nothing to sales.', '@count sales have no sale price entered, so they add nothing to sales.') : NULL,
         ]),
         'by_title' => $this->t('Sold by platform'),

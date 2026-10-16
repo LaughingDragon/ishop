@@ -13,14 +13,13 @@ dependencies:
     - field.field.node.item.field_condition
     - field.field.node.item.field_cost_paid
     - field.field.node.item.field_description
+    - field.field.node.item.field_dimensions
     - field.field.node.item.field_donation_value
     - field.field.node.item.field_flaws
     - field.field.node.item.field_internal_notes
     - field.field.node.item.field_item_status
     - field.field.node.item.field_original_price
-    - field.field.node.item.field_package_height
-    - field.field.node.item.field_package_length
-    - field.field.node.item.field_package_width
+    - field.field.node.item.field_packing_note
     - field.field.node.item.field_photos
     - field.field.node.item.field_price_check
     - field.field.node.item.field_price_check_at
@@ -29,11 +28,12 @@ dependencies:
     - field.field.node.item.field_show_in_shop
     - field.field.node.item.field_size
     - field.field.node.item.field_storage_location
-    - field.field.node.item.field_weight_oz
+    - field.field.node.item.field_weight
     - node.type.item
   module:
     - field_group
     - media_library
+    - physical
 third_party_settings:
   field_group:
     group_listing:
@@ -82,10 +82,9 @@ third_party_settings:
         required_fields: true
     group_shipping:
       children:
-        - field_weight_oz
-        - field_package_length
-        - field_package_width
-        - field_package_height
+        - field_weight
+        - field_dimensions
+        - field_packing_note
       label: Shipping
       region: content
       parent_name: ''
@@ -191,6 +190,14 @@ content:
       rows: 6
       placeholder: ''
     third_party_settings: {  }
+  field_dimensions:
+    type: physical_dimensions_default
+    weight: 22
+    region: content
+    settings:
+      default_unit: in
+      allow_unit_change: false
+    third_party_settings: {  }
   field_donation_value:
     type: number
     weight: 11
@@ -227,25 +234,12 @@ content:
     settings:
       placeholder: ''
     third_party_settings: {  }
-  field_package_height:
-    type: number
-    weight: 24
-    region: content
-    settings:
-      placeholder: ''
-    third_party_settings: {  }
-  field_package_length:
-    type: number
-    weight: 22
-    region: content
-    settings:
-      placeholder: ''
-    third_party_settings: {  }
-  field_package_width:
-    type: number
+  field_packing_note:
+    type: string_textarea
     weight: 23
     region: content
     settings:
+      rows: 2
       placeholder: ''
     third_party_settings: {  }
   field_photos:
@@ -284,12 +278,13 @@ content:
     region: content
     settings: {  }
     third_party_settings: {  }
-  field_weight_oz:
-    type: number
+  field_weight:
+    type: physical_measurement_default
     weight: 21
     region: content
     settings:
-      placeholder: ''
+      default_unit: oz
+      allow_unit_change: true
     third_party_settings: {  }
   status:
     type: boolean_checkbox

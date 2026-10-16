@@ -5,3 +5,17 @@ ishop_items.pricing:
     terapeak:
       type: boolean
       label: 'Cody uses Seller Hub: show eBay Research (Terapeak) first'
+
+ishop_items.shipping:
+  type: config_object
+  label: 'Shipping room'
+  mapping:
+    handling_days:
+      type: sequence
+      label: 'Estimated days to ship, per platform, until the real ship-by date is known'
+      sequence:
+        type: integer
+        label: 'Days'
+    label_keep_days:
+      type: integer
+      label: 'Days after delivery before a shipping label (buyer address) is deleted'

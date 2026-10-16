@@ -1,0 +1,21 @@
+uuid: fc7cff0a-aa67-4e0e-b909-baba5ece8307
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_weight
+    - node.type.item
+  module:
+    - physical
+id: node.item.field_weight
+field_name: field_weight
+entity_type: node
+bundle: item
+label: 'Weight (packed)'
+description: 'What the item weighs, packed for shipping.'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: physical_measurement

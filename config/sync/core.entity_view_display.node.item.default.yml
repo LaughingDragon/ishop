@@ -13,14 +13,13 @@ dependencies:
     - field.field.node.item.field_condition
     - field.field.node.item.field_cost_paid
     - field.field.node.item.field_description
+    - field.field.node.item.field_dimensions
     - field.field.node.item.field_donation_value
     - field.field.node.item.field_flaws
     - field.field.node.item.field_internal_notes
     - field.field.node.item.field_item_status
     - field.field.node.item.field_original_price
-    - field.field.node.item.field_package_height
-    - field.field.node.item.field_package_length
-    - field.field.node.item.field_package_width
+    - field.field.node.item.field_packing_note
     - field.field.node.item.field_photos
     - field.field.node.item.field_price_check
     - field.field.node.item.field_price_check_at
@@ -29,7 +28,7 @@ dependencies:
     - field.field.node.item.field_show_in_shop
     - field.field.node.item.field_size
     - field.field.node.item.field_storage_location
-    - field.field.node.item.field_weight_oz
+    - field.field.node.item.field_weight
     - node.type.item
   module:
     - options
@@ -164,39 +163,6 @@ content:
     third_party_settings: {  }
     weight: 14
     region: content
-  field_package_height:
-    type: number_decimal
-    label: inline
-    settings:
-      thousand_separator: ','
-      decimal_separator: .
-      scale: 2
-      prefix_suffix: true
-    third_party_settings: {  }
-    weight: 24
-    region: content
-  field_package_length:
-    type: number_decimal
-    label: inline
-    settings:
-      thousand_separator: ','
-      decimal_separator: .
-      scale: 2
-      prefix_suffix: true
-    third_party_settings: {  }
-    weight: 22
-    region: content
-  field_package_width:
-    type: number_decimal
-    label: inline
-    settings:
-      thousand_separator: ','
-      decimal_separator: .
-      scale: 2
-      prefix_suffix: true
-    third_party_settings: {  }
-    weight: 23
-    region: content
   field_photos:
     type: entity_reference_entity_view
     label: hidden
@@ -240,17 +206,6 @@ content:
     third_party_settings: {  }
     weight: 25
     region: content
-  field_weight_oz:
-    type: number_decimal
-    label: inline
-    settings:
-      thousand_separator: ','
-      decimal_separator: .
-      scale: 2
-      prefix_suffix: true
-    third_party_settings: {  }
-    weight: 21
-    region: content
   ishop_ready:
     settings: {  }
     third_party_settings: {  }
@@ -258,7 +213,10 @@ content:
     region: content
 hidden:
   field_cleared_to_sell: true
+  field_dimensions: true
+  field_packing_note: true
   field_price_check: true
   field_price_check_at: true
   field_price_check_price: true
+  field_weight: true
   links: true

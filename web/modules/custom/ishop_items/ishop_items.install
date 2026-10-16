@@ -321,3 +321,115 @@ function ishop_items_update_11008(): string {
   }
   return 'Price book fields added; sales filled in: ' . ($filled ? implode(', ', $filled) : 'none');
 }
+
+/**
+ * Phase 10 A, the Shipping room (Liam's OK, 2026-10-16).
+ *
+ * Adds the shipping fields to listings (ship-by, label PDF, carrier,
+ * tracking number, shipped and delivered dates) and the shipping settings.
+ * Items get Physical Fields weight and package size (replacing the empty
+ * decimal fields field_weight_oz and field_package_*) and a packing note.
+ */
+function ishop_items_update_11009(): string {
+  $config = \Drupal::configFactory()->getEditable('ishop_items.shipping');
+  if ($config->isNew()) {
+    $config->setData([
+      'handling_days' => [
+        'poshmark' => 7,
+        'mercari' => 3,
+        'ebay' => 1,
+        'depop' => 5,
+        'grailed' => 3,
+        'vinted' => 5,
+        'facebook' => 3,
+      ],
+      'label_keep_days' => 30,
+    ])->save();
+  }
+
+  $manager = \Drupal::entityDefinitionUpdateManager();
+  foreach (\Drupal\ishop_items\Entity\PlatformListing::shippingFieldDefinitions() as $name => $definition) {
+    if (!$manager->getFieldStorageDefinition($name, 'platform_listing')) {
+      $manager->installFieldStorageDefinition($name, 'platform_listing', 'ishop_items', $definition);
+    }
+  }
+
+  $old = ['field_weight_oz', 'field_package_length', 'field_package_width', 'field_package_height'];
+  $removed = [];
+  foreach ($old as $name) {
+    $count = (int) \Drupal::entityQuery('node')->accessCheck(FALSE)->condition('type', 'item')->exists($name)->count()->execute();
+    if ($count > 0) {
+      throw new \RuntimeException("$name has data on $count items: not removing it.");
+    }
+  }
+
+  $fields = [
+    'field_weight' => [
+      'physical_measurement',
+      'Weight (packed)',
+      ['measurement_type' => 'weight'],
+      'What the item weighs, packed for shipping.',
+      ['type' => 'physical_measurement_default', 'settings' => ['default_unit' => 'oz', 'allow_unit_change' => TRUE]],
+    ],
+    'field_dimensions' => [
+      'physical_dimensions',
+      'Package size',
+      [],
+      'Length, width and height of the box or mailer, in inches.',
+      ['type' => 'physical_dimensions_default', 'settings' => ['default_unit' => 'in', 'allow_unit_change' => FALSE]],
+    ],
+    'field_packing_note' => [
+      'string_long',
+      'Packing note',
+      [],
+      'Anything to remember when packing: fragile, which box, a thank-you note.',
+      ['type' => 'string_textarea', 'settings' => ['rows' => 2, 'placeholder' => '']],
+    ],
+  ];
+  $repository = \Drupal::service('entity_display.repository');
+  $form = $repository->getFormDisplay('node', 'item');
+  $view = $repository->getViewDisplay('node', 'item');
+  $weight = 21;
+  foreach ($fields as $name => [$type, $label, $settings, $description, $widget]) {
+    if (!FieldStorageConfig::loadByName('node', $name)) {
+      FieldStorageConfig::create([
+        'field_name' => $name,
+        'entity_type' => 'node',
+        'type' => $type,
+        'settings' => $settings,
+      ])->save();
+    }
+    if (!FieldConfig::loadByName('node', 'item', $name)) {
+      FieldConfig::create([
+        'field_name' => $name,
+        'entity_type' => 'node',
+        'bundle' => 'item',
+        'label' => $label,
+        'description' => $description,
+      ])->save();
+    }
+    $form->setComponent($name, $widget + ['weight' => $weight++, 'region' => 'content']);
+    // The item page shows these in its own Shipping group (ItemHooks).
+    $view->removeComponent($name);
+  }
+
+  $groups = $form->getThirdPartySettings('field_group');
+  if (isset($groups['group_shipping'])) {
+    $groups['group_shipping']['children'] = array_keys($fields);
+    $form->setThirdPartySetting('field_group', 'group_shipping', $groups['group_shipping']);
+  }
+  foreach ($old as $name) {
+    $form->removeComponent($name);
+    $view->removeComponent($name);
+  }
+  $form->save();
+  $view->save();
+
+  foreach ($old as $name) {
+    if ($field = FieldConfig::loadByName('node', 'item', $name)) {
+      $field->delete();
+      $removed[] = $name;
+    }
+  }
+  return 'Shipping room fields added; Physical weight and package size added; removed empty fields: ' . ($removed ? implode(', ', $removed) : 'none');
+}

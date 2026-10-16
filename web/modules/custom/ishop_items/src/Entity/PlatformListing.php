@@ -18,6 +18,8 @@ use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\ishop_items\ListingAccessControlHandler;
 use Drupal\ishop_items\Platforms;
+use Drupal\ishop_items\ShipBy;
+use Drupal\ishop_items\Tracking;
 use Drupal\node\NodeInterface;
 use Drupal\views\EntityViewsData;
 
@@ -124,6 +126,18 @@ final class PlatformListing extends ContentEntityBase implements RevisionLogInte
     elseif ($this->getStatus() !== Platforms::SOLD_HERE) {
       $this->set('sold_category', NULL);
       $this->set('sold_condition', NULL);
+    }
+    // The Shipping room (Phase 10 A): a new sale gets an estimated ship-by
+    // date from the platform's usual handling time until a real one is known.
+    // Un-marking a sale that wasn't shipped clears it.
+    if ($this->getStatus() === Platforms::SOLD_HERE && $this->get('ship_by')->isEmpty()) {
+      $days = \Drupal::config('ishop_items.shipping')->get('handling_days.' . $this->getPlatform());
+      $this->set('ship_by', ShipBy::estimate((string) $this->get('date_sold')->value, is_numeric($days) ? (int) $days : ShipBy::FALLBACK_DAYS));
+      $this->set('ship_by_estimated', TRUE);
+    }
+    elseif ($this->getStatus() !== Platforms::SOLD_HERE && $this->get('date_shipped')->isEmpty()) {
+      $this->set('ship_by', NULL);
+      $this->set('ship_by_estimated', FALSE);
     }
   }
 
@@ -254,6 +268,8 @@ final class PlatformListing extends ContentEntityBase implements RevisionLogInte
       ->setRevisionable(TRUE)
       ->setSetting('max_length', 32);
 
+    $fields += static::shippingFieldDefinitions();
+
     $fields['created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Created'));
     $fields['changed'] = BaseFieldDefinition::create('changed')
@@ -261,6 +277,46 @@ final class PlatformListing extends ContentEntityBase implements RevisionLogInte
       ->setRevisionable(TRUE);
 
     return $fields;
+  }
+
+  /**
+   * The Shipping room's fields on a sold listing (Phase 10 A).
+   *
+   * The label PDF is the only place a buyer's address is kept: a private
+   * file, deleted Shipping::LABEL_KEEP_DAYS days after delivery.
+   *
+   * @return \Drupal\Core\Field\BaseFieldDefinition[]
+   *   Field name => definition.
+   */
+  public static function shippingFieldDefinitions(): array {
+    $date = fn ($label) => BaseFieldDefinition::create('datetime')
+      ->setLabel($label)
+      ->setRevisionable(TRUE)
+      ->setSetting('datetime_type', 'date');
+    return [
+      'ship_by' => $date(t('Ship by')),
+      'ship_by_estimated' => BaseFieldDefinition::create('boolean')
+        ->setLabel(t('Ship-by date is an estimate'))
+        ->setRevisionable(TRUE)
+        ->setDefaultValue(FALSE),
+      'shipping_label' => BaseFieldDefinition::create('file')
+        ->setLabel(t('Shipping label (PDF)'))
+        ->setRevisionable(TRUE)
+        ->setSetting('uri_scheme', 'private')
+        ->setSetting('file_directory', 'shipping-labels')
+        ->setSetting('file_extensions', 'pdf')
+        ->setSetting('max_filesize', '10 MB'),
+      'carrier' => BaseFieldDefinition::create('list_string')
+        ->setLabel(t('Carrier'))
+        ->setRevisionable(TRUE)
+        ->setSetting('allowed_values', Tracking::CARRIERS),
+      'tracking_number' => BaseFieldDefinition::create('string')
+        ->setLabel(t('Tracking number'))
+        ->setRevisionable(TRUE)
+        ->setSetting('max_length', 64),
+      'date_shipped' => $date(t('Date shipped')),
+      'date_delivered' => $date(t('Date delivered')),
+    ];
   }
 
 }

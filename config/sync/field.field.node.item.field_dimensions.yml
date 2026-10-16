@@ -1,0 +1,21 @@
+uuid: 1bf93a27-5b96-4e61-aa6c-b6d070352ff7
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_dimensions
+    - node.type.item
+  module:
+    - physical
+id: node.item.field_dimensions
+field_name: field_dimensions
+entity_type: node
+bundle: item
+label: 'Package size'
+description: 'Length, width and height of the box or mailer, in inches.'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: physical_dimensions

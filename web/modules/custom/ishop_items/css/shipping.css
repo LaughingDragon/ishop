@@ -1,0 +1,29 @@
+/* Shipping room (Phase 10 A): one card per sale, iPhone first. */
+.rm-ship__intro { margin: 0 0 18px; color: var(--rm-text-soft, #D3C6B2); }
+.rm-ship { margin: 0 0 28px; }
+.rm-ship__count { display: inline-block; min-width: 1.8em; margin-left: 6px; padding: 0 8px; border-radius: var(--rm-pill, 999px); background: var(--rm-raised, #2D2422); font-size: 0.9rem; text-align: center; vertical-align: middle; }
+.rm-ship__sale { margin: 0 0 14px; }
+.rm-ship__sale.is-urgent { border-color: var(--rm-red); box-shadow: inset 4px 0 0 var(--rm-red); }
+.rm-ship__head { display: flex; align-items: center; gap: 12px; }
+.rm-ship__thumb { width: 64px; height: 64px; flex: none; border-radius: 8px; object-fit: cover; background: var(--rm-raised, #2D2422); }
+.rm-ship__name { min-width: 0; }
+.rm-ship__name h3 { margin: 0; font-size: 1.1rem; overflow-wrap: anywhere; }
+.rm-ship__meta { margin: 2px 0 0; color: var(--rm-text-soft, #D3C6B2); font-size: 0.95rem; overflow-wrap: anywhere; }
+.rm-ship__when { margin: 12px 0 6px; }
+.rm-ship__est { font-size: 0.9rem; color: var(--rm-text-soft, #D3C6B2); }
+.rm-ship__facts { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 8px 0 12px; }
+.rm-ship__facts dt { font-weight: 700; }
+.rm-ship__facts dd { margin: 0; overflow-wrap: anywhere; white-space: pre-line; }
+.rm-ship__buttons { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0 0; }
+.rm-ship__buttons .rm-button { flex: 1 1 auto; justify-content: center; text-align: center; }
+.rm-ship__buttons .rm-ship__undo { flex: 0 1 auto; }
+.rm-ship__empty { margin: 0 0 12px; color: var(--rm-text-soft, #D3C6B2); }
+.rm-ship__done { margin: 0; padding: 0; list-style: none; }
+.rm-ship__done li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 4px 12px; min-height: 48px; padding: 8px 0; border-bottom: 1px solid var(--rm-line, #3D302D); }
+.rm-ship__undo-link { display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px; }
+.rm-ship-form { max-width: 560px; }
+.rm-ship-form .form-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.rm-ship-form input[type=text], .rm-ship-form input[type=number], .rm-ship-form input[type=date], .rm-ship-form select { min-height: 48px; font-size: 1.05rem; max-width: 100%; }
+.rm-ship-form input[type=checkbox] { width: 26px; height: 26px; accent-color: var(--rm-gold, #F2C14E); }
+.rm-ship-form .js-form-type-checkbox { display: flex; align-items: center; gap: 12px; min-height: 48px; }
+.rm-ship-form .js-form-type-checkbox label { margin: 0; }

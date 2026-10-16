@@ -30,7 +30,7 @@ final class Money {
    *
    * @return array<int, array>
    *   One row per sold listing: item, platform, date_sold, date_posted,
-   *   price, fees, shipping, cost (floats or NULL).
+   *   price, fees, shipping, cost (floats or NULL), stage (Shipping::STAGES).
    */
   public function sales(?string $from, ?string $to): array {
     $storage = $this->entityTypeManager->getStorage('platform_listing');
@@ -60,6 +60,8 @@ final class Money {
         'fees' => $number($listing->get('fees')->value),
         'shipping' => $number($listing->get('shipping_paid')->value),
         'cost' => $number($item->get('field_cost_paid')->value),
+        // Phase 10 A: where the sale is in the Shipping room.
+        'stage' => Shipping::stage($listing->get('date_shipped')->value, $listing->get('date_delivered')->value),
       ];
     }
     return $rows;
@@ -70,9 +72,11 @@ final class Money {
    *
    * Pure: works on the plain rows from sales().
    *
-   * @return array{count: int, revenue: float, fees: float, shipping: float, earned: float, cost: float, profit: float, with_cost: int, avg_days: ?float, missing_price: int, by_platform: array}
+   * @return array{count: int, revenue: float, fees: float, shipping: float, earned: float, cost: float, profit: float, with_cost: int, avg_days: ?float, missing_price: int, by_platform: array, stages: array}
    *   Money in dollars. cost and profit cover only the with_cost sales that
    *   have "What I paid"; avg_days is NULL when no sale has both dates.
+   *   stages: Shipping stage => count and earned (rows without a stage
+   *   count as delivered).
    */
   public static function summarize(array $rows): array {
     $sum = [
@@ -88,6 +92,7 @@ final class Money {
     $days = [];
     $missing_price = 0;
     $by_platform = [];
+    $stages = array_fill_keys(array_keys(Shipping::STAGES), ['count' => 0, 'earned' => 0.0]);
     foreach ($rows as $row) {
       $earned = self::earned($row);
       $profit = self::profit($row);
@@ -110,6 +115,9 @@ final class Money {
       $by_platform[$platform]['count']++;
       $by_platform[$platform]['revenue'] += $row['price'] ?? 0.0;
       $by_platform[$platform]['earned'] += $earned;
+      $stage = $row['stage'] ?? Shipping::DELIVERED;
+      $stages[$stage]['count']++;
+      $stages[$stage]['earned'] += $earned;
     }
     // Platform order as everywhere else on the site.
     $ordered = array_intersect_key(array_replace(Platforms::PLATFORMS, $by_platform), $by_platform);
@@ -117,6 +125,7 @@ final class Money {
       'avg_days' => $days ? (float) (array_sum($days) / count($days)) : NULL,
       'missing_price' => $missing_price,
       'by_platform' => $ordered,
+      'stages' => $stages,
     ];
   }
 

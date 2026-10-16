@@ -4,6 +4,7 @@ description: 'Items for resale: photo preparation (HEIC to JPEG, orientation, me
 package: iShop
 core_version_requirement: ^11.4
 dependencies:
+  - drupal:datetime
   - drupal:field_group
   - drupal:file
   - drupal:image
@@ -13,4 +14,5 @@ dependencies:
   - drupal:options
   - drupal:taxonomy
   - imagemagick:imagemagick
+  - physical:physical
   - ishop_office:ishop_office

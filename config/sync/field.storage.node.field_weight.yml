@@ -1,17 +1,17 @@
-uuid: efb41b57-0f95-4a2d-b5a9-13745199292a
+uuid: a75525f8-1413-4a4d-95bd-cc05430d4ecf
 langcode: en
 status: true
 dependencies:
   module:
     - node
-id: node.field_package_width
-field_name: field_package_width
+    - physical
+id: node.field_weight
+field_name: field_weight
 entity_type: node
-type: decimal
+type: physical_measurement
 settings:
-  precision: 6
-  scale: 1
-module: core
+  measurement_type: weight
+module: physical
 locked: false
 cardinality: 1
 translatable: true

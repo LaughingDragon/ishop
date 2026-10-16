@@ -1,0 +1,9 @@
+handling_days:
+  poshmark: 7
+  mercari: 3
+  ebay: 1
+  depop: 5
+  grailed: 3
+  vinted: 5
+  facebook: 3
+label_keep_days: 30

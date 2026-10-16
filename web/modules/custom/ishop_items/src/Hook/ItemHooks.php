@@ -22,6 +22,7 @@ use Drupal\ishop_items\PhotoPrep;
 use Drupal\ishop_items\PriceBook;
 use Drupal\ishop_office\DiskStatus;
 use Drupal\ishop_items\ReadyCheck;
+use Drupal\ishop_items\Shipping;
 use Drupal\ishop_items\SoldSearch;
 use Drupal\image\Entity\ImageStyle;
 use Drupal\Core\Url;
@@ -128,12 +129,17 @@ final class ItemHooks {
   /**
    * Implements hook_cron(): deletes abandoned item photos.
    *
-   * Photos uploaded on /add but never saved with an item are deleted after a
+   * Old shipping labels are deleted (Shipping::deleteOldLabels()). Photos
+   * uploaded on /add but never saved with an item are deleted after a
    * day. A photo referenced by any item, or any item's revision history, is
    * kept.
    */
   #[Hook('cron')]
   public function cron(): void {
+    // Shipping labels (the buyer's address) go some days after delivery.
+    if ($labels = \Drupal::service(Shipping::class)->deleteOldLabels()) {
+      \Drupal::logger('ishop_items')->info('Deleted @n old shipping labels.', ['@n' => $labels]);
+    }
     $cutoff = \Drupal::time()->getRequestTime() - 86400;
     $media = \Drupal::entityTypeManager()->getStorage('media');
     $old = $media->getQuery()->accessCheck(FALSE)
@@ -280,8 +286,9 @@ final class ItemHooks {
       'field_donation_value' => 'Estimated donation value',
     ],
     'Shipping' => [
-      'field_weight_oz' => 'Weight',
-      'package' => 'Package',
+      'field_weight' => 'Weight (packed)',
+      'field_dimensions' => 'Package size',
+      'field_packing_note' => 'Packing note',
     ],
     'Storage' => [
       'field_storage_location' => 'Location',
@@ -344,7 +351,6 @@ final class ItemHooks {
     }
     $replaced = [
       'field_photos', 'field_ai_price_min', 'field_ai_price_max',
-      'field_package_length', 'field_package_width', 'field_package_height',
       ...array_keys(self::TEXT_SECTIONS),
     ];
     foreach ($replaced as $field) {
@@ -395,14 +401,9 @@ final class ItemHooks {
         $max = $money($node->get('field_ai_price_max')->value);
         return $min && $max ? "$min – $max" : ($min ?? $max);
 
-      case 'package':
-        $dim_fields = ['field_package_length', 'field_package_width', 'field_package_height'];
-        $dims = array_map(fn ($f) => $node->get($f)->value, $dim_fields);
-        return in_array(NULL, $dims, TRUE) ? NULL : implode(' × ', array_map(fn ($d) => rtrim(rtrim((string) $d, '0'), '.'), $dims)) . ' in';
-
-      case 'field_weight_oz':
-        $w = $node->get($field)->value;
-        return $w === NULL ? NULL : rtrim(rtrim((string) $w, '0'), '.') . ' oz';
+      case 'field_dimensions':
+      case 'field_weight':
+        return self::measureText($node, $field);
 
       case 'field_item_status':
         $item = $node->get($field)->first();
@@ -428,6 +429,25 @@ final class ItemHooks {
       return implode(' > ', array_map(fn ($t) => $t->label(), array_reverse($parents)));
     }
     return (string) $items->value;
+  }
+
+  /**
+   * Weight or package size as text ("12 oz", "10 × 8 × 2 in"), or NULL.
+   */
+  public static function measureText(NodeInterface $node, string $field): ?string {
+    $value = $node->get($field)->first();
+    if (!$value || $value->isEmpty()) {
+      return NULL;
+    }
+    $numbers = $field === 'field_dimensions' ? [$value->length, $value->width, $value->height] : [$value->number];
+    return implode(' × ', array_map(fn ($n) => self::trimNumber((string) $n), $numbers)) . ' ' . $value->unit;
+  }
+
+  /**
+   * "12.50" as "12.5", "3.000000" as "3".
+   */
+  public static function trimNumber(string $number): string {
+    return str_contains($number, '.') ? rtrim(rtrim($number, '0'), '.') : $number;
   }
 
   /**
@@ -465,6 +485,10 @@ final class ItemHooks {
     }
     if (isset($form['field_description']['widget'][0]['value'])) {
       $form['field_description']['widget'][0]['value']['#attributes']['data-ishop-counter'] = '1000';
+    }
+    // Shipping weight: ounces or pounds only (Physical lists mg to carats).
+    if (isset($form['field_weight']['widget'][0])) {
+      $form['field_weight']['widget'][0]['#available_units'] = ['oz', 'lb'];
     }
     $form['#attached']['library'][] = 'ishop_items/item_form';
     $form['ishop_storage'] = self::offlineNotice() + ['#weight' => -100];

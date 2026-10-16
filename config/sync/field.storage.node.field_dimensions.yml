@@ -1,17 +1,16 @@
-uuid: 24730801-3b9d-473a-a6ae-dcb049d93f86
+uuid: 15d69dd6-1f1f-499e-b9bf-832d0ee2fe13
 langcode: en
 status: true
 dependencies:
   module:
     - node
-id: node.field_package_length
-field_name: field_package_length
+    - physical
+id: node.field_dimensions
+field_name: field_dimensions
 entity_type: node
-type: decimal
-settings:
-  precision: 6
-  scale: 1
-module: core
+type: physical_dimensions
+settings: {  }
+module: physical
 locked: false
 cardinality: 1
 translatable: true

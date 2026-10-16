@@ -1,16 +1,15 @@
-uuid: 5b120f86-832e-49e4-8c49-00101a42c8d2
+uuid: a5c229c1-c504-4181-87c1-7b75f3dc6bc1
 langcode: en
 status: true
 dependencies:
   module:
     - node
-id: node.field_package_height
-field_name: field_package_height
+id: node.field_packing_note
+field_name: field_packing_note
 entity_type: node
-type: decimal
+type: string_long
 settings:
-  precision: 6
-  scale: 1
+  case_sensitive: false
 module: core
 locked: false
 cardinality: 1

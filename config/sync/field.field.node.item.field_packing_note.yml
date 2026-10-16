@@ -1,0 +1,19 @@
+uuid: 95b0c17d-31ec-4514-84ce-778bd3842fcd
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_packing_note
+    - node.type.item
+id: node.item.field_packing_note
+field_name: field_packing_note
+entity_type: node
+bundle: item
+label: 'Packing note'
+description: 'Anything to remember when packing: fragile, which box, a thank-you note.'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

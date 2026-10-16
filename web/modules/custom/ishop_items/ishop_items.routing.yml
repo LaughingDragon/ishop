@@ -144,3 +144,60 @@ ishop_items.bulk_add:
     _entity_create_access: 'node:item'
   options:
     no_cache: TRUE
+
+ishop_items.shipping_room:
+  path: '/room/shipping-room'
+  defaults:
+    _controller: '\Drupal\ishop_items\Controller\ShippingController::page'
+    _title: 'Shipping room'
+  requirements:
+    _permission: 'manage platform listings'
+    _user_is_logged_in: 'TRUE'
+  options:
+    no_cache: TRUE
+
+ishop_items.shipping_shipped:
+  path: '/room/shipping-room/{platform_listing}/shipped'
+  defaults:
+    _form: '\Drupal\ishop_items\Form\ShippedForm'
+    _title_callback: '\Drupal\ishop_items\Form\ShippedForm::title'
+  requirements:
+    _permission: 'manage platform listings'
+    _entity_access: 'platform_listing.update'
+    platform_listing: \d+
+  options:
+    no_cache: TRUE
+    parameters:
+      platform_listing:
+        type: entity:platform_listing
+
+ishop_items.shipping_label:
+  path: '/room/shipping-room/{platform_listing}/label'
+  defaults:
+    _form: '\Drupal\ishop_items\Form\ShippingLabelForm'
+    _title_callback: '\Drupal\ishop_items\Form\ShippingLabelForm::title'
+  requirements:
+    _permission: 'manage platform listings'
+    _entity_access: 'platform_listing.update'
+    platform_listing: \d+
+  options:
+    no_cache: TRUE
+    parameters:
+      platform_listing:
+        type: entity:platform_listing
+
+ishop_items.shipping_act:
+  path: '/room/shipping-room/{platform_listing}/{action}'
+  defaults:
+    _controller: '\Drupal\ishop_items\Controller\ShippingController::act'
+  requirements:
+    _permission: 'manage platform listings'
+    _entity_access: 'platform_listing.update'
+    _csrf_token: 'TRUE'
+    platform_listing: \d+
+    action: 'delivered|undo-shipped|undo-delivered'
+  options:
+    no_cache: TRUE
+    parameters:
+      platform_listing:
+        type: entity:platform_listing
