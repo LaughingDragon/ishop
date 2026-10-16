@@ -9,6 +9,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Url;
 use Drupal\Core\Cache\Cache;
+use Drupal\ishop_items\Controller\ReturnController;
 use Drupal\ishop_items\Controller\StaleController;
 use Drupal\ishop_items\Money;
 use Drupal\ishop_ai\AiRuns;
@@ -198,9 +199,9 @@ final class MatrixController extends ControllerBase {
       '#cache' => [
         'tags' => Cache::mergeTags(['node_list:item', 'platform_listing_list', Season::CACHE_TAG], $birthday_cache['tags']),
         'contexts' => Cache::mergeContexts(['user.permissions'], $birthday_cache['contexts']),
-        // The date line and "closes in N days" change daily. Nudge buttons
-        // carry a per-session token: never cache those.
-        'max-age' => $due ? 0 : min(3600, $birthday_cache['max-age']),
+        // The date line and "closes in N days" change daily. Buttons (nudges,
+        // bills, to-dos, returns) carry a per-session token: never cache.
+        'max-age' => $due || array_filter(array_column($needs, 'buttons')) ? 0 : min(3600, $birthday_cache['max-age']),
       ],
     ];
   }
@@ -242,8 +243,11 @@ final class MatrixController extends ControllerBase {
     $today = $this->dateFormatter->format($now, 'custom', 'Y-m-d');
     $last = $this->dateFormatter->format($now + Rooms::RETURN_WARN_DAYS * 86400, 'custom', 'Y-m-d');
     $nodes = $this->entityTypeManager()->getStorage('node');
-    $ids = $nodes->getQuery()->accessCheck(TRUE)
+    $query = $nodes->getQuery()->accessCheck(TRUE);
+    $not_kept = $query->orConditionGroup()->notExists('field_return_keep')->condition('field_return_keep', 0);
+    $ids = $query
       ->condition('type', 'item')
+      ->condition($not_kept)
       ->condition('field_return_by', $today, '>=')
       ->condition('field_return_by', $last, '<=')
       ->condition('field_item_status', Rooms::DONE, 'NOT IN')
@@ -255,9 +259,8 @@ final class MatrixController extends ControllerBase {
         'text' => $days === 0
           ? $this->t("@item's return window closes today. Return it or list it?", ['@item' => $item->label()])
           : $this->formatPlural($days, "@item's return window closes tomorrow. Return it or list it?", "@item's return window closes in @count days. Return it or list it?", ['@item' => $item->label()]),
-        'url' => $item->toUrl()->toString(),
-        'action' => $this->t('Decide'),
-        'ghost' => TRUE,
+        'buttons' => ReturnController::buttons($item, Url::fromRoute('ishop_matrix.dashboard')->toString()),
+        'return_days' => $days,
       ];
     }
     return $rows;
@@ -512,12 +515,14 @@ final class MatrixController extends ControllerBase {
     return [
       'log' => [
         '#type' => 'inline_template',
-        '#template' => '<p class="rm-office-links"><a class="rm-button rm-button--gold" href="{{ url }}">{{ label }}</a> <a class="rm-button rm-button--ghost" href="{{ bills }}">{{ bills_label }}</a></p>',
+        '#template' => '<p class="rm-office-links"><a class="rm-button rm-button--gold" href="{{ url }}">{{ label }}</a> <a class="rm-button rm-button--ghost" href="{{ bills }}">{{ bills_label }}</a> <a class="rm-button rm-button--ghost" href="{{ returns }}">{{ returns_label }}</a></p>',
         '#context' => [
           'url' => Url::fromRoute('ishop_life.log')->toString(),
           'label' => $this->t('Log a trip or an expense'),
           'bills' => Url::fromRoute('ishop_life.bills')->toString(),
           'bills_label' => $this->t('Bills and subscriptions'),
+          'returns' => Url::fromRoute('ishop_items.return_settings')->toString(),
+          'returns_label' => $this->t('Return windows'),
         ],
       ],
       'money' => $this->moneySection(),

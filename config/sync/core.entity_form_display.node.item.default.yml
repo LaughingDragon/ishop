@@ -27,6 +27,7 @@ dependencies:
     - field.field.node.item.field_purchase_source
     - field.field.node.item.field_quantity
     - field.field.node.item.field_return_by
+    - field.field.node.item.field_return_keep
     - field.field.node.item.field_show_in_shop
     - field.field.node.item.field_size
     - field.field.node.item.field_storage_location
@@ -105,6 +106,7 @@ third_party_settings:
         - field_order_id
         - field_asin
         - field_return_by
+        - field_return_keep
       label: 'Money and purchase'
       region: content
       parent_name: ''
@@ -312,6 +314,13 @@ content:
     weight: 20
     region: content
     settings: {  }
+    third_party_settings: {  }
+  field_return_keep:
+    type: boolean_checkbox
+    weight: 21
+    region: content
+    settings:
+      display_label: true
     third_party_settings: {  }
   field_show_in_shop:
     type: boolean_checkbox

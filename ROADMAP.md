@@ -249,7 +249,7 @@ reference project is used only for its rules and formatting logic.
 
 Plan approved with changes (Liam, decision 241). Cody requests his data now (item 242).
 
-- [ ] Return-by date defaults to about 30 days from the order date, labelled "about" and
+- [x] Return-by date defaults to about 30 days from the order date, labelled "about" and
   editable per item; the screen says it's counted from the order date (delivery is usually
   later, so it warns early). Amazon's holiday rule (bought Nov 1 to Dec 31: returnable until
   Jan 31) is a setting, not hard-coded. "Returned" and "Keeping it" buttons on the warning.
@@ -258,8 +258,9 @@ Plan approved with changes (Liam, decision 241). Cody requests his data now (ite
   draft item with cost, purchase date, order ID, ASIN and quantity (one item per line).
   Cancelled and digital orders skipped; duplicates (order + product) skipped on re-import.
   Only the needed fields are kept; the uploaded file is deleted afterwards.
-- [ ] Digest and dashboard warn 7 and 2 days before a return window closes (and on the
-  day): "return it or list it?"
+- [x] Digest and dashboard warn 7 and 2 days before a return window closes (and on the
+  day): "return it or list it?" (Built with step 1: settings at My office > Return windows; "Needs you now"
+  shows the last week with Returned / Keeping it / Open; the digest names it at 7, 2 and 0 days.)
 
 ## Phase 7: AI listing (Cody's own Anthropic account)
 

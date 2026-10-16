@@ -1,0 +1,7 @@
+_core:
+  default_config_hash: GoTppg9J34_2BmMqO1_ibx8k03mLT9nwCVQucPG2zmk
+days: 30
+holiday: true
+holiday_from: 11-01
+holiday_to: 12-31
+holiday_until: 01-31

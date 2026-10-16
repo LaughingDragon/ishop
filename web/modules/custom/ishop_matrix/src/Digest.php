@@ -139,6 +139,9 @@ final class Digest {
     // the most overdue stale nudges, bills due, to-dos due.
     $needs = [];
     foreach ($this->classResolver->getInstanceFromDefinition(MatrixController::class)->needs($now) as $row) {
+      if (isset($row['return_days']) && !in_array($row['return_days'], Rooms::RETURN_DIGEST_DAYS, TRUE)) {
+        continue;
+      }
       $needs[] = (string) $row['text'];
     }
     $stale = $this->nudges->due();

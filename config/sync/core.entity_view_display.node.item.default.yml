@@ -27,6 +27,7 @@ dependencies:
     - field.field.node.item.field_purchase_source
     - field.field.node.item.field_quantity
     - field.field.node.item.field_return_by
+    - field.field.node.item.field_return_keep
     - field.field.node.item.field_show_in_shop
     - field.field.node.item.field_size
     - field.field.node.item.field_storage_location
@@ -299,4 +300,5 @@ content:
     weight: 0
     region: content
 hidden:
+  field_return_keep: true
   links: true

@@ -1,0 +1,5 @@
+days: 30
+holiday: true
+holiday_from: '11-01'
+holiday_to: '12-31'
+holiday_until: '01-31'
