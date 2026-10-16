@@ -21,8 +21,9 @@ input.error, textarea.error, select.error { border-color: var(--rm-red); }
 }
 .rm-button:hover, .button:hover, input.form-submit:hover, button.form-submit:hover { background: var(--rm-gold-hover); color: var(--rm-ground); }
 .rm-button--gold { background: var(--rm-gold); color: var(--rm-ground); }
-.rm-button--ghost { background: transparent; color: var(--rm-text); border: 1.5px solid var(--rm-gold); }
-.rm-button--ghost:hover { background: var(--rm-raised); color: var(--rm-text); }
+/* Form buttons too (input.form-submit would otherwise win). */
+.rm-button--ghost, input.form-submit.rm-button--ghost, input.form-submit.button--ghost, button.form-submit.button--ghost { background: transparent; color: var(--rm-text); border: 1.5px solid var(--rm-gold); }
+.rm-button--ghost:hover, input.form-submit.rm-button--ghost:hover, input.form-submit.button--ghost:hover, button.form-submit.button--ghost:hover { background: var(--rm-raised); color: var(--rm-text); }
 .rm-button--ghost-light { background: transparent; color: var(--rm-on-red); border: 1.5px solid var(--rm-on-red); }
 .rm-button--ghost-light:hover { background: rgba(0, 0, 0, 0.15); color: var(--rm-on-red); }
 .button--danger { background: var(--rm-red); color: var(--rm-on-red); }
