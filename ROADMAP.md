@@ -297,10 +297,11 @@ Insights API, any server-side eBay login.
   (reports 2026-10-16-5); Cody's check is item 277.
 - [x] **Price book:** every Sold here stores price, category and condition; "Why this price"
   shows "You sold N similar items for $X-$Y" first. Done 154ba2f (report 2026-10-16-6).
-- [ ] **Two-step AI:** cheapest current Claude model, one reduced-size photo: identifies the
+- [x] **Two-step AI:** cheapest current Claude model, one reduced-size photo: identifies the
   item, category (site list only), condition, title, description. Web search only above a
   value threshold ($15, a setting). Research reused for near-identical items. Cost per item
-  measured; target a few cents.
+  measured; target a few cents. Done 265cccd (report 2026-10-16-8, decision 287): $0.0005 under $15,
+  about $0.056 with the search.
 - [x] **eBay as a platform** (Cody said yes, items 267/278; go in item 280): listing row, Sold-here
   cascade, nudges, bulk actions, Money page, tax export, eligibility and paste-ready text
   (from the son's surviving eBay formatter). Done 98ef039, report 2026-10-16-4.
