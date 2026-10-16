@@ -308,12 +308,18 @@ Insights API, any server-side eBay login.
 
 ## Phase 8: public catalog (built, switched off)
 
-- [ ] Public view of items with "show in shop" checked and not sold: photos,
-  description, price, and a contact form (Webform + Honeypot) or links to his
-  marketplace listings. Pathauto, Metatag, Simple XML Sitemap.
-- [ ] One setting turns the whole catalog on or off. Default off.
-- Note (2026-10-15): item photos are private files, so the public catalog needs public derivatives
-  (image-style copies) of the photos it shows.
+Liam's "Ok" on item 253 took every recommendation (decision 266). Module `ishop_shop`.
+
+- [x] Public view of items with "show in shop" ticked, Ready or Listed, cleared to sell, with a price and a
+  photo: /shop (photo cards, newest first, category filter) and /shop/{title-words-ID} (photos, title,
+  description, flaws, size, condition, price). Buyers get **links to his live marketplace listings only**
+  (Posted, with that platform's link): no contact form, his email address never shown. Public photo copies
+  (1600 px, metadata stripped, unguessable names) exist only while the item is in the shop and the switch is on.
+  Readable addresses, description/Open Graph tags and /shop/sitemap.xml are built in (no Pathauto, Metatag or
+  Simple XML Sitemap: they would act on the private item nodes too).
+- [x] One setting turns the whole catalog on or off (Site office > Public shop, Cody and Liam only). Default
+  off: /shop, the item pages and the sitemap answer "Not found" and no public photos exist. While on, visitors
+  to the front page go to /shop; signed-in Cody still lands on the Reseller Matrix. Stays off until Liam says.
 
 ## Phase 9: close the site office and hand over to Cody
 
