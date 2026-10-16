@@ -46,3 +46,13 @@ stockroom:
   dependencies:
     - core/drupal
     - core/once
+bulk:
+  js:
+    js/bulk.js: {}
+  css:
+    component:
+      css/bulk.css: {}
+  dependencies:
+    - core/drupal
+    - core/drupalSettings
+    - core/once

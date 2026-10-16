@@ -105,6 +105,9 @@
             getToken().then((csrf) => {
               const data = new FormData();
               data.append('photo', li.file, li.file.name || 'photo.jpg');
+              if (li.file.lastModified) {
+                data.append('taken_ms', String(li.file.lastModified));
+              }
               const xhr = new XMLHttpRequest();
               xhr.open('POST', settings.uploadUrl);
               xhr.setRequestHeader('X-CSRF-Token', csrf);

@@ -134,3 +134,13 @@ ishop_items.tax_export:
     kind: 'sales|donations'
   options:
     no_cache: TRUE
+
+ishop_items.bulk_add:
+  path: '/add/bulk'
+  defaults:
+    _form: '\Drupal\ishop_items\Form\BulkAddForm'
+    _title: 'Bulk photo drop'
+  requirements:
+    _entity_create_access: 'node:item'
+  options:
+    no_cache: TRUE

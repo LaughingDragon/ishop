@@ -1,0 +1,21 @@
+uuid: f87e8128-b35c-4f86-a464-b288d9c09428
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.media.field_taken_at
+    - media.type.item_photo
+  module:
+    - datetime
+id: media.item_photo.field_taken_at
+field_name: field_taken_at
+entity_type: media
+bundle: item_photo
+label: 'Taken at'
+description: 'When the photo was taken (from the camera, read before location data is removed; else when the file was made).'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

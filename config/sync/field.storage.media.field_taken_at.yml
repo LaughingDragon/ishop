@@ -1,0 +1,20 @@
+uuid: de77067a-7851-4da5-9c7b-2d5ca08407a5
+langcode: en
+status: true
+dependencies:
+  module:
+    - datetime
+    - media
+id: media.field_taken_at
+field_name: field_taken_at
+entity_type: media
+type: datetime
+settings:
+  datetime_type: datetime
+module: datetime
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

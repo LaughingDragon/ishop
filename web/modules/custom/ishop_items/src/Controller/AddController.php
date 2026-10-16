@@ -50,7 +50,9 @@ final class AddController extends ControllerBase {
     if (!$upload instanceof UploadedFile || !$upload->isValid()) {
       return new JsonResponse(['error' => (string) $this->t('The photo did not arrive. Try again.')], 400);
     }
-    $media = $this->saveUpload($upload);
+    // The browser's file time (ms): used only when the photo has no EXIF time.
+    $client = $request->request->get('taken_ms');
+    $media = $this->saveUpload($upload, is_numeric($client) ? (int) floor($client / 1000) : NULL);
     if (is_string($media)) {
       return new JsonResponse(['error' => $media], 422);
     }
@@ -60,7 +62,7 @@ final class AddController extends ControllerBase {
   /**
    * Saves an uploaded photo as an Item photo; returns the media or an error.
    */
-  public function saveUpload(UploadedFile $upload): Media|string {
+  public function saveUpload(UploadedFile $upload, ?int $clientTime = NULL): Media|string {
     $directory = PhotoPrep::SCHEME_PREFIX . date('Y-m');
     $this->fileSystem->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
     $result = $this->uploadHandler->handleFileUpload(new FormUploadedFile($upload), [
@@ -78,11 +80,15 @@ final class AddController extends ControllerBase {
     $file = $result->getFile();
     $file->setPermanent();
     $file->save();
+    // When it was taken: the camera's EXIF time (read before it was
+    // stripped), else the browser's file time, else now.
+    $taken = PhotoPrep::takenAt($file->getFileUri()) ?? $clientTime ?? \Drupal::time()->getRequestTime();
     $media = Media::create([
       'bundle' => 'item_photo',
       'uid' => $this->currentUser()->id(),
       'name' => $file->getFilename(),
       'field_media_image_1' => ['target_id' => $file->id()],
+      'field_taken_at' => gmdate('Y-m-d\TH:i:s', $taken),
       'status' => 1,
     ]);
     $media->save();
@@ -98,6 +104,7 @@ final class AddController extends ControllerBase {
       'mid' => (int) $media->id(),
       'name' => (string) $media->label(),
       'thumb' => $file ? ImageStyle::load('medium')->buildUrl($file->getFileUri()) : '',
+      'taken' => ($value = $media->get('field_taken_at')->value) ? strtotime($value . ' UTC') : NULL,
     ];
   }
 

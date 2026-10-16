@@ -5,6 +5,7 @@ dependencies:
   config:
     - core.entity_view_mode.media.media_library
     - field.field.media.item_photo.field_media_image_1
+    - field.field.media.item_photo.field_taken_at
     - image.style.medium
     - media.type.item_photo
   module:
@@ -27,6 +28,7 @@ content:
     region: content
 hidden:
   created: true
+  field_taken_at: true
   name: true
   thumbnail: true
   uid: true

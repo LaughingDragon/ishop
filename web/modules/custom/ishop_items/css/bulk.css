@@ -1,0 +1,15 @@
+/* Bulk photo drop (Phase 7): big targets, iPhone first. */
+.bulk-pick { cursor: pointer; }
+.bulk-form .bulk-gap input { width: 5.5em; display: inline-block; margin: 0 6px; }
+.bulk-gap label { display: inline; }
+.bulk-status { font-weight: 600; color: var(--rm-gold, #F2C14E); }
+.bulk-groups { margin: 0; padding: 0; list-style: none; }
+.bulk-group { margin: 0 0 14px; padding: 14px 16px; }
+.bulk-group h3 { margin: 0 0 10px; font-family: var(--rm-font-body, sans-serif); font-size: 1.05rem; }
+.bulk-strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; margin: 0 0 10px; padding: 0; list-style: none; }
+.bulk-photo { margin: 0; display: flex; flex-direction: column; gap: 6px; }
+.bulk-photo img, .bulk-wait { display: flex; align-items: center; justify-content: center; width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; background: var(--rm-raised, #2D2422); font-size: 0.85rem; }
+.bulk-small { min-height: 44px; padding: 6px 8px; border: 1.5px solid var(--rm-gold, #F2C14E); border-radius: 10px; background: transparent; color: var(--rm-gold, #F2C14E); font: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+.bulk-merge { width: 100%; }
+.bulk-actions { position: sticky; bottom: 0; padding: 12px 0 calc(12px + env(safe-area-inset-bottom, 0px)); background: var(--rm-ground, #161312); }
+.bulk-actions input[type=submit] { min-height: 52px; width: 100%; }

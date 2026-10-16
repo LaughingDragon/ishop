@@ -267,8 +267,11 @@ reference project is used only for its rules and formatting logic.
   `app/ai_provider/claude.py`. Cody always reviews before saving. (Built: "Write my listing" on
   the item page and /add, background queue every minute, suggestion beside current values with
   ticks, Why this price with sources; queued while AI is paused or at the $25 monthly cap.)
-- [ ] Bulk photo drop: a pile of photos split into items by time taken (45-minute
-  gap default), per the son's `import_inbox.py`.
+- [x] Bulk photo drop: a pile of photos split into items by time taken (45-minute
+  gap default), per the son's `import_inbox.py`. (Built: /add/bulk, linked from "Add item";
+  the camera's time is read from each photo before its location data is stripped; Cody can
+  change the gap, split or merge groups, then one draft item is made per group; "Also write
+  each listing with AI" queues a run for each.)
 - [x] Log token usage per item so cost is visible on the money page: every run records tokens,
   searches and cost; the Money page shows AI cost for the period (per item, highest first) and
   this month against the $25 cap; each item shows its AI cost so far.

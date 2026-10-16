@@ -4,6 +4,7 @@ status: true
 dependencies:
   config:
     - field.field.media.item_photo.field_media_image_1
+    - field.field.media.item_photo.field_taken_at
     - image.style.thumbnail
     - media.type.item_photo
   module:
@@ -23,6 +24,7 @@ content:
     third_party_settings: {  }
 hidden:
   created: true
+  field_taken_at: true
   name: true
   path: true
   status: true

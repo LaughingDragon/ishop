@@ -131,6 +131,39 @@ final class AiHooks {
   }
 
   /**
+   * Implements hook_form_FORM_ID_alter() for the bulk photo drop.
+   */
+  #[Hook('form_ishop_items_bulk_add_alter')]
+  public function bulkFormAlter(array &$form, FormStateInterface $form_state): void {
+    if (!$this->status->get()['configured']) {
+      return;
+    }
+    $form['ishop_ai_write'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Also write each listing with AI (you choose what to use)'),
+      '#description' => $this->t('About $0.40 an item, within the $@cap monthly cap.', ['@cap' => (int) AiRuns::MONTHLY_CAP]),
+      '#default_value' => TRUE,
+      '#weight' => 90,
+    ];
+    $form['#submit'] = ($form['#submit'] ?? []) ?: ['::submitForm'];
+    $form['#submit'][] = [self::class, 'queueAfterBulk'];
+  }
+
+  /**
+   * After the bulk photo drop: queue "Write my listing" for each new item.
+   */
+  public static function queueAfterBulk(array &$form, FormStateInterface $form_state): void {
+    $nids = $form_state->get('created_nids') ?? [];
+    if (!$form_state->getValue('ishop_ai_write') || !$nids) {
+      return;
+    }
+    foreach ($nids as $nid) {
+      \Drupal::service(AiRuns::class)->queue((int) $nid);
+    }
+    \Drupal::messenger()->addStatus(\Drupal::translation()->formatPlural(count($nids), 'The AI is writing its listing: the draft appears on the item page in a few minutes.', 'The AI is writing all @count listings, one after another: drafts appear on the item pages over the next few minutes.'));
+  }
+
+  /**
    * After /add saved an item: queue "Write my listing" if ticked.
    */
   public static function queueAfterAdd(array &$form, FormStateInterface $form_state): void {

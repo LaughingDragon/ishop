@@ -7,6 +7,7 @@ namespace Drupal\ishop_items\Form;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Link;
 use Drupal\Core\Url;
 use Drupal\ishop_items\Controller\AddController;
 use Drupal\ishop_items\Hook\ItemHooks;
@@ -126,6 +127,12 @@ final class AddItemForm extends FormBase {
       '#type' => 'container',
       '#attributes' => ['class' => ['ia-photos']],
       'heading' => ['#type' => 'html_tag', '#tag' => 'h2', '#value' => $this->t('Photos')],
+      'bulk' => [
+        '#type' => 'html_tag',
+        '#tag' => 'p',
+        '#attributes' => ['class' => ['ia-bulk-link']],
+        'link' => Link::createFromRoute($this->t('Many items at once? Use the bulk photo drop'), 'ishop_items.bulk_add')->toRenderable(),
+      ],
       // Shown by add.js; hidden when JavaScript doesn't run.
       'controls' => [
         '#type' => 'inline_template',

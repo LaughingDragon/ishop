@@ -45,3 +45,4 @@
 .ia-details { margin: 16px 0; }
 .ia-form .ia-save { width: 100%; min-height: 60px; font-size: 1.15rem; }
 .ia-form .ia-save:disabled { opacity: 0.6; }
+.ia-bulk-link { margin: 0 0 12px; font-weight: 600; }

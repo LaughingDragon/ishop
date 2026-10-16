@@ -55,6 +55,43 @@ final class PhotoPrep {
   }
 
   /**
+   * Capture times read during this request: file URI => Unix time.
+   *
+   * @var array<string, int>
+   */
+  private static array $takenAt = [];
+
+  /**
+   * When a photo prepared in this request was taken, or NULL if unknown.
+   */
+  public static function takenAt(string $uri): ?int {
+    return self::$takenAt[$uri] ?? NULL;
+  }
+
+  /**
+   * Parses an EXIF date into a Unix time, or NULL.
+   *
+   * E.g. "2026:10:15 14:29:01": camera local time, taken as Pacific.
+   */
+  public static function parseExifDate(string $value): ?int {
+    if (!preg_match('/^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})/', trim($value), $m) || $m[1] === '0000') {
+      return NULL;
+    }
+    $date = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', "$m[1]-$m[2]-$m[3] $m[4]:$m[5]:$m[6]", new \DateTimeZone('America/Los_Angeles'));
+    return $date ? $date->getTimestamp() : NULL;
+  }
+
+  /**
+   * The photo's EXIF capture time (JPEG or HEIC), via ImageMagick.
+   */
+  private function readTakenAt(string $path): ?int {
+    $process = new Process([self::MAGICK, 'identify', '-format', '%[EXIF:DateTimeOriginal]', $path . '[0]']);
+    $process->setTimeout(30);
+    $process->run();
+    return $process->isSuccessful() ? self::parseExifDate($process->getOutput()) : NULL;
+  }
+
+  /**
    * The filename after preparing: the same base name, ending in .jpg.
    */
   public static function jpegName(string $name): string {
@@ -85,6 +122,9 @@ final class PhotoPrep {
     if (!$source || !is_file($source)) {
       throw new \RuntimeException(sprintf('Photo file %s not found.', $uri));
     }
+    // Read when it was taken before the metadata is stripped (bulk photo
+    // drop splits photos into items by this time).
+    $taken = $this->readTakenAt($source);
     $head = (string) file_get_contents($source, FALSE, NULL, 0, 16);
     $heif = self::isHeif($head);
 
@@ -125,6 +165,9 @@ final class PhotoPrep {
     }
 
     $file->setFileUri($target_uri);
+    if ($taken !== NULL) {
+      self::$takenAt[$target_uri] = $taken;
+    }
     $file->setFilename(self::jpegName($file->getFilename()));
     $file->setMimeType('image/jpeg');
     clearstatcache(TRUE, $target);
