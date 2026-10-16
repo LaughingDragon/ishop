@@ -8,6 +8,7 @@ dependencies:
     - field.field.node.todo.field_todo_due
     - node.type.todo
   module:
+    - datetime
     - path
 id: node.todo.default
 targetEntityType: node
@@ -21,16 +22,20 @@ content:
     settings: {  }
     third_party_settings: {  }
   field_done_on:
+    type: datetime_default
     weight: 12
     region: content
     settings: {  }
     third_party_settings: {  }
   field_todo_done:
+    type: boolean_checkbox
     weight: 11
     region: content
-    settings: {  }
+    settings:
+      display_label: true
     third_party_settings: {  }
   field_todo_due:
+    type: datetime_default
     weight: 10
     region: content
     settings: {  }

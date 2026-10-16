@@ -1,0 +1,21 @@
+uuid: 95002abe-dc4b-4152-bf28-cf1657e3fcca
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_doc_until
+    - node.type.document
+  module:
+    - datetime
+id: node.document.field_doc_until
+field_name: field_doc_until
+entity_type: node
+bundle: document
+label: 'Warranty until'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

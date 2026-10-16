@@ -1,0 +1,33 @@
+uuid: feb0300e-2058-4408-b533-8425d59320d3
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_doc_kind
+field_name: field_doc_kind
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: receipt
+      label: Receipt
+    -
+      value: warranty
+      label: Warranty
+    -
+      value: manual
+      label: Manual
+    -
+      value: other
+      label: Other
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -13,6 +13,7 @@ bundle: note
 mode: default
 content:
   field_log_note:
+    type: basic_string
     label: inline
     settings: {  }
     third_party_settings: {  }

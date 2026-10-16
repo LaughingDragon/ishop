@@ -28,6 +28,7 @@ final class Calendar {
     private readonly AccountProxyInterface $currentUser,
     private readonly Bills $bills,
     private readonly Todos $todos,
+    private readonly Vault $vault,
   ) {}
 
   /**
@@ -114,7 +115,7 @@ final class Calendar {
       }
     }
     // Open to-dos with a date (Break room).
-    $rows = array_merge($rows, $this->todos->calendarRows($from, $to));
+    $rows = array_merge($rows, $this->todos->calendarRows($from, $to), $this->vault->calendarRows($from, $to));
     return self::sort($rows);
   }
 

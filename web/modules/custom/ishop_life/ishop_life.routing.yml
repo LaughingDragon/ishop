@@ -72,3 +72,14 @@ ishop_life.todo_toggle:
       node:
         type: entity:node
         bundle: [todo]
+
+ishop_life.mailroom:
+  path: '/room/mailroom'
+  defaults:
+    _controller: '\Drupal\ishop_life\Controller\MailroomController::page'
+    _title: 'Mailroom'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+  options:
+    no_cache: TRUE

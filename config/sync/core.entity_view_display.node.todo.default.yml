@@ -8,6 +8,7 @@ dependencies:
     - field.field.node.todo.field_todo_due
     - node.type.todo
   module:
+    - datetime
     - user
 id: node.todo.default
 targetEntityType: node
@@ -15,20 +16,30 @@ bundle: todo
 mode: default
 content:
   field_done_on:
+    type: datetime_default
     label: inline
-    settings: {  }
+    settings:
+      timezone_override: ''
+      format_type: medium
     third_party_settings: {  }
     weight: 12
     region: content
   field_todo_done:
+    type: boolean
     label: inline
-    settings: {  }
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
     third_party_settings: {  }
     weight: 11
     region: content
   field_todo_due:
+    type: datetime_default
     label: inline
-    settings: {  }
+    settings:
+      timezone_override: ''
+      format_type: medium
     third_party_settings: {  }
     weight: 10
     region: content

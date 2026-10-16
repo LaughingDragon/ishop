@@ -40,3 +40,12 @@
 .rm-notes__note { margin: 0 0 12px; padding: 14px 18px; }
 .rm-notes__note h3 { margin: 0 0 6px; font-size: 1.1rem; }
 .rm-notes__note p { margin: 0 0 6px; }
+
+/* Mailroom: the document vault. */
+.rm-vault { margin: 0 0 26px; }
+.rm-vault__doc { margin: 0 0 12px; padding: 14px 18px; }
+.rm-vault__doc h3 { margin: 0 0 4px; font-size: 1.1rem; }
+.rm-vault__meta { margin: 0 0 6px; font-size: 16px; color: var(--rm-text-soft); }
+.rm-vault__doc .rm-log__links { flex-wrap: wrap; align-items: center; }
+.ishop-docs { margin: 0 0 20px; }
+.ishop-docs ul { margin: 0 0 10px; padding-left: 1.2em; }

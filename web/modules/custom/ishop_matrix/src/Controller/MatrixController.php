@@ -14,6 +14,7 @@ use Drupal\ishop_items\Money;
 use Drupal\ishop_life\Bills;
 use Drupal\ishop_life\LogBook;
 use Drupal\ishop_life\Todos;
+use Drupal\ishop_life\Vault;
 use Drupal\ishop_life\Controller\BillsController;
 use Drupal\ishop_items\TaxExport;
 use Drupal\ishop_items\StaleNudges;
@@ -248,7 +249,7 @@ final class MatrixController extends ControllerBase {
       'stockroom' => Rooms::count($on_hand, '%d item on the game room table', '%d items on the game room table', 'No items yet'),
       'shipping-room' => $not_built,
       'my-office' => $month['count'] ? sprintf('Sold this month: $%s', number_format($month['revenue'], 2)) : 'Nothing sold yet this month',
-      'mailroom' => $not_built,
+      'mailroom' => Rooms::count(count(\Drupal::service(Vault::class)->documents()), '%d document in the vault', '%d documents in the vault', 'The vault is empty'),
       'calendar-wall' => $this->calendarGlance(),
       'break-room' => Rooms::count(count($this->todos->todos(FALSE)), '%d thing on the to-do list', '%d things on the to-do list', 'To-do list is clear'),
     ];

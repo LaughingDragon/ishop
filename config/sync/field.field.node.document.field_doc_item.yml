@@ -1,0 +1,27 @@
+uuid: b665c482-4802-49d1-993a-5bea7517aaba
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_doc_item
+    - node.type.document
+    - node.type.item
+id: node.document.field_doc_item
+field_name: field_doc_item
+entity_type: node
+bundle: document
+label: Item
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      item: item
+    sort:
+      field: title
+      direction: ASC
+field_type: entity_reference

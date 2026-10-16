@@ -225,7 +225,10 @@ reference project is used only for its rules and formatting logic.
   My office > "Log a trip or an expense": quick-add forms ("Same as last time" for the regular
   trip), receipt photos (JPEG, no GPS, private), latest entries; Mileage and Expenses CSVs in the
   year-end tax export. Module ishop_life.
-- [ ] Private document vault (receipts, warranties, manuals), attachable to items.
+- [x] Private document vault (receipts, warranties, manuals), attachable to items: the
+  Mailroom (photos or PDFs, several at once; photos lose GPS; private files only), filter by
+  kind, "Documents" on each item page with "Add a receipt, warranty or manual", warranty end
+  dates on the Calendar wall.
 - [x] Notes and to-dos (Break room): to-dos with an optional date and a big Done button
   (Undo in "Recently done"); dated ones also show on the Calendar wall and, on the day or
   overdue, in "Needs you now"; notes with Edit/Delete.

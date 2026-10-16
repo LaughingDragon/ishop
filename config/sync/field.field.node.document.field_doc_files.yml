@@ -1,0 +1,27 @@
+uuid: c042dbd5-4551-45f1-8359-0bca7687a7e8
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_doc_files
+    - node.type.document
+  module:
+    - file
+id: node.document.field_doc_files
+field_name: field_doc_files
+entity_type: node
+bundle: document
+label: Files
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings: {  }
+  file_directory: 'vault/[date:custom:Y]-[date:custom:m]'
+  file_extensions: 'jpg jpeg png webp heic heif pdf'
+  max_filesize: '32 MB'
+  description_field: false
+field_type: file

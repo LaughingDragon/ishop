@@ -1,0 +1,11 @@
+uuid: c05d391b-9249-416a-972a-4fc744bb5dc7
+langcode: en
+status: true
+dependencies: {  }
+name: Document
+type: document
+description: 'A receipt, warranty, manual or other paper, kept privately in the Mailroom.'
+help: null
+new_revision: true
+preview_mode: 1
+display_submitted: false

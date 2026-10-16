@@ -42,3 +42,11 @@ function ishop_life_update_11003(): string {
   LifeStructure::ensure();
   return 'To-do and note content types added.';
 }
+
+/**
+ * Adds the document vault (Phase 5 step 5).
+ */
+function ishop_life_update_11004(): string {
+  LifeStructure::ensure();
+  return 'Document content type added.';
+}

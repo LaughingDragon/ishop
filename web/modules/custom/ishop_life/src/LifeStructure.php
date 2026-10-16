@@ -26,6 +26,17 @@ final class LifeStructure {
     'event' => ['Event', 'Something on the Calendar wall, once or repeating.'],
     'todo' => ['To-do', 'Something to do, with an optional date. Kept in the Break room.'],
     'note' => ['Note', 'A note kept in the Break room.'],
+    'document' => ['Document', 'A receipt, warranty, manual or other paper, kept privately in the Mailroom.'],
+  ];
+
+  /**
+   * Kinds of document in the vault.
+   */
+  public const DOC_KINDS = [
+    'receipt' => 'Receipt',
+    'warranty' => 'Warranty',
+    'manual' => 'Manual',
+    'other' => 'Other',
   ];
 
   /**
@@ -49,7 +60,7 @@ final class LifeStructure {
   ];
 
   /**
-   * Field storage: name => [type, settings].
+   * Field storage: name => [type, settings, cardinality (default 1)].
    */
   private const STORAGE = [
     'field_log_date' => ['datetime', ['datetime_type' => 'date']],
@@ -69,6 +80,10 @@ final class LifeStructure {
     'field_todo_due' => ['datetime', ['datetime_type' => 'date']],
     'field_todo_done' => ['boolean', []],
     'field_done_on' => ['datetime', ['datetime_type' => 'date']],
+    'field_doc_kind' => ['list_string', ['allowed_values' => self::DOC_KINDS]],
+    'field_doc_files' => ['file', ['uri_scheme' => 'private', 'target_type' => 'file'], -1],
+    'field_doc_item' => ['entity_reference', ['target_type' => 'node']],
+    'field_doc_until' => ['datetime', ['datetime_type' => 'date']],
   ];
 
   /**
@@ -120,6 +135,25 @@ final class LifeStructure {
     'note' => [
       'field_log_note' => ['Text', FALSE, []],
     ],
+    'document' => [
+      'field_doc_kind' => ['Kind', TRUE, []],
+      'field_doc_files' => ['Files', TRUE, [
+        'file_directory' => 'vault/[date:custom:Y]-[date:custom:m]',
+        'file_extensions' => 'jpg jpeg png webp heic heif pdf',
+        'max_filesize' => '32 MB',
+      ],
+      ],
+      'field_doc_item' => ['Item', FALSE, [
+        'handler' => 'default:node',
+        'handler_settings' => [
+          'target_bundles' => ['item' => 'item'],
+          'sort' => ['field' => 'title', 'direction' => 'ASC'],
+        ],
+      ],
+      ],
+      'field_doc_until' => ['Warranty until', FALSE, []],
+      'field_log_note' => ['Note', FALSE, []],
+    ],
   ];
 
   /**
@@ -137,13 +171,16 @@ final class LifeStructure {
         ])->save();
       }
     }
-    foreach (self::STORAGE as $name => [$type, $settings]) {
+    foreach (self::STORAGE as $name => $definition) {
+      [$type, $settings] = $definition;
+      $cardinality = $definition[2] ?? 1;
       if (!FieldStorageConfig::loadByName('node', $name)) {
         FieldStorageConfig::create([
           'field_name' => $name,
           'entity_type' => 'node',
           'type' => $type,
           'settings' => $settings,
+          'cardinality' => $cardinality,
         ])->save();
       }
     }

@@ -1,0 +1,54 @@
+uuid: 8657dc92-d5aa-4c09-a535-f0143dd91c4d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.document.field_doc_files
+    - field.field.node.document.field_doc_item
+    - field.field.node.document.field_doc_kind
+    - field.field.node.document.field_doc_until
+    - field.field.node.document.field_log_note
+    - node.type.document
+  module:
+    - user
+id: node.document.default
+targetEntityType: node
+bundle: document
+mode: default
+content:
+  field_doc_files:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 11
+    region: content
+  field_doc_item:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 12
+    region: content
+  field_doc_kind:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 10
+    region: content
+  field_doc_until:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 13
+    region: content
+  field_log_note:
+    label: inline
+    settings: {  }
+    third_party_settings: {  }
+    weight: 14
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden: {  }

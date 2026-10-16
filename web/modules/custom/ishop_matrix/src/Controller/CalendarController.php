@@ -102,6 +102,7 @@ final class CalendarController extends ControllerBase {
             'bill' => $this->t('Bill'),
             'game' => $this->t('Game'),
             'todo' => $this->t('To-do'),
+            'doc' => $this->t('Warranty'),
           ],
           'edit' => $this->t('Edit'),
           'delete' => $this->t('Delete'),

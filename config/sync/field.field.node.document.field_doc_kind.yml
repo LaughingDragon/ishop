@@ -1,0 +1,21 @@
+uuid: 3272e18f-922e-4d43-b578-70f1a3d50542
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_doc_kind
+    - node.type.document
+  module:
+    - options
+id: node.document.field_doc_kind
+field_name: field_doc_kind
+entity_type: node
+bundle: document
+label: Kind
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string
