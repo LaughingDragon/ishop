@@ -256,8 +256,9 @@ reference project is used only for its rules and formatting logic.
 
 ## Phase 7: AI listing (Cody's own Anthropic account)
 
-- [ ] Wait until Cody has his own Anthropic account with a monthly spend limit
-  set in the Anthropic console. Never use his son's key.
+- [x] Wait until Cody has his own Anthropic account with a monthly spend limit
+  set in the Anthropic console. Never use his son's key. (Done: his own key, $32 account
+  limit, saved and tested by Cody, item 224.)
 - [x] AI module + Anthropic provider; key via the Key module: module ishop_ai, official
   Anthropic PHP SDK, /site-office/ai-setup for Cody (and webmaster) to save, test and remove his
   own key (file in secrets/, Key module "anthropic_api_key"; one tiny test call on save).
