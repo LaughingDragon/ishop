@@ -1,0 +1,23 @@
+uuid: 05aba487-9ff8-44c8-8a05-f11515c45791
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_cleared_to_sell
+    - node.type.item
+id: node.item.field_cleared_to_sell
+field_name: field_cleared_to_sell
+entity_type: node
+bundle: item
+label: 'Cleared to sell'
+description: 'Tick once you have checked it is OK to sell. Posting waits until this is ticked.'
+required: false
+translatable: true
+default_value:
+  -
+    value: 0
+default_value_callback: ''
+settings:
+  on_label: 'Cleared to sell'
+  off_label: 'Not checked yet'
+field_type: boolean

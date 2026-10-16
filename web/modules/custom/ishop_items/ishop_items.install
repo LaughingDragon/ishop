@@ -7,6 +7,9 @@
 
 declare(strict_types=1);
 
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field\Entity\FieldStorageConfig;
+
 /**
  * Adds the platform listing entity type (Phase 1 step 3).
  */
@@ -111,4 +114,60 @@ function ishop_items_update_11004(): string {
     $display->save();
   }
   return 'Removed: ' . ($done ? implode(', ', $done) : 'nothing (already gone)') . '. Cost paid is now "What I paid (if you remember)".';
+}
+
+/**
+ * Adds "Cleared to sell" (decision 265): posting waits until it's ticked.
+ *
+ * New items start unticked; the three real items (121, 255, 256) start
+ * ticked, as Liam decided.
+ */
+function ishop_items_update_11005(): string {
+  if (!FieldStorageConfig::loadByName('node', 'field_cleared_to_sell')) {
+    FieldStorageConfig::create([
+      'field_name' => 'field_cleared_to_sell',
+      'entity_type' => 'node',
+      'type' => 'boolean',
+    ])->save();
+  }
+  if (!FieldConfig::loadByName('node', 'item', 'field_cleared_to_sell')) {
+    FieldConfig::create([
+      'field_name' => 'field_cleared_to_sell',
+      'entity_type' => 'node',
+      'bundle' => 'item',
+      'label' => 'Cleared to sell',
+      'description' => 'Tick once you have checked it is OK to sell. Posting waits until this is ticked.',
+      'default_value' => [['value' => 0]],
+      'settings' => ['on_label' => 'Cleared to sell', 'off_label' => 'Not checked yet'],
+    ])->save();
+  }
+  $form = \Drupal::service('entity_display.repository')->getFormDisplay('node', 'item');
+  $form->setComponent('field_cleared_to_sell', [
+    'type' => 'boolean_checkbox',
+    'weight' => 11,
+    'settings' => ['display_label' => TRUE],
+  ]);
+  $groups = $form->getThirdPartySettings('field_group');
+  if (isset($groups['group_listing']) && !in_array('field_cleared_to_sell', $groups['group_listing']['children'], TRUE)) {
+    $groups['group_listing']['children'][] = 'field_cleared_to_sell';
+    $form->setThirdPartySetting('field_group', 'group_listing', $groups['group_listing']);
+  }
+  $form->save();
+  \Drupal::service('entity_display.repository')->getViewDisplay('node', 'item')
+    ->removeComponent('field_cleared_to_sell')->save();
+
+  $ticked = [];
+  foreach (\Drupal::entityTypeManager()->getStorage('node')->loadMultiple([121, 255, 256]) as $node) {
+    if ($node->bundle() === 'item' && !$node->get('field_cleared_to_sell')->value) {
+      $node->set('field_cleared_to_sell', 1);
+      $node->setNewRevision();
+      $node->setRevisionLogMessage('Cleared to sell: ticked for the existing items (decision 265).');
+      $node->setRevisionUserId(2);
+      $node->setRevisionCreationTime(\Drupal::time()->getRequestTime());
+      $node->setSyncing(TRUE);
+      $node->save();
+      $ticked[] = $node->id();
+    }
+  }
+  return 'Added "Cleared to sell"; ticked items: ' . ($ticked ? implode(', ', $ticked) : 'none');
 }

@@ -8,6 +8,7 @@ dependencies:
     - field.field.node.item.field_asking_price
     - field.field.node.item.field_brand
     - field.field.node.item.field_category
+    - field.field.node.item.field_cleared_to_sell
     - field.field.node.item.field_color
     - field.field.node.item.field_condition
     - field.field.node.item.field_cost_paid
@@ -253,4 +254,5 @@ content:
     weight: 0
     region: content
 hidden:
+  field_cleared_to_sell: true
   links: true

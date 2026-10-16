@@ -8,6 +8,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Url;
 use Drupal\image\Entity\ImageStyle;
+use Drupal\ishop_items\Cleared;
 use Drupal\ishop_items\Eligibility;
 use Drupal\ishop_items\PlatformCategories;
 use Drupal\ishop_items\Form\ListingsGridForm;
@@ -20,6 +21,7 @@ use Drupal\node\NodeInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -47,6 +49,10 @@ final class PostController extends ControllerBase {
    * Without a platform: the first one still to post (and allowed).
    */
   public function start(NodeInterface $node): RedirectResponse {
+    if (!Cleared::isCleared($node)) {
+      $this->messenger()->addWarning($this->t("Check it's OK to sell first, then tick Cleared to sell on the item."));
+      return $this->redirect('entity.node.canonical', ['node' => $node->id()]);
+    }
     $facts = ListingsGridForm::eligibilityFacts($node);
     $first = array_key_first(Platforms::PLATFORMS);
     foreach ($this->listings->forItem($node) as $platform => $listing) {
@@ -73,6 +79,22 @@ final class PostController extends ControllerBase {
    */
   public function page(NodeInterface $node, string $platform): array {
     $this->checkPlatform($platform);
+    if (!Cleared::isCleared($node)) {
+      return [
+        'message' => [
+          '#type' => 'html_tag',
+          '#tag' => 'p',
+          '#value' => $this->t("Check it's OK to sell first, then tick Cleared to sell on the item."),
+        ],
+        'edit' => [
+          '#type' => 'link',
+          '#title' => $this->t('Edit the item'),
+          '#url' => $node->toUrl('edit-form'),
+          '#attributes' => ['class' => ['rm-button', 'rm-button--gold']],
+        ],
+        '#cache' => ['tags' => $node->getCacheTags()],
+      ];
+    }
     $facts = ListingsGridForm::eligibilityFacts($node);
     $listings = $this->listings->forItem($node);
 
@@ -143,6 +165,9 @@ final class PostController extends ControllerBase {
    */
   public function zip(NodeInterface $node, string $platform): BinaryFileResponse {
     $this->checkPlatform($platform);
+    if (!Cleared::isCleared($node)) {
+      throw new AccessDeniedHttpException(Cleared::MESSAGE);
+    }
     $spec = PostPack::PHOTO_SPECS[$platform];
     $style = ImageStyle::load('post_' . $platform);
     $uris = array_slice(self::photoUris($node), 0, $spec['max_photos']);

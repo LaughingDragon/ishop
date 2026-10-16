@@ -13,6 +13,7 @@ use Drupal\file\FileInterface;
 use Drupal\Core\Form\FormBuilderInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\ishop_items\Form\ListingsGridForm;
+use Drupal\ishop_items\Cleared;
 use Drupal\ishop_items\EbaySold;
 use Drupal\ishop_items\ListingManager;
 use Drupal\ishop_items\PhotoPrep;
@@ -222,11 +223,16 @@ final class ItemHooks {
         '#type' => 'container',
         '#attributes' => ['id' => 'listings'],
         '#weight' => 90,
-        'post' => [
+        'post' => Cleared::isCleared($node) ? [
           '#type' => 'link',
           '#title' => $this->t('Post this item'),
           '#url' => Url::fromRoute('ishop_items.post_start', ['node' => $node->id()]),
           '#attributes' => ['class' => ['rm-button', 'rm-button--gold', 'ishop-post-link']],
+        ] : [
+          '#type' => 'html_tag',
+          '#tag' => 'p',
+          '#value' => $this->t("Check it's OK to sell first: tick Cleared to sell on the item's Edit page. Then you can post it."),
+          '#attributes' => ['class' => ['ishop-not-cleared']],
         ],
         // Real sold prices, checked by Cody on eBay itself (decision 264).
         'sold' => ($sold = EbaySold::url((string) $node->label())) ? [

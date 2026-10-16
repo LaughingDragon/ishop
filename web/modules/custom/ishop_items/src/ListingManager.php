@@ -61,6 +61,10 @@ final class ListingManager {
       if (!$item || !$item->access('view') || in_array((string) $item->get('field_item_status')->value, Stale::ITEM_DONE, TRUE)) {
         continue;
       }
+      // Not checked yet: nothing is posted until it's cleared (decision 265).
+      if (!Cleared::isCleared($item)) {
+        continue;
+      }
       $verdict = PlatformCategories::evaluate(ListingsGridForm::eligibilityFacts($item) + [
         'override' => $listing->get('eligibility_override')->value,
         'override_note' => $listing->get('eligibility_note')->value,

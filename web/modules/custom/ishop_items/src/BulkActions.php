@@ -129,6 +129,9 @@ final class BulkActions {
         if ($listing && in_array($listing->getStatus(), [Platforms::POSTED, Platforms::AT_RISK], TRUE)) {
           return ['before' => "$name: $now", 'after' => '', 'skip' => "already posted on $name"];
         }
+        if (!Cleared::isCleared($item)) {
+          return ['before' => "$name: $now", 'after' => '', 'skip' => 'not cleared to sell yet: ' . Cleared::MESSAGE];
+        }
         if ($listing && !in_array($listing->getStatus(), [Platforms::TO_POST, Platforms::TAKE_DOWN], TRUE)) {
           return ['before' => "$name: $now", 'after' => '', 'skip' => "$name says \"$now\""];
         }

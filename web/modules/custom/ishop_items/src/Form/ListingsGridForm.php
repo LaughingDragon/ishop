@@ -6,6 +6,7 @@ namespace Drupal\ishop_items\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\ishop_items\Cleared;
 use Drupal\ishop_items\Eligibility;
 use Drupal\ishop_items\PlatformCategories;
 use Drupal\ishop_items\Entity\PlatformListing;
@@ -219,6 +220,10 @@ final class ListingsGridForm extends FormBase {
       }
       if ($was === Platforms::SOLD_HERE && $row['status'] === Platforms::SOLD_HERE) {
         $already_sold[] = $platform;
+      }
+      // Decision 265: no new "Posted" until the item is cleared to sell.
+      if ($row['status'] === Platforms::POSTED && $was !== Platforms::POSTED && !Cleared::isCleared($form_state->get('item'))) {
+        $form_state->setErrorByName('rows][' . $platform . '][status', $this->t("Check it's OK to sell first, then tick Cleared to sell on the item."));
       }
     }
     if (count($new_sales) > 1) {

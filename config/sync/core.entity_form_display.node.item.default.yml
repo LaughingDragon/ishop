@@ -8,6 +8,7 @@ dependencies:
     - field.field.node.item.field_asking_price
     - field.field.node.item.field_brand
     - field.field.node.item.field_category
+    - field.field.node.item.field_cleared_to_sell
     - field.field.node.item.field_color
     - field.field.node.item.field_condition
     - field.field.node.item.field_cost_paid
@@ -46,6 +47,7 @@ third_party_settings:
         - field_quantity
         - field_item_status
         - field_donation_value
+        - field_cleared_to_sell
       label: Listing
       region: content
       parent_name: ''
@@ -149,6 +151,13 @@ content:
     weight: 7
     region: content
     settings: {  }
+    third_party_settings: {  }
+  field_cleared_to_sell:
+    type: boolean_checkbox
+    weight: 11
+    region: content
+    settings:
+      display_label: true
     third_party_settings: {  }
   field_color:
     type: string_textfield
