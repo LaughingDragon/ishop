@@ -247,12 +247,19 @@ reference project is used only for its rules and formatting logic.
 
 ## Phase 6: Amazon import and return windows
 
-- [ ] Upload Amazon's order history export (from Amazon's "Request your data").
-  Each line becomes a draft item with cost, purchase date, order ID.
-  Skip duplicates on re-import.
-- [ ] Return-by date defaults to purchase date + 30 days, editable per item.
-- [ ] Digest and dashboard warn 7 and 2 days before a return window closes:
-  "return it or list it?"
+Plan approved with changes (Liam, decision 241). Cody requests his data now (item 242).
+
+- [ ] Return-by date defaults to about 30 days from the order date, labelled "about" and
+  editable per item; the screen says it's counted from the order date (delivery is usually
+  later, so it warns early). Amazon's holiday rule (bought Nov 1 to Dec 31: returnable until
+  Jan 31) is a setting, not hard-coded. "Returned" and "Keeping it" buttons on the warning.
+- [ ] Upload Amazon's order history export (the "Your Orders" zip or CSV from "Request your
+  data"). A preview with ticks (open return windows pre-ticked); each ticked line becomes a
+  draft item with cost, purchase date, order ID, ASIN and quantity (one item per line).
+  Cancelled and digital orders skipped; duplicates (order + product) skipped on re-import.
+  Only the needed fields are kept; the uploaded file is deleted afterwards.
+- [ ] Digest and dashboard warn 7 and 2 days before a return window closes (and on the
+  day): "return it or list it?"
 
 ## Phase 7: AI listing (Cody's own Anthropic account)
 
