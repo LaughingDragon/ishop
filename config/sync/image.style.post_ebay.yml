@@ -1,0 +1,34 @@
+uuid: fe815614-0f85-4c48-abb0-666a64477c82
+langcode: en
+status: true
+dependencies:
+  module:
+    - image_effects
+name: post_ebay
+label: 'Post: eBay (1600px)'
+effects:
+  2a31a2bc-9b58-4b7d-a9ef-3c0b1d3eae0d:
+    uuid: 2a31a2bc-9b58-4b7d-a9ef-3c0b1d3eae0d
+    id: image_effects_auto_orient
+    weight: 0
+    data:
+      scan_exif: true
+  f9910744-589e-41eb-ba5a-9f1a05865b77:
+    uuid: f9910744-589e-41eb-ba5a-9f1a05865b77
+    id: image_scale
+    weight: 1
+    data:
+      width: 1600
+      height: 1600
+      upscale: false
+  65596994-60d7-40f2-962a-4c29167c418e:
+    uuid: 65596994-60d7-40f2-962a-4c29167c418e
+    id: image_effects_strip_metadata
+    weight: 3
+    data: {  }
+  51879580-4dfc-4b32-9e82-108e42596921:
+    uuid: 51879580-4dfc-4b32-9e82-108e42596921
+    id: image_convert
+    weight: 4
+    data:
+      extension: jpg

@@ -36,6 +36,12 @@ final class PostPack {
       'square' => TRUE,
       'note' => 'Exported as 1080x1080 squares (white padding)',
     ],
+    'ebay' => [
+      'max_photos' => 24,
+      'size' => 1600,
+      'square' => FALSE,
+      'note' => "eBay doesn't force square photos; export at up to 1600px",
+    ],
     'depop' => [
       'max_photos' => 4,
       'size' => 1280,
@@ -68,6 +74,7 @@ final class PostPack {
   public const DISPLAY_NAMES = [
     'poshmark' => 'Poshmark',
     'mercari' => 'Mercari',
+    'ebay' => 'eBay',
     'depop' => 'Depop',
     'grailed' => 'Grailed',
     'vinted' => 'Vinted',
@@ -111,6 +118,40 @@ final class PostPack {
   ];
 
   /**
+   * EBay's apparel conditions (Clothing, Shoes & Accessories).
+   *
+   * EBay's condition list is NOT global: it branches by category, with at
+   * least three vocabularies, read off live dropdowns on 2026-08-10/11 (the
+   * old app's note). This map is a best guess to save typing; the pack tells
+   * Cody to trust the live dropdown over it.
+   */
+  private const EBAY_APPAREL_CONDITIONS = [
+    'New with tags' => 'New with tags',
+    'New without tags' => 'New without tags',
+    'Like new' => 'Pre-owned - Excellent',
+    'Good' => 'Pre-owned - Good',
+    'Fair' => 'Pre-owned - Fair',
+    'Poor' => 'Pre-owned - Fair',
+  ];
+
+  /**
+   * EBay's conditions in most physical-goods categories.
+   */
+  private const EBAY_GENERAL_CONDITIONS = [
+    'New with tags' => 'New',
+    'New without tags' => 'New other (see details)',
+    'Like new' => 'Used',
+    'Good' => 'Used',
+    'Fair' => 'Used',
+    'Poor' => 'For parts or not working',
+  ];
+
+  /**
+   * EBay's final value fee for most categories (confirmed 2026-08).
+   */
+  public const EBAY_FINAL_VALUE_RATE = 0.136;
+
+  /**
    * Facebook's fixed condition options (checked July 2026).
    */
   private const FACEBOOK_CONDITIONS = [
@@ -138,6 +179,7 @@ final class PostPack {
     [$fields, $tips] = match ($platform) {
       'poshmark' => self::poshmark($listing),
       'mercari' => self::mercari($listing),
+      'ebay' => self::ebay($listing),
       'depop' => self::depop($listing),
       'grailed' => self::grailed($listing),
       'vinted' => self::vinted($listing),
@@ -210,6 +252,75 @@ final class PostPack {
     $fee = $price * 0.10;
     $net = $price - $fee - 2.00;
     return sprintf("\$%.2f after Mercari's 10%% fee (\$%.2f) and the \$2.00 direct-deposit payout fee. Buyer-paid shipping is also charged the 10%%, so factor that in if you're not doing free shipping.", $net, $fee);
+  }
+
+  /**
+   * EBay (checked Aug 2026, eBay seller help): title 80, description 4000.
+   *
+   * Copy-paste, not the API: eBay's listing wizard branches by category
+   * (category picker, item specifics), so this gives the core fields to
+   * paste. Ported from the old app's app/formatters/ebay.py.
+   */
+  private static function ebay(array $l): array {
+    $apparel = self::ebayApparel((string) ($l['category'] ?? ''));
+    $condition = ($apparel ? self::EBAY_APPAREL_CONDITIONS : self::EBAY_GENERAL_CONDITIONS)[$l['condition'] ?? ''] ?? '';
+    $options = $apparel
+      ? 'Apparel categories offer: New with tags / New without tags / New with imperfections / Pre-owned - Excellent / Pre-owned - Good / Pre-owned - Fair'
+      : 'Most categories offer: New / New other (see details) / New with defects / Used / For parts or not working';
+    $condition_note = $options . ". But eBay uses at least three different condition lists depending on the exact category \u{2014} some (e.g. Genealogy) instead show Brand New / Like New / Very Good / Good / Acceptable. Treat the value above as a guess and pick whatever the live dropdown actually offers.";
+    return [
+      [
+        self::field('Title', self::smartTruncate($l['title'] ?? '', 80), 80),
+        self::field('Description', self::standardDescription($l, 4000), 4000, multiline: TRUE),
+        self::field('Category', $l['category'] ?? NULL, note: "Pick the closest match in eBay's category picker"),
+        self::field('Brand', $l['brand'] ?? NULL),
+        self::field('Size', $l['size'] ?? NULL),
+        self::field('Color', $l['color'] ?? NULL),
+        self::field('Condition (eBay option)', $condition, note: $condition_note),
+        self::field('Price', self::priceStr($l['price'] ?? NULL), note: self::ebayPayout($l['price'] ?? NULL)),
+      ],
+      [
+        'eBay\'s listing wizard branches heavily by category - item specifics (size, material, etc.) will differ per category, fill what applies.',
+        'Free-shipping listings tend to rank higher in eBay search.',
+      ],
+    ];
+  }
+
+  /**
+   * Whether a category falls under eBay's Clothing, Shoes & Accessories.
+   *
+   * Judged on the top-level segment only: matching "accessories" anywhere
+   * wrongly caught "Home & Kitchen > Office & Desk Accessories". EBay files
+   * jewelry and watches outside the apparel tree.
+   */
+  public static function ebayApparel(string $category): bool {
+    $top = mb_strtolower(trim(explode('>', $category)[0]));
+    if ($top === '' || str_starts_with($top, 'jewelry') || str_starts_with($top, 'watch')) {
+      return FALSE;
+    }
+    foreach (['clothing', 'shoes', 'accessories', 'apparel'] as $word) {
+      if (str_contains($top, $word)) {
+        return TRUE;
+      }
+    }
+    return FALSE;
+  }
+
+  /**
+   * Rough take-home from eBay, before shipping cost.
+   *
+   * Final value fee 13.6% for most categories plus a per-order fee of $0.30
+   * (orders up to $10) or $0.40 (over $10), confirmed 2026-08. The fee base
+   * includes buyer-paid shipping and sales tax.
+   */
+  public static function ebayPayout(?float $price): string {
+    if (!$price) {
+      return '';
+    }
+    $per_order = $price <= 10 ? 0.30 : 0.40;
+    $fee = $price * self::EBAY_FINAL_VALUE_RATE;
+    $net = $price - $fee - $per_order;
+    return sprintf("~\$%.2f after eBay's 13.6%% final value fee (\$%.2f) and the \$%.2f per-order fee. eBay also charges that 13.6%% on buyer-paid shipping and sales tax, so treat this as a ceiling.", $net, $fee, $per_order);
   }
 
   /**

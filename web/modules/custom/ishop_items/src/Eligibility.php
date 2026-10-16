@@ -337,6 +337,40 @@ final class Eligibility {
    * Per platform: display name, summary, detail, verdicts by kind, flag rules.
    */
   public const RULES = [
+    // EBay (added 2026-10-16, items 278 and 280). Not from the old app (its
+    // eBay rules were removed in August 2026): categories read off eBay's
+    // live All Categories page on 2026-10-16; battery and hazmat notes from
+    // eBay's Seller Center hazmat pages. Liam to review.
+    'ebay' => [
+      'display_name' => 'eBay',
+      'summary' => 'Almost anything: the biggest audience for household goods, electronics and collectibles.',
+      'detail' => 'eBay\'s top-level categories include Home & Garden (with Holiday & Seasonal Décor), Electronics, Clothing, Shoes & Accessories, Toys & Hobbies, Collectibles & Art, Sporting Goods, Health & Beauty, Jewelry & Watches, Business & Industrial, eBay Motors and Everything Else. Used household things sell well here. Its rules bite on shipping: batteries and chemicals have hazmat steps.',
+      'verdicts' => [
+        'mens_wear' => ['yes', 'eBay has Clothing, Shoes & Accessories > Men.'],
+        'womens_wear' => ['yes', 'eBay has Clothing, Shoes & Accessories > Women.'],
+        'kids_wear' => ['yes', 'eBay has Clothing, Shoes & Accessories > Kids.'],
+        'unisex_wear' => ['yes', 'Accessories go under Clothing, Shoes & Accessories; jewelry under Jewelry & Watches.'],
+        'beauty' => ['yes', 'Health & Beauty is a top-level eBay category.'],
+        'electronics' => ['yes', 'Electronics is one of eBay\'s biggest categories.'],
+        'toy' => ['yes', 'Toys & Hobbies and Collectibles & Art are both top-level categories.'],
+        'home' => ['yes', 'Home & Garden is a top-level category.'],
+        'office' => ['yes', 'Office goods list under Business & Industrial or Home & Garden.'],
+        'sporting' => ['yes', 'Sporting Goods is a top-level category.'],
+        'auto' => ['yes', 'Car accessories list under eBay Motors > Parts & Accessories.'],
+        'supplies' => ['yes', 'Business & Industrial takes bulk supplies.'],
+        'other' => ['yes', 'eBay has an Everything Else category.'],
+      ],
+      'flag_rules' => [
+        'powered' => [
+          'check',
+          'Allowed. A used device with a lithium battery ships by USPS Ground Advantage only, as hazmat: choose hazmat when you buy the eBay label (new, sealed devices don\'t need it).',
+        ],
+        'hazmat' => [
+          'check',
+          'Check eBay\'s hazardous materials policy first: some chemicals are banned, and flammable liquids, aerosols and pesticides ship by ground only, marked as hazmat.',
+        ],
+      ],
+    ],
     'grailed' => [
       'display_name' => 'Grailed',
       'summary' => 'Clothing only — menswear and womenswear.',

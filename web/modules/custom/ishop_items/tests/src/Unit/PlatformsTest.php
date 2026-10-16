@@ -40,7 +40,9 @@ final class PlatformsTest extends UnitTestCase {
       'facebook' => ['https://www.facebook.com/marketplace/item/123456/', 'facebook'],
       'facebook mobile' => ['https://m.facebook.com/marketplace/item/1/', 'facebook'],
       'facebook share' => ['https://fb.me/abc', 'facebook'],
-      'not a platform' => ['https://www.ebay.com/itm/123', NULL],
+      'ebay' => ['https://www.ebay.com/itm/123', 'ebay'],
+      'ebay share' => ['https://ebay.us/m/AbCd', 'ebay'],
+      'not a platform' => ['https://www.etsy.com/listing/123', NULL],
       'lookalike' => ['https://poshmark.com.evil.example/listing/1', NULL],
       'no scheme' => ['poshmark.com/listing/1', NULL],
       'javascript' => ['javascript:alert(1)', NULL],
@@ -51,10 +53,10 @@ final class PlatformsTest extends UnitTestCase {
    * Pasted text: one link per platform, unknown lines, duplicates.
    */
   public function testParseLinks(): void {
-    $text = "https://posh.mk/a\n https://www.mercari.com/us/item/m1/ , https://posh.mk/b\nhello https://ebay.com/x";
+    $text = "https://posh.mk/a\n https://www.mercari.com/us/item/m1/ , https://posh.mk/b\nhello https://etsy.com/x";
     $this->assertSame([
       'links' => ['poshmark' => 'https://posh.mk/a', 'mercari' => 'https://www.mercari.com/us/item/m1/'],
-      'unknown' => ['hello', 'https://ebay.com/x'],
+      'unknown' => ['hello', 'https://etsy.com/x'],
       'duplicates' => ['poshmark'],
     ], Platforms::parseLinks($text));
   }

@@ -63,6 +63,20 @@ final class PlatformCategoriesTest extends UnitTestCase {
   }
 
   /**
+   * EBay (2026-10-16): its own category names, and the battery caution.
+   */
+  public function testEbay(): void {
+    $facts = ['category' => 'Home & Kitchen > Holiday & Seasonal', 'title' => 'Wooden money holder ornaments'];
+    $ornaments = P::evaluate($facts, 'ebay');
+    $this->assertSame(E::YES, $ornaments['verdict']);
+    $this->assertSame("eBay: Home & Garden > Holiday & Seasonal D\u{e9}cor.", $ornaments['reason']);
+
+    $bank = P::evaluate(['category' => 'Electronics', 'title' => 'Magnetic power bank 5000mAh'], 'ebay');
+    $this->assertSame(E::YES, $bank['verdict']);
+    $this->assertStringStartsWith('eBay: Electronics. Before posting: Allowed. A used device with a lithium battery', $bank['reason']);
+  }
+
+  /**
    * Bans and cautions from the ported rules still apply.
    */
   public function testRulesStillApply(): void {

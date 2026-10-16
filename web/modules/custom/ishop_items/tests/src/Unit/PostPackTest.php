@@ -22,7 +22,12 @@ final class PostPackTest extends UnitTestCase {
    * (2026-10-15; 9000 platform packs matched before 11 were kept here).
    */
   public function testMatchesTheOldFormatters(): void {
-    $cases = json_decode(file_get_contents(__DIR__ . '/../../fixtures/postpack-golden.json'), TRUE);
+    $cases = array_merge(
+      json_decode(file_get_contents(__DIR__ . '/../../fixtures/postpack-golden.json'), TRUE),
+      // EBay, added 2026-10-16: the old app's app/formatters/ebay.py run on
+      // the same 11 listings.
+      json_decode(file_get_contents(__DIR__ . '/../../fixtures/postpack-golden-ebay.json'), TRUE),
+    );
     $this->assertNotEmpty($cases);
     foreach ($cases as $i => $case) {
       $listing = $case['in'];

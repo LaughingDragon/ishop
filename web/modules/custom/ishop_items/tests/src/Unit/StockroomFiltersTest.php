@@ -22,7 +22,7 @@ final class StockroomFiltersTest extends UnitTestCase {
     $this->assertSame([], StockroomFilters::parse([
       'q' => '  ',
       'brand' => '',
-      'platform' => 'ebay',
+      'platform' => 'etsy',
       'status' => 'DROP TABLE',
       'min' => 'abc',
       'location' => '-3',

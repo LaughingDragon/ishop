@@ -15,6 +15,8 @@ final class Platforms {
   public const PLATFORMS = [
     'poshmark' => 'Poshmark',
     'mercari' => 'Mercari',
+    // Added 2026-10-16 (items 278, 280): Cody sells on eBay too.
+    'ebay' => 'eBay',
     'depop' => 'Depop',
     'grailed' => 'Grailed',
     'vinted' => 'Vinted',
@@ -50,6 +52,7 @@ final class Platforms {
   public const HOSTS = [
     'poshmark' => ['poshmark.com', 'posh.mk'],
     'mercari' => ['mercari.com', 'merc.li'],
+    'ebay' => ['ebay.com', 'ebay.us'],
     'depop' => ['depop.com', 'depop.app.link'],
     'grailed' => ['grailed.com', 'grailed.app.link'],
     'vinted' => ['vinted.com', 'vinted.co.uk', 'vinted.fr', 'vinted.de', 'vinted.ca'],

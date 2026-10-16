@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\ishop_items\Platforms;
 
 /**
  * Adds the platform listing entity type (Phase 1 step 3).
@@ -240,4 +241,50 @@ function ishop_items_update_11006(): string {
   $form->save();
   $view->save();
   return 'Added the pricing settings and the Check sold prices fields.';
+}
+
+/**
+ * Adds eBay as a platform (items 278 and 280, 2026-10-16).
+ *
+ * Updates the listing's platform field (its allowed values come from
+ * Platforms::PLATFORMS), adds the post_ebay image style (1600 px, not
+ * square, like post_grailed) and gives every existing item an eBay row
+ * set to To post.
+ */
+function ishop_items_update_11007(): string {
+  $manager = \Drupal::entityDefinitionUpdateManager();
+  $manager->updateFieldStorageDefinition(
+    \Drupal::service('entity_field.manager')->getFieldStorageDefinitions('platform_listing')['platform']
+  );
+
+  $styles = \Drupal::entityTypeManager()->getStorage('image_style');
+  if (!$styles->load('post_ebay') && ($grailed = $styles->load('post_grailed'))) {
+    $style = $grailed->createDuplicate();
+    $style->set('name', 'post_ebay');
+    $style->set('label', 'Post: eBay (1600px)');
+    $style->save();
+  }
+
+  $listings = \Drupal::entityTypeManager()->getStorage('platform_listing');
+  $nids = \Drupal::entityQuery('node')->accessCheck(FALSE)->condition('type', 'item')->execute();
+  $have = [];
+  foreach ($listings->loadByProperties(['platform' => 'ebay']) as $listing) {
+    $have[(int) $listing->get('item')->target_id] = TRUE;
+  }
+  $added = [];
+  foreach ($nids as $nid) {
+    if (isset($have[(int) $nid])) {
+      continue;
+    }
+    $listing = $listings->create([
+      'item' => $nid,
+      'platform' => 'ebay',
+      'status' => Platforms::TO_POST,
+    ]);
+    $listing->setRevisionLogMessage('Added when eBay became a platform (2026-10-16).');
+    $listing->setRevisionUserId(2);
+    $listing->save();
+    $added[] = $nid;
+  }
+  return 'eBay added: image style post_ebay; To post rows for items ' . ($added ? implode(', ', $added) : 'none');
 }

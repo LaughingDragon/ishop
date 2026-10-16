@@ -93,7 +93,7 @@ final class AddItemForm extends FormBase {
           '#type' => 'textarea',
           '#title' => $this->t('Listing links'),
           '#rows' => 3,
-          '#description' => $this->t('Paste the links from Poshmark, Mercari, Depop, Grailed, Vinted or Facebook, one per line. Share links work too.'),
+          '#description' => $this->t('Paste the links from Poshmark, Mercari, eBay, Depop, Grailed, Vinted or Facebook, one per line. Share links work too.'),
           '#attributes' => ['autocapitalize' => 'off', 'spellcheck' => 'false', 'inputmode' => 'url'],
         ],
         'posted_on' => [
@@ -238,7 +238,7 @@ final class AddItemForm extends FormBase {
     if ($listed) {
       $parsed = Platforms::parseLinks((string) $form_state->getValue('links'));
       if ($parsed['unknown']) {
-        $form_state->setErrorByName('links', $this->t("These aren't listing links from Poshmark, Mercari, Depop, Grailed, Vinted or Facebook: @list", ['@list' => implode(' ', $parsed['unknown'])]));
+        $form_state->setErrorByName('links', $this->t("These aren't listing links from Poshmark, Mercari, eBay, Depop, Grailed, Vinted or Facebook: @list", ['@list' => implode(' ', $parsed['unknown'])]));
       }
       if ($parsed['duplicates']) {
         $form_state->setErrorByName('links', $this->t('Paste one link per platform. More than one for: @list', [
