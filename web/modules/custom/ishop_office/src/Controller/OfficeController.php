@@ -7,6 +7,7 @@ namespace Drupal\ishop_office\Controller;
 use Drupal\Core\Cache\CacheableJsonResponse;
 use Drupal\Core\Cache\CacheableMetadata;
 use Drupal\Core\Datetime\DateFormatterInterface;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Access\AccessResultInterface;
@@ -17,8 +18,11 @@ use Drupal\ishop_office\DiskStatus;
 use Drupal\ishop_office\Form\MailSetupForm;
 use Drupal\ishop_office\Plugin\Mail\IshopMail;
 use Drupal\ishop_office\OfficeManager;
+use Drupal\ishop_office\OfficeStructure;
 use Drupal\ishop_office\Vocabulary;
 use Drupal\node\NodeInterface;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * The site office pages: plain headings, plain tables, no tabs or scripts.
@@ -28,9 +32,15 @@ use Drupal\node\NodeInterface;
  */
 final class OfficeController extends ControllerBase {
 
+  /**
+   * Where report screenshots live.
+   */
+  public const SCREENSHOTS = 'private://office-screenshots/';
+
   public function __construct(
     private readonly OfficeManager $office,
     private readonly DateFormatterInterface $dateFormatter,
+    private readonly FileSystemInterface $fileSystem,
   ) {}
 
   /**
@@ -245,6 +255,31 @@ final class OfficeController extends ControllerBase {
     // Disk state changes without any Drupal event, so it is never cached.
     $response->getCacheableMetadata()->setCacheMaxAge(0);
     return $response;
+  }
+
+  /**
+   * Crew only (webmaster and site-foreman).
+   */
+  public static function crewAccess(AccountInterface $account): AccessResultInterface {
+    return AccessResult::allowedIf(OfficeStructure::isCrew($account))->cachePerUser();
+  }
+
+  /**
+   * A screenshot for a build report, from private://office-screenshots.
+   *
+   * Reports show them with Markdown images (![alt](/site-office/screenshots/
+   * name.png)). Crew only: screenshots can show anything on the site.
+   */
+  public function screenshot(string $name): BinaryFileResponse {
+    $path = $this->fileSystem->realpath(self::SCREENSHOTS . $name);
+    if (!$path || !is_file($path)) {
+      throw new NotFoundHttpException();
+    }
+    return new BinaryFileResponse($path, 200, [
+      'Content-Type' => 'image/png',
+      'Cache-Control' => 'private, max-age=86400',
+      'X-Content-Type-Options' => 'nosniff',
+    ]);
   }
 
   /**

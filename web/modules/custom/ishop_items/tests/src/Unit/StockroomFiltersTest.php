@@ -46,6 +46,24 @@ final class StockroomFiltersTest extends UnitTestCase {
       'min' => '$5',
       'max' => '1,200.50',
     ]));
+    // Category and sort (punch 622); the default sort is left out.
+    $this->assertSame(
+      ['category' => 4, 'sort' => 'longest'],
+      StockroomFilters::parse(['category' => '4', 'sort' => 'longest']),
+    );
+    $this->assertSame([], StockroomFilters::parse(['sort' => 'new']));
+    $this->assertSame([], StockroomFilters::parse(['sort' => 'random']));
+  }
+
+  /**
+   * Selling by default; others on request; a search looks everywhere.
+   */
+  public function testStatuses(): void {
+    $this->assertSame(['draft', 'ready', 'listed'], StockroomFilters::statuses([]));
+    $this->assertSame(['sold'], StockroomFilters::statuses(['status' => 'sold']));
+    $this->assertNull(StockroomFilters::statuses(['status' => StockroomFilters::ALL]));
+    $this->assertNull(StockroomFilters::statuses(['q' => 'lamp']));
+    $this->assertSame(['listed'], StockroomFilters::statuses(['q' => 'lamp', 'status' => 'listed']));
   }
 
 }

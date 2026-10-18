@@ -1,49 +1,167 @@
-/* Stockroom list and bulk actions: big touch targets, iPhone first. */
-.rm-stock fieldset { margin: 0 0 22px; padding: 18px 20px; border: 1.5px solid var(--rm-line, #3D302D); border-radius: var(--rm-radius, 14px); }
-.rm-stock legend { padding: 0 6px; font-family: var(--rm-font-sign, sans-serif); font-size: 1.15rem; }
+/* Stockroom (redesign, punch 622): list first, whole rows open the item. iPhone first. */
 
-/* Radios and checkboxes: 28 px, gold, with the whole row tappable. */
-.rm-stock input[type=checkbox], .rm-stock input[type=radio] { width: 28px; height: 28px; flex: none; margin: 0; accent-color: var(--rm-gold, #F2C14E); }
-.rm-stock .form-type-radio, .rm-stock .form-type--radio, .rm-stock .js-form-type-radio { display: flex; align-items: center; gap: 12px; min-height: 48px; margin: 0; }
-.rm-stock .form-type-radio label, .rm-stock .js-form-type-radio label { margin: 0; font-weight: 600; cursor: pointer; }
+/* Header: the count, Add photos link, and Select (top right). */
+.rm-stock-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: -6px 0 12px; }
+.rm-stock-head__count { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; color: var(--rm-text-soft, #D3C6B2); }
+.rm-stock-head__count strong { color: var(--rm-text, #FBF3E4); }
+.rm-stock-head__photos { color: var(--rm-gold, #F2C14E); font-weight: 700; }
+.rm-stock-head__select { flex: none; min-height: var(--rm-tap, 48px); min-width: 96px; }
 
-.rm-stock__item { display: flex; align-items: center; gap: 12px; margin: 0; padding: 10px 12px; border-bottom: 1px solid var(--rm-line, #3D302D); }
-.rm-stock__item:has(input:checked) { background: var(--rm-raised, #2D2422); }
-.rm-stock__item label { display: flex; flex: 1; align-items: center; gap: 12px; min-height: 56px; margin: 0; cursor: pointer; }
-.rm-stock__item img, .rm-stock__nophoto { width: 56px; height: 56px; flex: none; border-radius: 8px; object-fit: cover; background: var(--rm-raised, #2D2422); }
-.rm-stock__text { display: flex; flex-direction: column; min-width: 0; }
-.rm-stock__title { font-weight: 700; overflow-wrap: anywhere; }
-.rm-stock__meta { font-size: 0.9rem; font-weight: 400; color: var(--rm-text-soft, #D3C6B2); }
-.rm-stock__all { margin: 0 0 8px; }
-/* Open sits at the end of the row, after the label (the label ticks the box). */
-.rm-stock__item .field-suffix { order: 3; flex: none; }
-/* On a phone, Open goes on its own line under the text so the title keeps its width. */
-@media (max-width: 600px) {
-  .rm-stock__item { flex-wrap: wrap; row-gap: 6px; }
-  .rm-stock__item label { flex-basis: 0; min-width: 0; }
-  .rm-stock__item .field-suffix { flex-basis: 100%; padding-left: 108px; }
+/* Search and chips: pinned at the top while the list scrolls. */
+.rm-stock-tools {
+  position: sticky; top: 0; z-index: 6;
+  margin: 0 calc(-1 * var(--rm-gutter, 20px)) 4px; padding: 10px var(--rm-gutter, 20px) 10px;
+  background: var(--rm-ground, #161312); border-bottom: 1px solid var(--rm-line, #3D302D);
 }
-.rm-stock__open { min-height: 44px; min-width: 64px; display: inline-flex; align-items: center; justify-content: center; }
+.rm-stock-tools__search { position: relative; }
+.rm-stock-tools__search svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--rm-text-soft, #D3C6B2); pointer-events: none; }
+.rm-stock-tools .rm-stock-tools__search input[type=search] {
+  box-sizing: border-box; width: 100%; min-height: 52px; margin: 0; padding: 10px 16px 10px 46px;
+  font: inherit; color: var(--rm-text, #FBF3E4); background: var(--rm-surface, #221C1A);
+  border: 1.5px solid var(--rm-line, #3D302D); border-radius: var(--rm-pill, 999px);
+}
+.rm-stock-tools__search input::placeholder { color: var(--rm-text-soft, #D3C6B2); opacity: 1; }
+.rm-stock-tools__row { position: relative; display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+/* Chips scroll sideways on a phone instead of wrapping into a tall block. */
+.rm-stock-tools__chips {
+  display: flex; flex: 1; gap: 8px; min-width: 0; overflow-x: auto; scrollbar-width: none;
+  -webkit-overflow-scrolling: touch; padding: 2px 24px 2px 2px; margin: -2px;
+  /* A soft fade on the right says "more chips this way". */
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+}
+.rm-stock-tools__chips::-webkit-scrollbar { display: none; }
+@media (min-width: 720px) {
+  .rm-stock-tools__chips { flex-wrap: wrap; overflow: visible; padding-right: 2px; -webkit-mask-image: none; mask-image: none; }
+}
+.rm-chipsel, .rm-chiplink {
+  position: relative; display: inline-flex; flex: none; align-items: center; height: 44px; margin: 0; box-sizing: border-box; line-height: 1;
+  border: 1.5px solid var(--rm-line-soft, #4A3A36); border-radius: var(--rm-pill, 999px); background: var(--rm-surface, #221C1A);
+  color: var(--rm-text, #FBF3E4); font-size: 16px; font-weight: 700; white-space: nowrap; text-decoration: none; cursor: pointer;
+}
+.rm-chiplink { gap: 6px; padding: 0 16px; list-style: none; }
+.rm-chiplink::-webkit-details-marker { display: none; }
+.rm-chipsel select {
+  appearance: none; -webkit-appearance: none; height: 41px; min-height: 0; margin: 0; padding: 0 34px 0 16px; border: 0; border-radius: inherit;
+  background: transparent; color: inherit; font: inherit; cursor: pointer;
+}
+.rm-chipsel::after { content: ""; position: absolute; right: 14px; top: 50%; width: 7px; height: 7px; margin-top: -6px; border: solid currentColor; border-width: 0 2px 2px 0; transform: rotate(45deg); pointer-events: none; }
+.rm-chipsel.is-on, .rm-chiplink.is-on { background: var(--rm-gold, #F2C14E); border-color: var(--rm-gold, #F2C14E); color: var(--rm-ground, #161312); }
+.rm-chipsel select option { color: initial; background: initial; }
+.rm-chiplink--clear { border-style: dashed; color: var(--rm-gold, #F2C14E); }
+.rm-chipsel:focus-within, .rm-chiplink:focus-visible { outline: 3px solid var(--rm-gold, #F2C14E); outline-offset: 2px; }
+.rm-chipsel:hover, .rm-chiplink:hover { border-color: var(--rm-gold, #F2C14E); }
+/* More filters: a panel that drops down under the chips. */
+.rm-stock-more { flex: none; }
+.rm-stock-more__panel {
+  position: absolute; left: 0; right: 0; top: calc(100% + 8px); z-index: 7; display: grid; gap: 0 16px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); padding: 16px 18px;
+  background: var(--rm-raised, #2D2422); border: 1.5px solid var(--rm-gold, #F2C14E); border-radius: var(--rm-radius, 14px);
+  box-shadow: 0 12px 30px rgb(0 0 0 / 0.5);
+}
+.rm-stock-more__price { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+.rm-stock-more__panel .rm-button { grid-column: 1 / -1; min-height: 52px; }
+/* With JavaScript the chips apply as soon as they change. */
+html.js .rm-stock-tools__go { display: none; }
+.rm-stock-tools__go { margin-top: 10px; min-height: 48px; }
 
-/* The action bar stays at the bottom of the screen while scrolling. */
+/* Confirm and done steps: the list tools step aside. */
+main:has(.rm-stock:not(.rm-stock--list)) :is(.rm-stock-head, .rm-stock-tools) { display: none; }
+
+/* The list. */
+.rm-rows { margin: 0 calc(-1 * var(--rm-gutter, 20px)); padding: 0; list-style: none; }
+.rm-row { position: relative; display: flex; align-items: center; border-bottom: 1px solid var(--rm-line, #3D302D); }
+.rm-row[hidden] { display: none; }
+.rm-row__link {
+  display: flex; flex: 1; align-items: center; gap: 14px; min-width: 0; min-height: 72px; box-sizing: border-box;
+  padding: 10px var(--rm-gutter, 20px); color: inherit; text-decoration: none;
+  -webkit-tap-highlight-color: transparent; transition: background-color 120ms ease;
+}
+.rm-row__link:hover { background: var(--rm-surface, #221C1A); }
+.rm-row__link:active { background: var(--rm-raised, #2D2422); }
+.rm-row__link:focus-visible { outline: 3px solid var(--rm-gold, #F2C14E); outline-offset: -3px; }
+.rm-row__thumb {
+  flex: none; width: 64px; height: 64px; border-radius: 12px; object-fit: cover; background: var(--rm-raised, #2D2422);
+}
+.rm-row__thumb--none {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  box-sizing: border-box; border: 1.5px dashed var(--rm-line-soft, #4A3A36); color: var(--rm-text-soft, #D3C6B2);
+  font-size: 11px; font-weight: 700; line-height: 1.1; text-align: center;
+}
+.rm-row__body { display: flex; flex: 1; flex-direction: column; gap: 4px; min-width: 0; }
+.rm-row__title {
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden;
+  font-weight: 700; line-height: 1.25; overflow-wrap: anywhere;
+}
+.rm-row__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: 15px; line-height: 1.3; color: var(--rm-text-soft, #D3C6B2); }
+.rm-row__price { font-weight: 700; color: var(--rm-text, #FBF3E4); font-variant-numeric: tabular-nums; }
+.rm-row__status { padding: 1px 9px; font-size: 13px; }
+.rm-row__pills { display: inline-flex; gap: 4px; }
+.rm-row__pill {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; padding: 0 5px; box-sizing: border-box;
+  border-radius: 6px; border: 1px solid var(--rm-line-soft, #4A3A36); font-size: 12px; font-weight: 800; color: var(--rm-text, #FBF3E4); text-decoration: none;
+}
+.rm-row__where { min-width: 0; overflow-wrap: anywhere; }
+.rm-row__chevron { flex: none; color: var(--rm-text-soft, #D3C6B2); }
+
+/* Select mode. Without JavaScript the boxes are always there. */
+.rm-row__check {
+  flex: none; width: 28px; height: 28px; margin: 0 -6px 0 var(--rm-gutter, 20px);
+  accent-color: var(--rm-gold, #F2C14E); cursor: pointer;
+}
+html.js .rm-stock:not(.is-selecting) .rm-row__check { display: none; }
+.rm-stock.is-selecting .rm-row__chevron { visibility: hidden; }
+.rm-row:has(.rm-row__check:checked) { background: var(--rm-raised, #2D2422); }
+.rm-row:has(.rm-row__check:checked) .rm-row__link:hover { background: transparent; }
+
+.rm-stock__more { display: block; width: 100%; min-height: 52px; margin: 18px 0 0; }
+.rm-stock__empty { padding: 36px 0; text-align: center; }
+.rm-stock__empty .rm-button { min-height: 52px; }
+.rm-stock.is-loading .rm-rows { opacity: 0.45; transition: opacity 150ms ease; }
+
+/* Bottom bar: only while something is ticked (stockroom.js), above the iPhone home bar. */
 .rm-stock__bar {
-  position: sticky; bottom: 0; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 12px;
+  position: sticky; bottom: 0; z-index: 8; display: flex; flex-direction: column; gap: 10px;
   margin: 18px calc(-1 * var(--rm-gutter, 20px)) 0; padding: 12px var(--rm-gutter, 20px) calc(12px + env(safe-area-inset-bottom, 0px));
   background: var(--rm-ground, #161312); border-top: 2px solid var(--rm-gold, #F2C14E);
+  box-shadow: 0 -10px 24px rgb(0 0 0 / 0.45);
 }
-.rm-stock__count { margin-right: auto; font-weight: 700; }
-.rm-stock__bar input[type=submit] { min-height: 52px; }
+.rm-stock__bar[hidden] { display: none; }
+.rm-stock__bartop { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.rm-stock__count { font-weight: 700; }
+.rm-stock__all { min-height: 44px; }
+.rm-stock__bar .form-item { margin: 0; }
+/* The four actions as a row of toggle buttons. */
+.rm-stock__bar fieldset { margin: 0; padding: 0; border: 0; min-width: 0; }
+fieldset.rm-stock__action .fieldset-wrapper > div { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+fieldset.rm-stock__action .form-item { position: relative; margin: 0; }
+fieldset.rm-stock__action input[type=radio] { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+fieldset.rm-stock__action label {
+  display: flex; align-items: center; justify-content: center; min-height: var(--rm-tap, 48px); box-sizing: border-box; padding: 4px 6px; margin: 0;
+  border: 1.5px solid var(--rm-gold, #F2C14E); border-radius: 12px; color: var(--rm-gold, #F2C14E);
+  font-size: 15px; font-weight: 700; line-height: 1.15; text-align: center;
+}
+fieldset.rm-stock__action input:checked + label { background: var(--rm-gold, #F2C14E); color: var(--rm-ground, #161312); }
+fieldset.rm-stock__action input:focus-visible + label { outline: 3px solid var(--rm-text, #FBF3E4); outline-offset: 2px; }
+.rm-stock__bar input[type=radio] { accent-color: var(--rm-gold, #F2C14E); }
+.rm-stock__bar fieldset:not(.rm-stock__action) .form-type-radio { display: flex; align-items: center; gap: 12px; min-height: var(--rm-tap, 48px); margin: 0; }
+.rm-stock__bar fieldset:not(.rm-stock__action) input[type=radio] { flex: none; width: 26px; height: 26px; margin: 0; }
+.rm-stock__bar fieldset:not(.rm-stock__action) .form-type-radio label { margin: 0; font-weight: 600; cursor: pointer; }
+.rm-stock__bar select, .rm-stock__bar input[type=number] { width: 100%; box-sizing: border-box; }
+.rm-stock__bar input[type=submit] { min-height: 52px; width: 100%; }
+.rm-stock__bar input.rm-button--ghost { background: transparent; color: var(--rm-gold, #F2C14E); border: 2px solid var(--rm-gold, #F2C14E); }
+@media (min-width: 720px) {
+  .rm-stock__bar input[type=submit] { width: auto; align-self: flex-end; }
+}
 
+/* Confirm and done steps (unchanged). */
 .rm-stock__confirm h2 { margin-top: 0; }
+.rm-stock__title { font-weight: 700; overflow-wrap: anywhere; }
 .rm-stock__changes { margin: 0; padding: 0; list-style: none; }
 .rm-stock__changes li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; padding: 10px 0; border-bottom: 1px solid var(--rm-line, #3D302D); }
-.rm-stock__bar input.rm-button--ghost { background: transparent; color: var(--rm-gold, #F2C14E); border: 2px solid var(--rm-gold, #F2C14E); }
+.rm-stock:not(.rm-stock--list) .rm-stock__bar { flex-direction: row; justify-content: flex-end; }
+.rm-stock:not(.rm-stock--list) .rm-stock__bar input[type=submit] { width: auto; }
 
-/* Search and filters (Phase 4): folded on the phone, open when in use. */
-.rm-stock-filters { margin: 0 0 22px; padding: 0; }
-.rm-stock-filters summary { display: flex; align-items: center; gap: 10px; min-height: 56px; padding: 0 20px; font-family: var(--rm-font-sign, sans-serif); font-size: 1.1rem; cursor: pointer; }
-.rm-stock-filters__form { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0 16px; padding: 4px 20px 20px; }
-.rm-stock-filters__price { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
-.rm-stock-filters__actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 10px; }
-.rm-stock-filters__actions .rm-button { min-height: 52px; }
-.rm-stock__showing { margin: 0 0 8px; font-weight: 600; color: var(--rm-text-soft, #D3C6B2); }
+@media (prefers-reduced-motion: reduce) {
+  .rm-row__link, .rm-stock.is-loading .rm-rows { transition: none; }
+}

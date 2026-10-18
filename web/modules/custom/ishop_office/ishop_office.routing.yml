@@ -39,6 +39,15 @@ ishop_office.ask_cody_results:
     _permission: 'access site office'
     _custom_access: '\Drupal\ishop_office\Controller\OfficeController::askCodyResultsAccess'
 
+ishop_office.screenshot:
+  path: '/site-office/screenshots/{name}'
+  defaults:
+    _controller: '\Drupal\ishop_office\Controller\OfficeController::screenshot'
+  requirements:
+    _permission: 'access site office'
+    _custom_access: '\Drupal\ishop_office\Controller\OfficeController::crewAccess'
+    name: '[a-z0-9][a-z0-9-]*\.png'
+
 ishop_office.mail_setup:
   path: '/site-office/mail-setup'
   defaults:

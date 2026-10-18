@@ -23,6 +23,19 @@ final class Platforms {
     'facebook' => 'Facebook',
   ];
 
+  /**
+   * Short names for the small pills in Stockroom rows (punch 622).
+   */
+  public const SHORT = [
+    'poshmark' => 'P',
+    'mercari' => 'M',
+    'ebay' => 'eB',
+    'depop' => 'D',
+    'grailed' => 'G',
+    'vinted' => 'V',
+    'facebook' => 'FB',
+  ];
+
   public const TO_POST = 'to_post';
   public const POSTED = 'posted';
   public const SOLD_HERE = 'sold_here';

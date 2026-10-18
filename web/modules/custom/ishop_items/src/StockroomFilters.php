@@ -20,7 +20,30 @@ final class StockroomFilters {
   /**
    * Query-string keys, in the order the form shows them.
    */
-  public const KEYS = ['q', 'brand', 'size', 'status', 'platform', 'location', 'min', 'max'];
+  public const KEYS = ['q', 'status', 'platform', 'category', 'sort', 'brand', 'size', 'location', 'min', 'max'];
+
+  /**
+   * Statuses shown when none is chosen: what is still on the table.
+   *
+   * Sold has its own chip; a typed search (q) with no status looks at
+   * everything, so links like the Mailroom's "Find it" still find sold items.
+   */
+  public const SELLING = ItemPhotos::SELLING;
+
+  /**
+   * Status value meaning every status.
+   */
+  public const ALL = 'all';
+
+  /**
+   * Sort orders (Stockroom redesign, punch 622). The first is the default.
+   */
+  public const SORTS = [
+    'new' => 'Newest',
+    'price_high' => 'Price: high to low',
+    'price_low' => 'Price: low to high',
+    'longest' => 'Longest listed',
+  ];
 
   public function __construct(
     private readonly EntityTypeManagerInterface $entityTypeManager,
@@ -39,7 +62,7 @@ final class StockroomFilters {
     if ($q !== '') {
       $filters['q'] = mb_substr($q, 0, 100);
     }
-    foreach (['brand', 'location'] as $key) {
+    foreach (['brand', 'location', 'category'] as $key) {
       if (ctype_digit((string) ($query[$key] ?? '')) && (int) $query[$key] > 0) {
         $filters[$key] = (int) $query[$key];
       }
@@ -50,6 +73,9 @@ final class StockroomFilters {
     }
     if (preg_match('/^[a-z_]+$/', (string) ($query['status'] ?? ''))) {
       $filters['status'] = $query['status'];
+    }
+    if (isset(self::SORTS[$query['sort'] ?? '']) && $query['sort'] !== array_key_first(self::SORTS)) {
+      $filters['sort'] = $query['sort'];
     }
     if (isset(Platforms::PLATFORMS[$query['platform'] ?? ''])) {
       $filters['platform'] = $query['platform'];
@@ -64,7 +90,21 @@ final class StockroomFilters {
   }
 
   /**
-   * Adds the filters to an item entity query.
+   * The item statuses a filtered list shows.
+   *
+   * @return string[]|null
+   *   NULL for every status.
+   */
+  public static function statuses(array $filters): ?array {
+    $status = $filters['status'] ?? NULL;
+    if ($status === self::ALL || ($status === NULL && isset($filters['q']))) {
+      return NULL;
+    }
+    return $status === NULL ? self::SELLING : [$status];
+  }
+
+  /**
+   * Adds the filters (and the default statuses) to an item entity query.
    *
    * @return bool
    *   FALSE when nothing can match (no need to run the query).
@@ -79,8 +119,12 @@ final class StockroomFilters {
     if (isset($filters['size'])) {
       $query->condition('field_size', $filters['size']);
     }
-    if (isset($filters['status'])) {
-      $query->condition('field_item_status', $filters['status']);
+    $statuses = self::statuses($filters);
+    if ($statuses !== NULL) {
+      $query->condition('field_item_status', $statuses, 'IN');
+    }
+    if (isset($filters['category'])) {
+      $query->condition('field_category', $filters['category']);
     }
     if (isset($filters['location'])) {
       // The location and everything inside it ("Game room" covers its tables).
@@ -114,7 +158,7 @@ final class StockroomFilters {
   /**
    * Choices for the filter form, from what the items actually use.
    *
-   * @return array{brand: array, size: array, status: array, platform: array, location: array}
+   * @return array{brand: array, size: array, status: array, platform: array, location: array, category: array}
    *   Value => label per filter.
    */
   public function options(array $location_options): array {
@@ -126,6 +170,12 @@ final class StockroomFilters {
     natcasesort($brands);
     $sizes = $this->database->query("SELECT DISTINCT field_size_value FROM {node__field_size} WHERE bundle = 'item' AND field_size_value <> ''")->fetchCol();
     natcasesort($sizes);
+    $categories = [];
+    $category_ids = $this->database->query("SELECT DISTINCT field_category_target_id FROM {node__field_category} WHERE bundle = 'item'")->fetchCol();
+    foreach ($this->entityTypeManager->getStorage('taxonomy_term')->loadMultiple($category_ids) as $term) {
+      $categories[(int) $term->id()] = $term->label();
+    }
+    natcasesort($categories);
     $statuses = \Drupal::service('entity_field.manager')->getFieldStorageDefinitions('node')['field_item_status']->getSetting('allowed_values');
     return [
       'brand' => $brands,
@@ -133,6 +183,7 @@ final class StockroomFilters {
       'status' => $statuses,
       'platform' => Platforms::PLATFORMS,
       'location' => $location_options,
+      'category' => $categories,
     ];
   }
 
