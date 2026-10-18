@@ -484,6 +484,57 @@ final class ListingImporter {
   }
 
   /**
+   * Adds old Crosslister photos to an item an import already created.
+   *
+   * For photos that turn up after the import (Phase 10: the GitHub copy).
+   * Only items with no photos yet; the new photos are recorded on the
+   * import, so undoing it removes them too.
+   *
+   * @return int
+   *   How many photos were added (0 if the item already has photos).
+   */
+  public function addRecordPhotos(int $id, NodeInterface $item, array $photos, string $why): int {
+    if (!$photos || !$item->get('field_photos')->isEmpty() || !in_array((int) $item->id(), $this->get($id)['nids'] ?? [], TRUE)) {
+      return 0;
+    }
+    $media = [];
+    $transaction = $this->database->startTransaction();
+    try {
+      foreach ($photos as $photo) {
+        if ($m = $this->recordPhoto($photo)) {
+          $media[] = $m;
+        }
+      }
+      if (!$media) {
+        return 0;
+      }
+      $item->set('field_photos', array_map(fn ($m) => ['target_id' => $m->id()], $media));
+      $item->setNewRevision(TRUE);
+      $item->setRevisionLogMessage($why);
+      $item->setRevisionUserId((int) $this->currentUser->id());
+      $item->setRevisionCreationTime($this->time->getRequestTime());
+      $item->save();
+    }
+    catch (\Throwable $e) {
+      $transaction->rollBack();
+      foreach ($media as $m) {
+        $uri = $m->get('field_media_image_1')->entity?->getFileUri();
+        if ($uri && file_exists($uri)) {
+          $this->fileSystem->delete($uri);
+        }
+      }
+      throw $e;
+    }
+    unset($transaction);
+    $mids = array_map(fn ($m) => (int) $m->id(), $media);
+    $this->update($id, function (array $import) use ($mids) {
+      $import['mids'] = array_merge($import['mids'], $mids);
+      return $import;
+    });
+    return count($media);
+  }
+
+  /**
    * The brand term with this name, created if new.
    */
   private function brand(string $name): int {
@@ -504,7 +555,10 @@ final class ListingImporter {
     if (str_contains($relative, '..')) {
       return NULL;
     }
-    $source = $this->fileSystem->realpath(self::RECORD_PHOTOS . '/' . $relative);
+    // The photos folder is a link to the data disk, which private:// won't
+    // follow (it refuses paths outside its folder): resolve it here.
+    $base = $this->fileSystem->realpath(dirname(self::RECORD_PHOTOS));
+    $source = $base ? realpath($base . '/' . basename(self::RECORD_PHOTOS) . '/' . $relative) : FALSE;
     if (!$source || !is_file($source)) {
       return NULL;
     }
