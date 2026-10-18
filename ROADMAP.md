@@ -360,14 +360,21 @@ Approved by Liam 2026-10-18 (punch 312, addendum 313). Built after Phase 9 A (Sh
 (marketplace inbox) is switched on, so the marketplace inbox can match emails to his existing items. Site only: no
 browser agent, no marketplace automation, nothing delisted or relisted.
 
-- [ ] **Import listings page** (My office, theowner and webmaster): upload the .xlsx or .csv as
+- [x] **Import listings page** (My office, theowner and webmaster): upload the .xlsx or .csv as
   is, match columns (remembered for next time), match category/condition values, preview every
   item with its per-platform statuses and problems, then Import (one item per product). Sold rows
   imported as sold or skipped (Cody's choice). Buyer details never stored. Undo a whole import
   for 7 days. Optional fill-in from the old Crosslister records (photos where they exist).
-- [ ] Dry run of Cody's real spreadsheet through the preview, reported to Liam (counts per
+- [x] Dry run of Cody's real spreadsheet through the preview, reported to Liam (counts per
   platform, sold total, problems).
-- [ ] Cody imports it himself from the page (punch item after Liam OKs the dry run).
+- [x] Cody imports it himself from the page (punch item after Liam OKs the dry run). Done
+  2026-10-18: 110 items (88 listed, 1 ready, 21 sold for tracking, no photos on sold items);
+  row 37 (sold, no platform) left out. Spreadsheet notes wait in "Needs you now" until Done.
+- [x] **Add photos** (Liam): each item has an Add photos page (several at once, up to 10, cover
+  first) with "Save and go to the next item without photos"; every photo's stored file name
+  carries its item number. Old Crosslister photos added where they survived (GitHub copy).
+  A sold item's photos are deleted 30 days after delivery (return window; per platform).
+- [ ] Cody adds photos to the items that have none (about 70).
 
 ## Phase 11: close the site office and hand over to Cody
 
