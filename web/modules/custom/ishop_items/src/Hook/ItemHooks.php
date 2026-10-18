@@ -22,6 +22,7 @@ use Drupal\ishop_items\PhotoPrep;
 use Drupal\ishop_items\PriceBook;
 use Drupal\ishop_office\DiskStatus;
 use Drupal\ishop_items\ReadyCheck;
+use Drupal\ishop_items\ListingImport\ListingImporter;
 use Drupal\ishop_items\Shipping;
 use Drupal\ishop_items\SoldSearch;
 use Drupal\image\Entity\ImageStyle;
@@ -140,6 +141,8 @@ final class ItemHooks {
     if ($labels = \Drupal::service(Shipping::class)->deleteOldLabels()) {
       \Drupal::logger('ishop_items')->info('Deleted @n old shipping labels.', ['@n' => $labels]);
     }
+    // Spreadsheets uploaded to Import listings and never imported.
+    \Drupal::service(ListingImporter::class)->cleanUploads();
     $cutoff = \Drupal::time()->getRequestTime() - 86400;
     $media = \Drupal::entityTypeManager()->getStorage('media');
     $old = $media->getQuery()->accessCheck(FALSE)
@@ -376,7 +379,7 @@ final class ItemHooks {
       }
     }
     if (!$photos) {
-      return ['#markup' => '<p class="ishop-gallery__none">' . $this->t('No photos yet.') . '</p>'];
+      return ['#markup' => '<p class="ishop-gallery__none">' . $this->t('No photos yet. Add photos when you can (Edit).') . '</p>'];
     }
     return [
       '#type' => 'inline_template',

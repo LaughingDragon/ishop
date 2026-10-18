@@ -1,3 +1,7 @@
 manage platform listings:
   title: 'Manage platform listings'
   description: 'See and change each item''s listings (status, links, prices, fees) and apply the "Sold here" cascade.'
+import listings:
+  title: 'Import listings from a spreadsheet'
+  description: 'Bring in current listings from a spreadsheet (Phase 10) and undo an import.'
+  restrict access: true

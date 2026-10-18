@@ -69,3 +69,8 @@ shipping:
   css:
     component:
       css/shipping.css: {}
+
+import:
+  css:
+    component:
+      css/import.css: {}

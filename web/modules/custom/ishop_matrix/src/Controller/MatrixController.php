@@ -151,7 +151,7 @@ final class MatrixController extends ControllerBase {
       ];
       $due[] = $bill;
     }
-    // To-dos due today or overdue, each with a Done button.
+    // @todo s due today or overdue, each with a Done button.
     foreach ($this->todos->dueNow() as $todo) {
       $needs[] = [
         'text' => $this->t('To-do: @title', ['@title' => $todo->label()]),
@@ -543,13 +543,17 @@ final class MatrixController extends ControllerBase {
     return [
       'log' => [
         '#type' => 'inline_template',
-        '#template' => '<p class="rm-office-links"><a class="rm-button rm-button--gold" href="{{ url }}">{{ label }}</a> <a class="rm-button rm-button--ghost" href="{{ bills }}">{{ bills_label }}</a></p>',
+        '#template' => '<p class="rm-office-links"><a class="rm-button rm-button--gold" href="{{ url }}">{{ label }}</a> <a class="rm-button rm-button--ghost" href="{{ bills }}">{{ bills_label }}</a>{% if import %} <a class="rm-button rm-button--ghost" href="{{ import }}">{{ import_label }}</a>{% endif %}</p>',
         '#context' => [
           'url' => Url::fromRoute('ishop_life.log')->toString(),
           'label' => $this->t('Log a trip or an expense'),
           'bills' => Url::fromRoute('ishop_life.bills')->toString(),
           'bills_label' => $this->t('Bills and subscriptions'),
+          // Phase 10: bring in listings from a spreadsheet (theowner, webmaster).
+          'import' => $this->currentUser()->hasPermission('import listings') ? Url::fromRoute('ishop_items.import_listings')->toString() : NULL,
+          'import_label' => $this->t('Import listings'),
         ],
+        '#cache' => ['contexts' => ['user.permissions']],
       ],
       'money' => $this->moneySection(),
       'tax' => $this->taxSection(),

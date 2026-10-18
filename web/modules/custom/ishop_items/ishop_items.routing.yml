@@ -201,3 +201,24 @@ ishop_items.shipping_act:
     parameters:
       platform_listing:
         type: entity:platform_listing
+
+ishop_items.import_listings:
+  path: '/room/my-office/import-listings'
+  defaults:
+    _form: '\Drupal\ishop_items\Form\ListingImportForm'
+    _title: 'Import listings'
+  requirements:
+    _permission: 'import listings'
+  options:
+    no_cache: TRUE
+
+ishop_items.import_listings_undo:
+  path: '/room/my-office/import-listings/{import}/undo'
+  defaults:
+    _form: '\Drupal\ishop_items\Form\ListingImportUndoForm'
+    _title: 'Undo an import'
+  requirements:
+    _permission: 'import listings'
+    import: \d+
+  options:
+    no_cache: TRUE

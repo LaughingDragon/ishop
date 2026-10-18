@@ -16,3 +16,4 @@ services:
   Drupal\ishop_items\TaxExport: ~
   Drupal\ishop_items\PriceBook: ~
   Drupal\ishop_items\Shipping: ~
+  Drupal\ishop_items\ListingImport\ListingImporter: ~
