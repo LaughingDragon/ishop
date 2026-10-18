@@ -52,6 +52,9 @@
 .rm-scoreboard__cell { display: flex; flex-direction: column-reverse; align-items: center; gap: 6px; padding: 12px 6px; border-radius: var(--rm-radius-inner); background: #1A1614; text-align: center; }
 .rm-scoreboard__cell dd { margin: 0; font-family: var(--rm-font-sign); font-size: clamp(26px, 7vw, 40px); line-height: 1; color: var(--rm-gold); overflow-wrap: anywhere; }
 .rm-scoreboard__cell dt { font-size: 15px; font-weight: 700; color: var(--rm-text-soft); text-transform: uppercase; letter-spacing: .06em; }
+/* A small line under the label (cells stack bottom-up: order -1 goes last). Numbers stay level: cells fill from the top. */
+.rm-scoreboard__cell { justify-content: flex-end; }
+.rm-scoreboard__cell dd.rm-scoreboard__note { order: -1; font-family: var(--rm-font-body); font-size: 13px; font-weight: 600; line-height: 1.25; color: var(--rm-text-soft); }
 
 /* My office: the season form. */
 .rm-season-form { margin: 0 0 24px; padding: 22px 24px; }

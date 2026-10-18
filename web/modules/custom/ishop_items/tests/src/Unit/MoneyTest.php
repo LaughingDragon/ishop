@@ -32,6 +32,25 @@ final class MoneyTest extends UnitTestCase {
   }
 
   /**
+   * Sales from before the site count, but never in days to sell.
+   *
+   * Neither do imported sales whose Date posted (the import day) is after
+   * the day they sold.
+   */
+  public function testUndatedAndImportedDays(): void {
+    $undated = $this->sale('vinted', 20.0, NULL, NULL, NULL, '2026-10-18', '2026-10-18') + ['date_unknown' => TRUE];
+    $sum = Money::summarize([
+      $undated,
+      $this->sale('mercari', 10.0, NULL, NULL, NULL, '2026-10-18', '2026-08-27'),
+      $this->sale('poshmark', 30.0, NULL, NULL, NULL, '2026-10-01', '2026-10-05'),
+    ]);
+    $this->assertSame(3, $sum['count']);
+    $this->assertSame(60.0, $sum['revenue']);
+    $this->assertSame(1, $sum['undated']);
+    $this->assertSame(4.0, $sum['avg_days']);
+  }
+
+  /**
    * Earned is price - fees - shipping; profit only where a cost was entered.
    */
   public function testSummarize(): void {

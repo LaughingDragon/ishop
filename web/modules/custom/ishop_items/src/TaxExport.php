@@ -54,9 +54,12 @@ final class TaxExport {
    */
   public function salesRows(int $year): array {
     $rows = [];
-    $sales = $this->money->sales("$year-01-01", "$year-12-31");
+    // Sales from before the site stay in the tax year of their stand-in
+    // date (the import day): income is income, even with the day unknown.
+    $sales = $this->money->sales("$year-01-01", "$year-12-31", TRUE);
     foreach ($sales as $sale) {
-      $rows[] = self::saleRow($sale['date_sold'], $sale['item']->label(), Platforms::PLATFORMS[$sale['platform']], $sale);
+      $date = $sale['date_unknown'] ? sprintf('Before %s (date unknown)', $sale['date_sold']) : $sale['date_sold'];
+      $rows[] = self::saleRow($date, $sale['item']->label(), Platforms::PLATFORMS[$sale['platform']], $sale);
     }
     $sum = Money::summarize($sales);
     $rows[] = [

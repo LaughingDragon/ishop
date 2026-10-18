@@ -444,3 +444,36 @@ function ishop_items_update_11010(): string {
   }
   return 'Sold items keep their photos 30 days after delivery, then they are deleted.';
 }
+
+/**
+ * Sales from before the site: a flag on listings, set on the 15 imported.
+ *
+ * Liam, punch 622 part 2. Import 1's sold rows with no date in the sheet got
+ * the import day (2026-10-18) as Date sold, which put them in this month and
+ * season. Flagged, they count in All time only.
+ */
+function ishop_items_update_11011(): string {
+  $manager = \Drupal::entityDefinitionUpdateManager();
+  if (!$manager->getFieldStorageDefinition('date_sold_unknown', 'platform_listing')) {
+    $fields = \Drupal\ishop_items\Entity\PlatformListing::baseFieldDefinitions(\Drupal::entityTypeManager()->getDefinition('platform_listing'));
+    $manager->installFieldStorageDefinition('date_sold_unknown', 'platform_listing', 'ishop_items', $fields['date_sold_unknown']);
+  }
+  $import = \Drupal::keyValue('ishop_items.listing_imports')->get(1);
+  if (!$import || empty($import['nids'])) {
+    return 'Sold before the site: flag added (no import 1 to mark).';
+  }
+  $storage = \Drupal::entityTypeManager()->getStorage('platform_listing');
+  $ids = $storage->getQuery()->accessCheck(FALSE)
+    ->condition('item', $import['nids'], 'IN')
+    ->condition('status', \Drupal\ishop_items\Platforms::SOLD_HERE)
+    ->condition('date_sold', date('Y-m-d', (int) $import['finished']))
+    ->execute();
+  foreach ($storage->loadMultiple($ids) as $listing) {
+    $listing->set('date_sold_unknown', TRUE);
+    $listing->setNewRevision(TRUE);
+    $listing->setRevisionUserId(2);
+    $listing->setRevisionLogMessage('Sold before the site: the spreadsheet had no date sold, so it counts in All time only (Liam, punch 622).');
+    $listing->save();
+  }
+  return sprintf('Sold before the site: flag added, %d imported sales marked.', count($ids));
+}

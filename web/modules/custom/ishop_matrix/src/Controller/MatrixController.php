@@ -7,6 +7,7 @@ namespace Drupal\ishop_matrix\Controller;
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Datetime\DateFormatterInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
 use Drupal\Core\Cache\Cache;
 use Drupal\ishop_items\Controller\StaleController;
@@ -177,7 +178,7 @@ final class MatrixController extends ControllerBase {
       '#template' => '{% if party %}<section class="rm-greeting rm-party-sign"><div class="rm-confetti" aria-hidden="true"></div><div class="rm-greeting__text"><span class="rm-badge rm-badge--party">{{ party.badge }}</span><h1><span>{{ party.hello_1 }}</span> <span>{{ party.hello_2 }}</span></h1><p>{{ party.line }}</p><button type="button" class="rm-button rm-button--gold rm-party-toggle" hidden>{{ party.start }}</button></div></section>
 <section class="rm-card rm-party-video" aria-labelledby="rm-party-video-title"><h2 id="rm-party-video-title">{{ party.video_title }}</h2><p>{{ party.video_line }}</p><a class="rm-button rm-button--gold" href="{{ party.video_url }}" target="_blank" rel="noopener noreferrer">{{ party.video_button }}</a></section>
 {% else %}<section class="rm-greeting"><div class="rm-greeting__text"><h1>{{ hello }}</h1><p>{{ date }}</p></div>{% if game %}<span class="rm-badge rm-badge--game">{% include "@reseller_matrix/includes/room-icon.html.twig" with { room: "football", size: 22 } only %}{{ game.badge }}</span>{% else %}<span class="rm-badge">{{ badge }}</span>{% endif %}</section>
-{% if score %}<section class="rm-scoreboard" aria-labelledby="rm-season"><h2 id="rm-season">{{ score.title }} <span class="rm-scoreboard__since">{{ score.since }}</span></h2><dl class="rm-scoreboard__cells">{% for c in score.cells %}<div class="rm-scoreboard__cell"><dt>{{ c.label }}</dt><dd>{{ c.value }}</dd></div>{% endfor %}</dl></section>{% endif %}{% endif %}
+{% if score %}<section class="rm-scoreboard" aria-labelledby="rm-season"><h2 id="rm-season">{{ score.title }} <span class="rm-scoreboard__since">{{ score.since }}</span></h2><dl class="rm-scoreboard__cells">{% for c in score.cells %}<div class="rm-scoreboard__cell"><dt>{{ c.label }}</dt><dd>{{ c.value }}</dd>{% if c.note %}<dd class="rm-scoreboard__note">{{ c.note }}</dd>{% endif %}</div>{% endfor %}</dl></section>{% endif %}{% endif %}
 <section class="rm-needs" id="needs" aria-labelledby="rm-now"><h2 id="rm-now">{{ needs_title }}</h2>
 {% for n in needs %}<div class="rm-needs__row"><span>{{ n.text }}</span>{% if n.buttons %}<span class="rm-needs__buttons">{% for b in n.buttons %}<a class="rm-button{% if b.ghost %} rm-button--ghost{% endif %}" href="{{ b.url }}">{{ b.label }}</a>{% endfor %}</span>{% else %}<a class="rm-button{% if n.ghost %} rm-button--ghost{% endif %}" href="{{ n.url }}">{{ n.action }}</a>{% endif %}</div>
 {% else %}<p class="rm-needs__empty">{{ nothing }}</p>{% endfor %}</section>
@@ -339,17 +340,36 @@ final class MatrixController extends ControllerBase {
     // The same numbers as the Money page (Money::summarize).
     $start = $this->season->startOfSeason()->format('Y-m-d');
     $sales = Money::summarize($this->money->sales($start, NULL));
-    $listed = $this->money->listedCount($start, NULL);
+    // Items, not listings: one item posted on 3 sites is 1 listed (Liam,
+    // punch 622 part 2); the listings go on a small line under it.
+    $listed = $this->money->listedItemsCount($start, NULL);
+    $listings = $this->money->listedCount($start, NULL);
     $start = $this->season->startOfSeason();
     return [
       'title' => $this->t('This season'),
       'since' => $this->t('since @date', ['@date' => $start->format('M j')]),
       'cells' => [
         ['label' => $this->t('Sold'), 'value' => number_format($sales['count'])],
-        ['label' => $this->t('Listed'), 'value' => number_format($listed)],
+        [
+          'label' => $this->t('Listed'),
+          'value' => number_format($listed),
+          'note' => $listings ? $this->formatPlural($listings, '1 listing across your sites', '@count listings across your sites') : '',
+        ],
         ['label' => $this->t('Gold struck'), 'value' => '$' . number_format($sales['revenue'])],
       ],
     ];
+  }
+
+  /**
+   * The line about sales from before the site (date unknown), if any.
+   */
+  private function undatedNote(int $count, bool $all_time): ?TranslatableMarkup {
+    if (!$count) {
+      return NULL;
+    }
+    return $all_time
+      ? $this->formatPlural($count, 'Includes 1 sale from before the site (date unknown).', 'Includes @count sales from before the site (dates unknown).')
+      : $this->formatPlural($count, '1 sale from before the site (date unknown) is counted in All time only.', '@count sales from before the site (dates unknown) are counted in All time only.');
   }
 
   /**
@@ -450,6 +470,7 @@ final class MatrixController extends ControllerBase {
             '@t_earned' => $dollars($sum['stages'][Shipping::TO_SHIP]['earned']),
           ]) : NULL,
           $sum['missing_price'] ? $this->formatPlural($sum['missing_price'], '1 sale has no sale price entered, so it adds nothing to sales.', '@count sales have no sale price entered, so they add nothing to sales.') : NULL,
+          $this->undatedNote($from === NULL ? $sum['undated'] : $this->money->undatedCount(), $from === NULL),
         ]),
         'by_title' => $this->t('Sold by platform'),
         'platforms' => $platforms,

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\ishop_items;
 
+use Drupal\Core\Database\Connection;
+use Drupal\Core\Database\Query\SelectInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 /**
@@ -23,21 +25,29 @@ final class Money {
 
   public function __construct(
     private readonly EntityTypeManagerInterface $entityTypeManager,
+    private readonly Connection $database,
   ) {}
 
   /**
    * Sales with a Date sold between two dates (inclusive, Y-m-d), oldest first.
    *
+   * Sales from before the site (date unknown) are only in All time (no
+   * $from), unless $undated says otherwise (the tax export wants them).
+   *
    * @return array<int, array>
-   *   One row per sold listing: item, platform, date_sold, date_posted,
-   *   price, fees, shipping, cost (floats or NULL), stage (Shipping::STAGES).
+   *   One row per sold listing: item, platform, date_sold, date_unknown,
+   *   date_posted, price, fees, shipping, cost (floats or NULL), stage
+   *   (Shipping::STAGES).
    */
-  public function sales(?string $from, ?string $to): array {
+  public function sales(?string $from, ?string $to, ?bool $undated = NULL): array {
     $storage = $this->entityTypeManager->getStorage('platform_listing');
     $query = $storage->getQuery()->accessCheck(FALSE)
       ->condition('status', Platforms::SOLD_HERE)
       ->exists('date_sold')
       ->sort('date_sold');
+    if (!($undated ?? $from === NULL)) {
+      $query->condition('date_sold_unknown', 0);
+    }
     if ($from) {
       $query->condition('date_sold', $from, '>=');
     }
@@ -55,6 +65,7 @@ final class Money {
         'item' => $item,
         'platform' => $listing->getPlatform(),
         'date_sold' => (string) $listing->get('date_sold')->value,
+        'date_unknown' => (bool) $listing->get('date_sold_unknown')->value,
         'date_posted' => (string) ($listing->get('date_posted')->value ?? ''),
         'price' => $number($listing->get('sold_price')->value),
         'fees' => $number($listing->get('fees')->value),
@@ -72,9 +83,11 @@ final class Money {
    *
    * Pure: works on the plain rows from sales().
    *
-   * @return array{count: int, revenue: float, fees: float, shipping: float, earned: float, cost: float, profit: float, with_cost: int, avg_days: ?float, missing_price: int, by_platform: array, stages: array}
+   * @return array{count: int, revenue: float, fees: float, shipping: float, earned: float, cost: float, profit: float, with_cost: int, avg_days: ?float, missing_price: int, undated: int, by_platform: array, stages: array}
    *   Money in dollars. cost and profit cover only the with_cost sales that
-   *   have "What I paid"; avg_days is NULL when no sale has both dates.
+   *   have "What I paid"; avg_days is NULL when no sale has both dates
+   *   (sales from before the site never count there). undated: how many
+   *   are from before the site.
    *   stages: Shipping stage => count and earned (rows without a stage
    *   count as delivered).
    */
@@ -91,6 +104,7 @@ final class Money {
     ];
     $days = [];
     $missing_price = 0;
+    $undated = 0;
     $by_platform = [];
     $stages = array_fill_keys(array_keys(Shipping::STAGES), ['count' => 0, 'earned' => 0.0]);
     foreach ($rows as $row) {
@@ -107,7 +121,10 @@ final class Money {
         $sum['with_cost']++;
       }
       $missing_price += $row['price'] === NULL ? 1 : 0;
-      if ($row['date_posted'] !== '' && $row['date_sold'] !== '') {
+      $undated += empty($row['date_unknown']) ? 0 : 1;
+      // Imported sales can have the import day as Date posted, after they
+      // sold: such spans (and sales from before the site) aren't counted.
+      if ($row['date_posted'] !== '' && $row['date_sold'] !== '' && empty($row['date_unknown']) && $row['date_posted'] <= $row['date_sold']) {
         $days[] = self::daysBetween($row['date_posted'], $row['date_sold']);
       }
       $platform = $row['platform'];
@@ -124,6 +141,7 @@ final class Money {
     return $sum + [
       'avg_days' => $days ? (float) (array_sum($days) / count($days)) : NULL,
       'missing_price' => $missing_price,
+      'undated' => $undated,
       'by_platform' => $ordered,
       'stages' => $stages,
     ];
@@ -151,17 +169,53 @@ final class Money {
   }
 
   /**
+   * How many sales are from before the site (date unknown).
+   */
+  public function undatedCount(): int {
+    return (int) $this->entityTypeManager->getStorage('platform_listing')->getQuery()->accessCheck(FALSE)
+      ->condition('status', Platforms::SOLD_HERE)
+      ->condition('date_sold_unknown', 1)
+      ->count()->execute();
+  }
+
+  /**
+   * How many items have a listing that went live between two dates.
+   */
+  public function listedItemsCount(?string $from, ?string $to): int {
+    $query = $this->listedQuery($from, $to);
+    $query->addExpression('COUNT(DISTINCT l.item)');
+    return (int) $query->execute()->fetchField();
+  }
+
+  /**
    * How many listings went live between two dates (by Date posted).
    */
   public function listedCount(?string $from, ?string $to): int {
-    $query = $this->entityTypeManager->getStorage('platform_listing')->getQuery()->accessCheck(FALSE)->exists('date_posted');
+    $query = $this->listedQuery($from, $to);
+    $query->addExpression('COUNT(*)');
+    return (int) $query->execute()->fetchField();
+  }
+
+  /**
+   * Listings posted between two dates, without items sold before the site.
+   *
+   * An imported item sold before the site has the import day as Date posted
+   * on its listings; it was listed and sold before then, so it isn't counted.
+   */
+  private function listedQuery(?string $from, ?string $to): SelectInterface {
+    $before_site = $this->database->select('platform_listing', 'u')
+      ->fields('u', ['item'])
+      ->condition('u.date_sold_unknown', 1);
+    $query = $this->database->select('platform_listing', 'l')
+      ->isNotNull('l.date_posted')
+      ->condition('l.item', $before_site, 'NOT IN');
     if ($from) {
-      $query->condition('date_posted', $from, '>=');
+      $query->condition('l.date_posted', $from, '>=');
     }
     if ($to) {
-      $query->condition('date_posted', $to, '<=');
+      $query->condition('l.date_posted', $to, '<=');
     }
-    return (int) $query->count()->execute();
+    return $query;
   }
 
   /**

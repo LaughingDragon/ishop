@@ -452,7 +452,7 @@ final class ImportPlan {
       }
       $date_sold ??= array_values(array_filter(array_column($group, 'sold_on_date')))[0] ?? NULL;
       if ($date_sold === NULL) {
-        $problems[] = [self::NOTE, 'No date sold: counted as sold on the day of the import.'];
+        $problems[] = [self::NOTE, 'No date sold: marked "sold before the site" (counts in All time only).'];
       }
     }
 

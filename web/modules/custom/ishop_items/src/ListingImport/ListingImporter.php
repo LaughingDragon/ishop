@@ -417,6 +417,10 @@ final class ListingImporter {
       if ($planned['date_sold'] !== NULL) {
         $listing->set('date_sold', $planned['date_sold']);
       }
+      else {
+        // No date in the sheet: dated the import day, counted in All time only.
+        $listing->set('date_sold_unknown', TRUE);
+      }
       $this->listings->applySale($listing, $why);
       if ($sold === self::SOLD_DELIVERED) {
         $listing = $this->reload($listing);

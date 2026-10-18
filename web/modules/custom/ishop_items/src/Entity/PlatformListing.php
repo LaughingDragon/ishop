@@ -116,6 +116,14 @@ final class PlatformListing extends ContentEntityBase implements RevisionLogInte
     elseif ($this->getStatus() !== Platforms::SOLD_HERE && !$this->get('date_sold')->isEmpty()) {
       $this->set('date_sold', NULL);
     }
+    // "Sold before the site" (date unknown) lasts until a real Date sold is
+    // entered, or the sale is undone.
+    if ($this->get('date_sold_unknown')->value) {
+      $before = $this->isNew() ? NULL : $this->original?->get('date_sold')->value;
+      if ($this->getStatus() !== Platforms::SOLD_HERE || ($before !== NULL && $before !== $this->get('date_sold')->value)) {
+        $this->set('date_sold_unknown', FALSE);
+      }
+    }
     // The price book (Phase 7.5) keeps each sale's category and condition as
     // they were when it sold, so editing the item later doesn't move it.
     $item = $this->getItem();
@@ -214,6 +222,31 @@ final class PlatformListing extends ContentEntityBase implements RevisionLogInte
         'label' => 'inline',
         'type' => 'datetime_custom',
         'settings' => ['date_format' => 'Y-m-d'],
+        'weight' => 11,
+      ]);
+
+    // Liam, punch 622 part 2: an imported sale with no date in the
+    // spreadsheet gets the import day as Date sold (it must have one) and
+    // this flag, so it counts in All time only, never in a month or season.
+    $fields['date_sold_unknown'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(t('Sold before the site (date unknown)'))
+      ->setDescription(t('Counted in All time only. Entering the real Date sold clears this.'))
+      ->setRevisionable(TRUE)
+      ->setDefaultValue(FALSE)
+      ->setInitialValue(FALSE)
+      ->setDisplayOptions('form', [
+        'type' => 'boolean_checkbox',
+        'weight' => 11,
+        'settings' => ['display_label' => TRUE],
+      ])
+      ->setDisplayOptions('view', [
+        'label' => 'hidden',
+        'type' => 'boolean',
+        'settings' => [
+          'format' => 'custom',
+          'format_custom_true' => 'Sold before the site (date unknown)',
+          'format_custom_false' => '',
+        ],
         'weight' => 11,
       ]);
 
