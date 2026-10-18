@@ -462,8 +462,8 @@ final class ImportPlan {
       'quantity' => NULL,
       'location' => $context['default_location'],
       'brand' => $text('brand') ?: NULL,
-      'size' => $text('size') !== '' ? mb_substr($text('size'), 0, 255) : NULL,
-      'color' => $text('color') !== '' ? mb_substr($text('color'), 0, 255) : NULL,
+      'size' => $text('size') !== '' ? self::short($text('size')) : NULL,
+      'color' => $text('color') !== '' ? self::short($text('color')) : NULL,
       'condition' => NULL,
       'category' => NULL,
       'cost' => NULL,
@@ -593,8 +593,8 @@ final class ImportPlan {
     $text = fn (string $key) => trim((string) ($record[$key] ?? ''));
     $take('description', $text('description'));
     $take('flaws', $text('condition_notes'));
-    $take('size', mb_substr($text('size'), 0, 255));
-    $take('color', mb_substr($text('color'), 0, 255));
+    $take('size', self::short($text('size')));
+    $take('color', self::short($text('color')));
     $take('brand', $text('brand'));
     if ($text('condition') !== '') {
       $take('condition', self::matchValue('condition', $text('condition'), $context['conditions'], []));
@@ -606,6 +606,23 @@ final class ImportPlan {
       $take('ai_price_max', $max);
     }
     return [$fields, $filled];
+  }
+
+  /**
+   * Size and color hold at most this many characters (field storage).
+   */
+  public const SHORT_MAX = 60;
+
+  /**
+   * A size or color cut to SHORT_MAX characters, at a word where it can.
+   */
+  public static function short(string $text): string {
+    if (mb_strlen($text) <= self::SHORT_MAX) {
+      return $text;
+    }
+    $cut = mb_substr($text, 0, self::SHORT_MAX - 1);
+    $space = mb_strrpos($cut, ' ');
+    return rtrim($space > self::SHORT_MAX / 2 ? mb_substr($cut, 0, $space) : $cut, ' ,;/-') . '…';
   }
 
   /**

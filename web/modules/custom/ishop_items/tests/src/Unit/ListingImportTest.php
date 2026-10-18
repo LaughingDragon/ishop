@@ -455,6 +455,18 @@ final class ListingImportTest extends UnitTestCase {
   }
 
   /**
+   * Size and color fit the 60-character fields (row 26 failed on 67).
+   */
+  public function testShort(): void {
+    $long = 'Yellow, red and black; one black/yellow and one purple novelty sign';
+    $short = ImportPlan::short($long);
+    $this->assertLessThanOrEqual(ImportPlan::SHORT_MAX, mb_strlen($short));
+    $this->assertSame('Yellow, red and black; one black/yellow and one purple…', $short);
+    $this->assertSame('L-XL', ImportPlan::short('L-XL'));
+    $this->assertSame(60, mb_strlen(ImportPlan::short(str_repeat('x', 80))));
+  }
+
+  /**
    * Same-title check for the Crosslister records.
    */
   public function testSameTitle(): void {
