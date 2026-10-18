@@ -26,3 +26,10 @@
 .so-table-wrap time {
   white-space: nowrap;
 }
+
+/* Report screenshots: phone shots at phone size (they're taken at 2x), desktop shots full width. */
+.so-report img[src^="/site-office/screenshots/"] {
+  display: block; width: 100%; max-width: 390px; height: auto; margin: 12px 0;
+  border: 1px solid #8a8a8a; border-radius: 8px;
+}
+.so-report img[src^="/site-office/screenshots/"][src*="-desktop"] { max-width: 100%; }
