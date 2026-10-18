@@ -53,6 +53,8 @@ board picks up the new percentage. This file in git is the source of truth.
    office (Phase 0.5 onward).
 8. **Nothing posts to marketplaces automatically.** They have no public
    listing APIs and their terms forbid automated posting.
+9. **Phase 9 is always last.** It is the close-out, done when everything else is
+   finished; every new phase goes above it (Liam, 2026-10-18).
 
 ## Foundation: server, stack, HTTPS, hardening
 
@@ -321,23 +323,6 @@ Liam's "Ok" on item 253 took every recommendation (decision 266). Module `ishop_
   off: /shop, the item pages and the sitemap answer "Not found" and no public photos exist. While on, visitors
   to the front page go to /shop; signed-in Cody still lands on the Reseller Matrix. Stays off until Liam says.
 
-## Phase 9: close the site office and hand over to Cody
-
-DRAFT (2026-10-15): written from Liam's one-line brief and TEMPORARY.md, because the earlier,
-fuller specification was not available to the site foreman. Liam to replace or confirm.
-
-- [ ] Clear TEMPORARY.md: every temporary feature switched off and removed as its section
-  says (birthday mode, its song, email timer and code), until TEMPORARY.md is empty.
-- [ ] Owner's guide for Cody: one page in the Reseller Matrix (adding items, posting,
-  Stockroom, money and the tax export, bills, calendar, to-dos), written for the phone.
-- [ ] Hand-over of accounts and services, as Liam decides: Cody's administrator account,
-  who holds the Google Cloud project, the GitHub repository, the Gmail used for site mail,
-  and the domain name (ohbah.com is shared).
-- [ ] Final backup and a restore check, then the site office's records (plans, reports,
-  punch list, decisions) exported for Liam and Cody to keep.
-- [ ] Close the site office: its pages, the site_office role and the site-foreman account
-  switched off; Claude's server access (SSH key, GitHub deploy key) removed.
-
 ## Phase 10: shipping and marketplace mail
 
 Approved by Liam 2026-10-16 ("build it, one report per part"). Built before Phase 9 Stage B, so its
@@ -363,6 +348,38 @@ All of Cody's marketplace accounts use the business Gmail.
   Cody's name, set up from a punch item with plain steps): orders and ship-by, returns, cases.
   Revocable token stored like other secrets, with a renewal reminder before it expires. No
   passwords, cookies or page scraping, ever.
+
+## Phase 11: bring in Cody's current listings
+
+Approved by Liam 2026-10-18 (punch 312, addendum 313). Built after Phase 10 A and before Phase 10 B
+is switched on, so the marketplace inbox can match emails to his existing items. Site only: no
+browser agent, no marketplace automation, nothing delisted or relisted.
+
+- [ ] **Import listings page** (My office, theowner and webmaster): upload the .xlsx or .csv as
+  is, match columns (remembered for next time), match category/condition values, preview every
+  item with its per-platform statuses and problems, then Import (one item per product). Sold rows
+  imported as sold or skipped (Cody's choice). Buyer details never stored. Undo a whole import
+  for 7 days. Optional fill-in from the old Crosslister records (photos where they exist).
+- [ ] Dry run of Cody's real spreadsheet through the preview, reported to Liam (counts per
+  platform, sold total, problems).
+- [ ] Cody imports it himself from the page (punch item after Liam OKs the dry run).
+
+## Phase 9: close the site office and hand over to Cody
+
+DRAFT (2026-10-15): written from Liam's one-line brief and TEMPORARY.md, because the earlier,
+fuller specification was not available to the site foreman. Liam to replace or confirm.
+
+- [ ] Clear TEMPORARY.md: every temporary feature switched off and removed as its section
+  says (birthday mode, its song, email timer and code), until TEMPORARY.md is empty.
+- [ ] Owner's guide for Cody: one page in the Reseller Matrix (adding items, posting,
+  Stockroom, money and the tax export, bills, calendar, to-dos), written for the phone.
+- [ ] Hand-over of accounts and services, as Liam decides: Cody's administrator account,
+  who holds the Google Cloud project, the GitHub repository, the Gmail used for site mail,
+  and the domain name (ohbah.com is shared).
+- [ ] Final backup and a restore check, then the site office's records (plans, reports,
+  punch list, decisions) exported for Liam and Cody to keep.
+- [ ] Close the site office: its pages, the site_office role and the site-foreman account
+  switched off; Claude's server access (SSH key, GitHub deploy key) removed.
 
 ## Later, only if the business grows
 
