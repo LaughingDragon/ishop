@@ -29,7 +29,13 @@
         const strip = js.querySelector('.ia-strip');
         const after = js.querySelector('.ia-after');
         const ids = form.querySelector('.ia-photo-ids');
-        const save = form.querySelector('.ia-save');
+        // Every save button (Add photos has two); each keeps its own label.
+        const saves = [...form.querySelectorAll('.ia-save')];
+        saves.forEach((b) => {
+          b.dataset.label = b.value;
+        });
+        const max = settings.max || 0;
+        const hint = js.querySelector('.ia-hint');
         const queue = [];
         let busy = false;
         let token = null;
@@ -55,10 +61,10 @@
             li.querySelector('.ia-cover').hidden = i === 0;
           });
           const uploading = queue.length > 0 || busy;
-          save.disabled = uploading;
-          save.value = uploading
-            ? Drupal.t('Uploading photos…')
-            : Drupal.t('Save item');
+          saves.forEach((b) => {
+            b.disabled = uploading;
+            b.value = uploading ? Drupal.t('Uploading photos…') : b.dataset.label;
+          });
         };
 
         const button = (cls, label, text) => {
@@ -163,10 +169,35 @@
         };
 
         const add = (files) => {
-          [...files].forEach((file) => queue.push(card(file)));
+          let list = [...files];
+          if (max) {
+            const room = Math.max(0, max - strip.children.length);
+            if (list.length > room) {
+              hint.textContent = Drupal.t('Up to @max photos per item: @n left out.', {
+                '@max': max,
+                '@n': list.length - room,
+              });
+              list = list.slice(0, room);
+            }
+          }
+          list.forEach((file) => queue.push(card(file)));
           sync();
           pump();
         };
+
+        // Photos the item already has (Add photos page): cards ready to
+        // reorder or remove.
+        (settings.existing || []).forEach((photo) => {
+          const li = card(null);
+          delete li.file;
+          li.dataset.mid = photo.mid;
+          li.classList.remove('ia-card--uploading');
+          const img = document.createElement('img');
+          img.src = photo.thumb;
+          img.alt = '';
+          li.querySelector('.ia-thumb').replaceChildren(img);
+          li.querySelector('.ia-status').textContent = '';
+        });
 
         camera.addEventListener('change', () => {
           if (camera.files.length) {

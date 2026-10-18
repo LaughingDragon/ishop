@@ -7,3 +7,11 @@ handling_days:
   vinted: 5
   facebook: 3
 label_keep_days: 30
+photo_keep_days:
+  poshmark: 30
+  mercari: 30
+  ebay: 30
+  depop: 30
+  grailed: 30
+  vinted: 30
+  facebook: 30

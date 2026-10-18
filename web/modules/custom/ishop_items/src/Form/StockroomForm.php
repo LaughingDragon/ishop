@@ -10,8 +10,10 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\Core\Url;
 use Drupal\image\Entity\ImageStyle;
 use Drupal\ishop_items\BulkActions;
+use Drupal\ishop_items\ItemPhotos;
 use Drupal\ishop_items\Platforms;
 use Drupal\ishop_items\StockroomFilters;
 
@@ -168,7 +170,13 @@ final class StockroomForm extends FormBase {
         '#wrapper_attributes' => ['class' => ['rm-stock__item']],
         // Tapping the row ticks it for a bulk change; Open goes to the item
         // (its page has Check sold prices, Listings and Post this item).
-        '#field_suffix' => Markup::create('<a class="rm-button rm-button--ghost rm-stock__open" href="' . Html::escape($item->toUrl()->toString()) . '">' . Html::escape((string) $this->t('Open')) . '<span class="visually-hidden"> ' . Html::escape($item->label()) . '</span></a>'),
+        // No photos yet and still selling: Add photos goes straight there.
+        '#field_suffix' => Markup::create(
+          (!$photo && in_array((string) $item->get('field_item_status')->value, ItemPhotos::SELLING, TRUE)
+            ? '<a class="rm-button rm-button--gold rm-stock__open" href="' . Html::escape(Url::fromRoute('ishop_items.item_photos', ['node' => $nid])->toString()) . '">' . Html::escape((string) $this->t('Add photos')) . '<span class="visually-hidden"> ' . Html::escape($item->label()) . '</span></a> '
+            : '')
+          . '<a class="rm-button rm-button--ghost rm-stock__open" href="' . Html::escape($item->toUrl()->toString()) . '">' . Html::escape((string) $this->t('Open')) . '<span class="visually-hidden"> ' . Html::escape($item->label()) . '</span></a>'
+        ),
       ];
     }
     $form['bar'] = [

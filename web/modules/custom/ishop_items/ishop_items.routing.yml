@@ -249,3 +249,19 @@ ishop_items.sheet_note_done:
       node:
         type: entity:node
         bundle: [item]
+
+ishop_items.item_photos:
+  path: '/item/{node}/photos'
+  defaults:
+    _form: '\Drupal\ishop_items\Form\ItemPhotosForm'
+    _title_callback: '\Drupal\ishop_items\Form\ItemPhotosForm::title'
+  requirements:
+    _entity_access: 'node.update'
+    _entity_create_access: 'node:item'
+    node: \d+
+  options:
+    no_cache: TRUE
+    parameters:
+      node:
+        type: entity:node
+        bundle: [item]

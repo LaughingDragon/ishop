@@ -22,6 +22,7 @@ use Drupal\ishop_items\PhotoPrep;
 use Drupal\ishop_items\PriceBook;
 use Drupal\ishop_office\DiskStatus;
 use Drupal\ishop_items\ReadyCheck;
+use Drupal\ishop_items\ItemPhotos;
 use Drupal\ishop_items\ListingImport\ListingImporter;
 use Drupal\ishop_items\Shipping;
 use Drupal\ishop_items\SoldSearch;
@@ -378,17 +379,25 @@ final class ItemHooks {
         ];
       }
     }
+    $selling = in_array((string) $node->get('field_item_status')->value, ItemPhotos::SELLING, TRUE) && $node->access('update');
+    $add = $selling ? Url::fromRoute('ishop_items.item_photos', ['node' => $node->id()])->toString() : NULL;
     if (!$photos) {
-      return ['#markup' => '<p class="ishop-gallery__none">' . $this->t('No photos yet. Add photos when you can (Edit).') . '</p>'];
+      return [
+        '#type' => 'inline_template',
+        '#template' => '<p class="ishop-gallery__none">{{ none }}{% if add %} <a class="rm-button rm-button--gold" href="{{ add }}">{{ add_label }}</a>{% endif %}</p>',
+        '#context' => ['none' => $this->t('No photos yet.'), 'add' => $add, 'add_label' => $this->t('Add photos')],
+      ];
     }
     return [
       '#type' => 'inline_template',
-      '#template' => '<section class="ishop-gallery" aria-label="{{ label }}"><figure class="ishop-gallery__cover"><img src="{{ photos[0].large }}" alt="{{ cover_alt }}"></figure>{% if photos|length > 1 %}<ul class="ishop-gallery__thumbs">{% for p in photos %}<li><a class="ishop-gallery__thumb{% if loop.first %} is-current{% endif %}" href="{{ p.large }}" data-large="{{ p.large }}" aria-label="{{ show }} {{ loop.index }}"><img src="{{ p.thumb }}" alt=""></a></li>{% endfor %}</ul>{% endif %}</section>',
+      '#template' => '<section class="ishop-gallery" aria-label="{{ label }}"><figure class="ishop-gallery__cover"><img src="{{ photos[0].large }}" alt="{{ cover_alt }}"></figure>{% if photos|length > 1 %}<ul class="ishop-gallery__thumbs">{% for p in photos %}<li><a class="ishop-gallery__thumb{% if loop.first %} is-current{% endif %}" href="{{ p.large }}" data-large="{{ p.large }}" aria-label="{{ show }} {{ loop.index }}"><img src="{{ p.thumb }}" alt=""></a></li>{% endfor %}</ul>{% endif %}{% if add %}<p class="ishop-gallery__add"><a class="rm-button rm-button--ghost" href="{{ add }}">{{ add_label }}</a></p>{% endif %}</section>',
       '#context' => [
         'photos' => $photos,
         'label' => $this->t('Photos'),
         'cover_alt' => $this->t('@title, photo 1 of @n', ['@title' => $node->label(), '@n' => count($photos)]),
         'show' => $this->t('Show photo'),
+        'add' => $add,
+        'add_label' => $this->t('Add or change photos'),
       ],
     ];
   }

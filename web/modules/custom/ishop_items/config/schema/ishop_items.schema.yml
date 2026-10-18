@@ -19,3 +19,9 @@ ishop_items.shipping:
     label_keep_days:
       type: integer
       label: 'Days after delivery before a shipping label (buyer address) is deleted'
+    photo_keep_days:
+      type: sequence
+      label: 'Days after delivery before a sold item''s photos are deleted (return window), per platform'
+      sequence:
+        type: integer
+        label: 'Days'

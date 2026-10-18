@@ -433,3 +433,14 @@ function ishop_items_update_11009(): string {
   }
   return 'Shipping room fields added; Physical weight and package size added; removed empty fields: ' . ($removed ? implode(', ', $removed) : 'none');
 }
+
+/**
+ * Sold items' photos are deleted 30 days after delivery (Liam, 2026-10-18).
+ */
+function ishop_items_update_11010(): string {
+  $config = \Drupal::configFactory()->getEditable('ishop_items.shipping');
+  if ($config->get('photo_keep_days') === NULL) {
+    $config->set('photo_keep_days', array_fill_keys(array_keys(\Drupal\ishop_items\Platforms::PLATFORMS), 30))->save();
+  }
+  return 'Sold items keep their photos 30 days after delivery, then they are deleted.';
+}
