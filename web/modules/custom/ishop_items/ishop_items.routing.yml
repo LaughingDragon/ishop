@@ -222,3 +222,30 @@ ishop_items.import_listings_undo:
     import: \d+
   options:
     no_cache: TRUE
+
+ishop_items.sheet_notes:
+  path: '/room/stockroom/sheet-notes'
+  defaults:
+    _controller: '\Drupal\ishop_items\Controller\SheetNotesController::page'
+    _title: 'Notes from your spreadsheet'
+  requirements:
+    _permission: 'manage platform listings'
+    _user_is_logged_in: 'TRUE'
+  options:
+    no_cache: TRUE
+
+ishop_items.sheet_note_done:
+  path: '/room/stockroom/sheet-notes/{node}/done'
+  defaults:
+    _controller: '\Drupal\ishop_items\Controller\SheetNotesController::done'
+  requirements:
+    _permission: 'manage platform listings'
+    _entity_access: 'node.view'
+    _csrf_token: 'TRUE'
+    node: \d+
+  options:
+    no_cache: TRUE
+    parameters:
+      node:
+        type: entity:node
+        bundle: [item]

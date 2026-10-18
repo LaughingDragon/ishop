@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Drupal\ishop_items\ListingImport;
 
 use Drupal\Component\Datetime\TimeInterface;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileExists;
@@ -64,6 +65,7 @@ final class ListingImporter {
 
   private const REGISTRY = 'ishop_items.listing_imports';
   private const MEMORY = 'ishop_items.listing_import_memory';
+  private const NOTES = 'ishop_items.sheet_notes';
 
   public function __construct(
     private readonly EntityTypeManagerInterface $entityTypeManager,
@@ -425,7 +427,51 @@ final class ListingImporter {
         $this->listings->saveRevision($listing, 'Imported as already delivered: the sheet has no shipping dates, so the sold date is used.');
       }
     }
+    // The sheet's notes are mostly things to check before selling ("measure
+    // it before posting"): unsold items' notes wait in "Needs you now"
+    // until Cody taps Done.
+    if ($planned['kind'] !== ImportPlan::KIND_SOLD && ($planned['sheet_note'] ?? NULL) !== NULL) {
+      $this->keyValue->get(self::NOTES)->set((string) $item->id(), $planned['sheet_note']);
+    }
     return [$item, $media];
+  }
+
+  /**
+   * Notes from the sheet still waiting for Cody, by item.
+   *
+   * Notes for items that are gone (undone, deleted) or finished since
+   * (sold, donated, kept) are dropped.
+   *
+   * @return array<int, array{item: \Drupal\node\NodeInterface, note: string}>
+   *   Keyed by node ID, oldest item first.
+   */
+  public function sheetNotes(): array {
+    $store = $this->keyValue->get(self::NOTES);
+    $notes = $store->getAll();
+    if (!$notes) {
+      return [];
+    }
+    $items = $this->entityTypeManager->getStorage('node')->loadMultiple(array_keys($notes));
+    $open = [];
+    foreach ($notes as $nid => $note) {
+      $item = $items[$nid] ?? NULL;
+      $finished = ['sold', 'donated', 'kept'];
+      if (!$item instanceof NodeInterface || in_array((string) $item->get('field_item_status')->value, $finished, TRUE)) {
+        $store->delete((string) $nid);
+        continue;
+      }
+      $open[(int) $nid] = ['item' => $item, 'note' => (string) $note];
+    }
+    ksort($open);
+    return $open;
+  }
+
+  /**
+   * Cody has dealt with an item's note from the sheet.
+   */
+  public function dismissNote(int $nid): void {
+    $this->keyValue->get(self::NOTES)->delete((string) $nid);
+    Cache::invalidateTags(['ishop_needs']);
   }
 
   /**
@@ -504,6 +550,7 @@ final class ListingImporter {
       $media->delete();
       $file?->delete();
     }
+    $this->keyValue->get(self::NOTES)->deleteMultiple(array_map('strval', $import['nids']));
     $this->update($id, fn (array $import) => [
       'undone' => $this->time->getRequestTime(),
       'undone_by' => (int) $this->currentUser->id(),

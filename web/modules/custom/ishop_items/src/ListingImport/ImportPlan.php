@@ -313,8 +313,8 @@ final class ImportPlan {
    *   location, brand (name), size, color, condition, category (term IDs),
    *   cost, description, flaws, notes, ai_price_min, ai_price_max), filled
    *   (field names taken from the Crosslister record), photos (record photo
-   *   paths), record (Crosslister number or NULL), problems ([level,
-   *   message]), importable.
+   *   paths), record (Crosslister number or NULL), sheet_note (the
+   *   sheet's own note, or NULL), problems ([level, message]), importable.
    */
   private static function item(array $group, array $context): array {
     $first = $group[0];
@@ -568,6 +568,7 @@ final class ImportPlan {
       'filled' => $filled,
       'photos' => $photos,
       'record' => $record,
+      'sheet_note' => $text('notes') !== '' ? $text('notes') : NULL,
       'problems' => $problems,
       'importable' => $title !== '' && !($kind === self::KIND_SOLD && $sold_platform === NULL),
     ];

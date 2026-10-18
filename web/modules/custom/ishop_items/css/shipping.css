@@ -27,3 +27,4 @@
 .rm-ship-form input[type=checkbox] { width: 26px; height: 26px; accent-color: var(--rm-gold, #F2C14E); }
 .rm-ship-form .js-form-type-checkbox { display: flex; align-items: center; gap: 12px; min-height: 48px; }
 .rm-ship-form .js-form-type-checkbox label { margin: 0; }
+.rm-sheet-note { margin: 8px 0 0; white-space: normal; overflow-wrap: anywhere; }
