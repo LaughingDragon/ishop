@@ -53,8 +53,9 @@ board picks up the new percentage. This file in git is the source of truth.
    office (Phase 0.5 onward).
 8. **Nothing posts to marketplaces automatically.** They have no public
    listing APIs and their terms forbid automated posting.
-9. **Phase 9 is always last.** It is the close-out, done when everything else is
-   finished; every new phase goes above it (Liam, 2026-10-18).
+9. **The close-out is always the last phase and has the highest number.** It is done
+   when everything else is finished. A new phase goes above it and takes the close-out's
+   number; the close-out moves down one (Liam, 2026-10-18).
 
 ## Foundation: server, stack, HTTPS, hardening
 
@@ -323,10 +324,12 @@ Liam's "Ok" on item 253 took every recommendation (decision 266). Module `ishop_
   off: /shop, the item pages and the sitemap answer "Not found" and no public photos exist. While on, visitors
   to the front page go to /shop; signed-in Cody still lands on the Reseller Matrix. Stays off until Liam says.
 
-## Phase 10: shipping and marketplace mail
+## Phase 9: shipping and marketplace mail
 
-Approved by Liam 2026-10-16 ("build it, one report per part"). Built before Phase 9 Stage B, so its
-reports and Cody's setup items still have the site office; Phase 9 Stage A continues alongside.
+(Numbered Phase 10 until 2026-10-18; older reports and code comments say "Phase 10 A/B/C".)
+
+Approved by Liam 2026-10-16 ("build it, one report per part"). Built before the close-out's Stage B (now Phase 11), so its
+reports and Cody's setup items still have the site office; close-out Stage A continues alongside.
 All of Cody's marketplace accounts use the business Gmail.
 
 - [x] **A. Shipping room** (/room/shipping-room): sold-and-unshipped items oldest first, each with
@@ -349,10 +352,12 @@ All of Cody's marketplace accounts use the business Gmail.
   Revocable token stored like other secrets, with a renewal reminder before it expires. No
   passwords, cookies or page scraping, ever.
 
-## Phase 11: bring in Cody's current listings
+## Phase 10: bring in Cody's current listings
 
-Approved by Liam 2026-10-18 (punch 312, addendum 313). Built after Phase 10 A and before Phase 10 B
-is switched on, so the marketplace inbox can match emails to his existing items. Site only: no
+(Numbered Phase 11 when approved on 2026-10-18.)
+
+Approved by Liam 2026-10-18 (punch 312, addendum 313). Built after Phase 9 A (Shipping room) and before Phase 9 B
+(marketplace inbox) is switched on, so the marketplace inbox can match emails to his existing items. Site only: no
 browser agent, no marketplace automation, nothing delisted or relisted.
 
 - [ ] **Import listings page** (My office, theowner and webmaster): upload the .xlsx or .csv as
@@ -364,7 +369,9 @@ browser agent, no marketplace automation, nothing delisted or relisted.
   platform, sold total, problems).
 - [ ] Cody imports it himself from the page (punch item after Liam OKs the dry run).
 
-## Phase 9: close the site office and hand over to Cody
+## Phase 11: close the site office and hand over to Cody
+
+(Numbered Phase 9 until 2026-10-18; older reports, decisions and punch items call it "Phase 9".)
 
 DRAFT (2026-10-15): written from Liam's one-line brief and TEMPORARY.md, because the earlier,
 fuller specification was not available to the site foreman. Liam to replace or confirm.
