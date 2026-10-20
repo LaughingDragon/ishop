@@ -178,9 +178,10 @@ final class ListingsGridForm extends FormBase {
     }
     $form['confirm'] = [
       '#type' => 'inline_template',
-      '#template' => '<section class="so-callout so-callout--warn" aria-labelledby="ishop-sale-title"><div class="so-callout__body"><h2 id="ishop-sale-title">{{ title }}</h2><p>{{ note }}</p>{% if lines %}<ul>{% for l in lines %}<li>{{ l }}</li>{% endfor %}</ul>{% endif %}<p>{{ undo }}</p></div></section>',
+      '#template' => '<section class="so-callout so-callout--warn" aria-labelledby="ishop-sale-title"><div class="so-callout__body"><h2 id="ishop-sale-title">{{ title }}</h2>{% if implied %}<p>{{ implied }}</p>{% endif %}<p>{{ note }}</p>{% if lines %}<ul>{% for l in lines %}<li>{{ l }}</li>{% endfor %}</ul>{% endif %}<p>{{ undo }}</p></div></section>',
       '#context' => [
         'title' => $this->t('Mark sold on @platform?', ['@platform' => Platforms::PLATFORMS[$pending['platform']]]),
+        'implied' => empty($pending['implied']) ? NULL : $this->t('You filled in Sold for, so this marks it Sold here.'),
         'note' => $note,
         'lines' => $lines,
         'undo' => $this->t('The item becomes Sold. You can undo this later by changing the status back; the other listings are put back as they were.'),
@@ -215,6 +216,7 @@ final class ListingsGridForm extends FormBase {
     $already_sold = [];
     foreach ($form_state->getValue('rows') as $platform => $row) {
       $was = $listings[$platform]->getStatus();
+      $row['status'] = self::rowStatus($row, $was, $listings[$platform]->get('sold_price')->value);
       if ($row['status'] === Platforms::SOLD_HERE && $was !== Platforms::SOLD_HERE) {
         $new_sales[] = $platform;
       }
@@ -245,6 +247,7 @@ final class ListingsGridForm extends FormBase {
     $listings = $this->listings->forItem($item);
     $rows = $form_state->getValue('rows') ?? [];
     $sale = NULL;
+    $implied = FALSE;
     $changed = 0;
     $restored = [];
     // Statuses as they were when the form was sent. Un-marking a sale changes
@@ -254,6 +257,9 @@ final class ListingsGridForm extends FormBase {
     foreach ($rows as $platform => $row) {
       $listing = $listings[$platform];
       $was = $original[$platform];
+      $status = self::rowStatus($row, $was, $listing->get('sold_price')->value);
+      $implied = $implied || $status !== $row['status'];
+      $row['status'] = $status;
       $dirty = $this->copyFields($listing, $row);
       if ($row['status'] === Platforms::SOLD_HERE && $was !== Platforms::SOLD_HERE) {
         // Save the other edits now; the sale waits for confirmation.
@@ -281,11 +287,28 @@ final class ListingsGridForm extends FormBase {
       ]));
     }
     if ($sale) {
-      $form_state->set('pending_sale', ['platform' => $sale]);
+      $form_state->set('pending_sale', ['platform' => $sale, 'implied' => $implied]);
       $form_state->setRebuild();
       return;
     }
     $this->messenger()->addStatus($changed ? $this->t('Listings saved.') : $this->t('No changes.'));
+  }
+
+  /**
+   * The status a submitted row means.
+   *
+   * Punch 303: Cody typed a "Sold for" price and saved, leaving the status on
+   * Posted, so the sale never reached the Shipping room. A newly typed Sold
+   * for price on a row whose status was left alone means it sold there; the
+   * usual confirmation step still asks first.
+   */
+  public static function rowStatus(array $row, string $was, ?string $old_sold_price): string {
+    $typed = ($row['sold_price'] ?? '') !== '' && ($old_sold_price === NULL || $old_sold_price === '');
+    $sold = [Platforms::SOLD_HERE, Platforms::NOT_NEEDED_SOLD, Platforms::NOT_ALLOWED];
+    if ($typed && $row['status'] === $was && !in_array($was, $sold, TRUE)) {
+      return Platforms::SOLD_HERE;
+    }
+    return $row['status'];
   }
 
   /**
