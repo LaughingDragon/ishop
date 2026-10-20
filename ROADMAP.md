@@ -404,7 +404,7 @@ fuller specification was not available to the site foreman. Liam to replace or c
 Liam's go, 2026-10-20 (crew-only punch items 628 and 629; Liam's message in the terminal is the
 authority). Work in this order, one report per step.
 
-- [ ] **1. Boot disk for the system only.** The 10 GB boot disk holds the OS and packages; everything
+- [x] **1. Boot disk for the system only.** Done 2026-10-20 (reboot test passed; old /home copy deleted). The 10 GB boot disk holds the OS and packages; everything
   that grows lives on the data disk (no bigger boot disk). Survey before and after (15 largest
   directories), clean what's safe, move /home, the swap file and build caches to the data disk
   (by UUID, nofail), cap journald at 200 MB. Site code and MariaDB: proposal only, Liam's OK first.
@@ -413,7 +413,7 @@ authority). Work in this order, one report per step.
   each sale with one tap). C: eBay developer account + OAuth item for Cody; build after he does it
   (marked "waiting on Cody" if slow, never blocks handover). Wrap-up report, Liam's sign-off.
 - [x] **3. Phase 10.** Closed by Liam 2026-10-20; Stockroom emptied for go-live. Last checklist item, wrap-up report, Liam's sign-off.
-- [ ] **4. Birthday mode removed** (birthday was 10/19): one combined report of what ran, then remove
+- [x] **4. Birthday mode removed** (c371777, 2026-10-20) (birthday was 10/19): one combined report of what ran, then remove
   it per TEMPORARY.md (audio, settings page, wake-up card, email job, CSP media-src, crew-only flags).
 - **5. Moved to After go-live (Liam, 2026-10-20):** Phase 5: CSP enforced on or after 10/23 if the report log is clean.
 - [ ] **6. Phase 11 close-out.** Stage A: Markdown archive (no secrets, no item 258), Cody's
