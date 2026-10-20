@@ -62,7 +62,7 @@ final class InboxSetupForm extends FormBase {
     $form['inbox_password'] = [
       '#type' => 'password',
       '#title' => $this->t('App password for the inbox'),
-      '#description' => $this->t('Make a new app password in Google (name it "iShop inbox") and type its 16 letters here. It is saved privately on the server and never shown again.'),
+      '#description' => $this->t('Make a new app password in Google (name it "iShop inbox reader") and type its 16 letters here. It is saved privately on the server and never shown again.'),
       '#required' => TRUE,
       '#attributes' => ['autocomplete' => 'off', 'autocapitalize' => 'off', 'spellcheck' => 'false'],
     ];
