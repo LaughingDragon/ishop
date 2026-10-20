@@ -245,7 +245,7 @@ reference project is used only for its rules and formatting logic.
   (Built 2026-10-15: drush ishop:digest, ishop-digest.timer 07:00; test to webmaster only sent;
   Cody's copy starts after Liam's OK, item 227; skipped on the birthday; off switch on Cody's
   account page.)
-- [ ] **Enforce the content security policy** (moved here from punch item 51 at
+- **Moved to After go-live (Liam, 2026-10-20):** Enforce the content security policy (moved here from punch item 51 at
   Liam's request, 2026-10-15): it stays report-only until this phase is done;
   then, after a full week of normal use with a clean violation log, switch
   Security Kit's CSP from report-only to enforce.
@@ -339,7 +339,7 @@ All of Cody's marketplace accounts use the business Gmail.
   worked out from the number; a scanned USPS barcode loses its ZIP prefix) and links to the
   carrier's own tracking page; Delivered finishes the sale, and the Money page shows delivered,
   on the way and to ship. Every step can be undone. "Needs you now" and the digest list sales to ship.
-- [ ] **B. Marketplace inbox:** IMAP read of the business Gmail (app password stored like the SMTP
+- **Moved to After go-live (Liam, 2026-10-20):** B. Marketplace inbox: IMAP read of the business Gmail (app password stored like the SMTP
   one; Cody enters it on Mail setup), only from known marketplace senders (eBay, Poshmark, Mercari,
   Depop, Grailed, Vinted, Facebook). Reads sold, offer, ship-by, label attached, shipping delay,
   return requested, case/dispute and payout emails: "Needs you now" items, labels attached to the
@@ -347,7 +347,7 @@ All of Cody's marketplace accounts use the business Gmail.
   mail: "New message from X: open it". Stores only what is needed (no buyer addresses beyond the
   label), marks mail processed, never sends or deletes mail. Tested on real emails already in the
   inbox before it is switched on.
-- [ ] **C. eBay Sell APIs** through OAuth consent from Cody's own eBay account (developer account in
+- **Moved to After go-live (Liam, 2026-10-20):** C. eBay Sell APIs through OAuth consent from Cody's own eBay account (developer account in
   Cody's name, set up from a punch item with plain steps): orders and ship-by, returns, cases.
   Revocable token stored like other secrets, with a renewal reminder before it expires. No
   passwords, cookies or page scraping, ever.
@@ -374,7 +374,11 @@ browser agent, no marketplace automation, nothing delisted or relisted.
   first) with "Save and go to the next item without photos"; every photo's stored file name
   carries its item number. Old Crosslister photos added where they survived (GitHub copy).
   A sold item's photos are deleted 30 days after delivery (return window; per platform).
-- [ ] Cody adds photos to the items that have none (about 70).
+- **Dropped (Liam, 2026-10-20):** Cody adds photos to the items that have none. Instead the Stockroom
+  was emptied for go-live: import 1 undone and the 4 test drafts deleted (109 + 4 items, their photos,
+  listings and sales). Cody took ALL his marketplace listings down and adds items fresh through the
+  site. Backups: /var/backups/ishop/pre-empty-stockroom-20261020-1157.sql.gz and
+  /srv/ishop-data/backups/pre-empty-stockroom-20261020-1157-files.tar.gz.
 
 ## Phase 11: close the site office and hand over to Cody
 
@@ -405,17 +409,29 @@ authority). Work in this order, one report per step.
   directories), clean what's safe, move /home, the swap file and build caches to the data disk
   (by UUID, nofail), cap journald at 200 MB. Site code and MariaDB: proposal only, Liam's OK first.
   Announced reboot test. Needs you now (crew) warns at 25% free on either disk.
-- [ ] **2. Phase 9.** B: inbox preview on Cody's real mail, tune, show Liam, switch on (Cody confirms
+- [x] **2. Phase 9.** Closed by Liam 2026-10-20; B and C moved to After go-live. B: inbox preview on Cody's real mail, tune, show Liam, switch on (Cody confirms
   each sale with one tap). C: eBay developer account + OAuth item for Cody; build after he does it
   (marked "waiting on Cody" if slow, never blocks handover). Wrap-up report, Liam's sign-off.
-- [ ] **3. Phase 10.** Last checklist item, wrap-up report, Liam's sign-off.
+- [x] **3. Phase 10.** Closed by Liam 2026-10-20; Stockroom emptied for go-live. Last checklist item, wrap-up report, Liam's sign-off.
 - [ ] **4. Birthday mode removed** (birthday was 10/19): one combined report of what ran, then remove
   it per TEMPORARY.md (audio, settings page, wake-up card, email job, CSP media-src, crew-only flags).
-- [ ] **5. Phase 5: CSP enforced** on or after 10/23 if the report log is clean.
+- **5. Moved to After go-live (Liam, 2026-10-20):** Phase 5: CSP enforced on or after 10/23 if the report log is clean.
 - [ ] **6. Phase 11 close-out.** Stage A: Markdown archive (no secrets, no item 258), Cody's
   questionnaire answers, Mail setup + AI setup moved into My office, handover notes (plain for Cody,
-  technical for Liam). Stage B after 5, 9, 10 signed off, CSP enforced, birthday removed, and Liam told
+  technical for Liam). Stage B after 5, 9, 10 signed off (done 10-20), birthday removed, and Liam told
   first so Claude (review) can check the archive: remove the site office and its leftovers; final check.
+
+## After go-live: follow-ups
+
+Not phases: early phases closed 2026-10-20 (Liam) so the site goes live with an empty Stockroom.
+
+- [ ] **CSP enforced** on or after 10/23 if the report log is clean (punch 311).
+- [ ] **Marketplace inbox (was 9 B):** uses the business Gmail app password the site sends with
+  (fdf9ecd). Preview 10-20: 81 emails, all genuine; offers match, but sale emails get no title (no
+  match), labels don't attach to sold items, and "other" mail is too noisy. Fix, re-preview on new
+  site-made items, show Liam, switch on.
+- [ ] **eBay Sell APIs (was 9 C):** Cody's developer account first (punch 633), then OAuth
+  accept/decline pages and eBay's account-deletion notice endpoint, then the keyset item for Cody.
 
 ## Later, only if the business grows
 
