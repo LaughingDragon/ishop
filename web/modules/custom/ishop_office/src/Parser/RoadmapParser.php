@@ -7,14 +7,21 @@ namespace Drupal\ishop_office\Parser;
 /**
  * Reads ROADMAP.md: its title, its body and each phase's checklist counts.
  *
- * A phase is a "## Phase <number>: <name>" heading, or the one
- * "## Foundation: <name>" heading (key "foundation") for the server work done
- * before Phase 0. Its checklist items are the "- [ ]" and "- [x]" lines (any
- * depth) up to the next "## " heading.
+ * A phase is a "## Phase <number>: <name>" heading, or one of the named
+ * sections in NAMED: "## Foundation: <name>" (key "foundation") for the
+ * server work done before Phase 0, and "## Handover countdown: <name>" (key
+ * "handover") for the steps before the site office closes. Its checklist
+ * items are the "- [ ]" and "- [x]" lines (any depth) up to the next "## "
+ * heading.
  */
 final class RoadmapParser {
 
-  private const PHASE_HEADING = '/^## (?:Phase (\d+(?:\.\d+)?)|(Foundation)):\s*(.+?)\s*$/';
+  private const PHASE_HEADING = '/^## (?:Phase (\d+(?:\.\d+)?)|(Foundation|Handover countdown)):\s*(.+?)\s*$/';
+
+  /**
+   * Named sections: heading word(s) => phase key.
+   */
+  public const NAMED = ['Foundation' => 'foundation', 'Handover countdown' => 'handover'];
   private const CHECKBOX = '/^\s*[-*+] \[( |x|X)\] /';
 
   /**
@@ -43,7 +50,7 @@ final class RoadmapParser {
       if (str_starts_with($line, '## ')) {
         $current = NULL;
         if (preg_match(self::PHASE_HEADING, $line, $m)) {
-          $key = $m[1] !== '' ? $m[1] : 'foundation';
+          $key = $m[1] !== '' ? $m[1] : self::NAMED[$m[2]];
           if (isset($seen[$key])) {
             throw new ParseException(sprintf('Phase %s appears twice in the roadmap.', $key));
           }
@@ -51,7 +58,7 @@ final class RoadmapParser {
           $phases[] = [
             'key' => $key,
             'name' => $m[3],
-            'heading' => $m[1] !== '' ? sprintf('Phase %s: %s', $m[1], $m[3]) : sprintf('Foundation: %s', $m[3]),
+            'heading' => $m[1] !== '' ? sprintf('Phase %s: %s', $m[1], $m[3]) : sprintf('%s: %s', $m[2], $m[3]),
             'weight' => count($phases),
             'done' => 0,
             'total' => 0,

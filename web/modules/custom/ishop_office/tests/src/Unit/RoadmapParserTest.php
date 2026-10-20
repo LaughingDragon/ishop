@@ -48,6 +48,10 @@ final class RoadmapParserTest extends UnitTestCase {
 
   - [ ] Item type.
 
+  ## Handover countdown: before the office closes
+
+  - [ ] Boot disk.
+
   ## Later
 
   - [ ] Not a phase either.
@@ -59,8 +63,9 @@ final class RoadmapParserTest extends UnitTestCase {
   public function testParsesPhasesInOrder(): void {
     $result = RoadmapParser::parse(self::ROADMAP);
     $this->assertSame('Build roadmap', $result['title']);
-    $this->assertSame(['foundation', '0', '0.5', '1'], array_column($result['phases'], 'key'));
-    $this->assertSame([0, 1, 2, 3], array_column($result['phases'], 'weight'));
+    $this->assertSame(['foundation', '0', '0.5', '1', 'handover'], array_column($result['phases'], 'key'));
+    $this->assertSame([0, 1, 2, 3, 4], array_column($result['phases'], 'weight'));
+    $this->assertSame('Handover countdown: before the office closes', $result['phases'][4]['heading']);
     $this->assertSame('Foundation: server and stack', $result['phases'][0]['heading']);
     $this->assertSame('Phase 0.5: the site office', $result['phases'][2]['heading']);
     $this->assertSame('the site office', $result['phases'][2]['name']);

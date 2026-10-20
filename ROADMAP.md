@@ -395,6 +395,28 @@ fuller specification was not available to the site foreman. Liam to replace or c
 - [ ] Close the site office: its pages, the site_office role and the site-foreman account
   switched off; Claude's server access (SSH key, GitHub deploy key) removed.
 
+## Handover countdown: finish the build, then close the site office
+
+Liam's go, 2026-10-20 (crew-only punch items 628 and 629; Liam's message in the terminal is the
+authority). Work in this order, one report per step.
+
+- [ ] **1. Boot disk for the system only.** The 10 GB boot disk holds the OS and packages; everything
+  that grows lives on the data disk (no bigger boot disk). Survey before and after (15 largest
+  directories), clean what's safe, move /home, the swap file and build caches to the data disk
+  (by UUID, nofail), cap journald at 200 MB. Site code and MariaDB: proposal only, Liam's OK first.
+  Announced reboot test. Needs you now (crew) warns at 25% free on either disk.
+- [ ] **2. Phase 9.** B: inbox preview on Cody's real mail, tune, show Liam, switch on (Cody confirms
+  each sale with one tap). C: eBay developer account + OAuth item for Cody; build after he does it
+  (marked "waiting on Cody" if slow, never blocks handover). Wrap-up report, Liam's sign-off.
+- [ ] **3. Phase 10.** Last checklist item, wrap-up report, Liam's sign-off.
+- [ ] **4. Birthday mode removed** (birthday was 10/19): one combined report of what ran, then remove
+  it per TEMPORARY.md (audio, settings page, wake-up card, email job, CSP media-src, crew-only flags).
+- [ ] **5. Phase 5: CSP enforced** on or after 10/23 if the report log is clean.
+- [ ] **6. Phase 11 close-out.** Stage A: Markdown archive (no secrets, no item 258), Cody's
+  questionnaire answers, Mail setup + AI setup moved into My office, handover notes (plain for Cody,
+  technical for Liam). Stage B after 5, 9, 10 signed off, CSP enforced, birthday removed, and Liam told
+  first so Claude (review) can check the archive: remove the site office and its leftovers; final check.
+
 ## Later, only if the business grows
 
 Drupal Commerce + Commerce Stripe checkout. Do not build until Liam asks.

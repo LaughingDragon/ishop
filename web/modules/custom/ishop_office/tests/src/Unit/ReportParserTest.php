@@ -82,6 +82,14 @@ final class ReportParserTest extends UnitTestCase {
   }
 
   /**
+   * Tests the handover countdown key.
+   */
+  public function testHandoverPhase(): void {
+    $r = ReportParser::parse("---\ndate: 2026-01-31\nphase: handover\n---\n## Summary\nS\n## Done\nD\n## Tests\nT\n");
+    $this->assertSame('handover', $r['phase']);
+  }
+
+  /**
    * Tests that a front matter title beats a "# " heading.
    */
   public function testFrontMatterTitleWinsOverHeading(): void {

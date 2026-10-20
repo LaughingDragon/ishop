@@ -156,11 +156,11 @@ final class ReportParser {
     if (is_int($value) || is_float($value)) {
       $value = (string) $value;
     }
-    if (is_string($value) && strcasecmp($value, 'foundation') === 0) {
-      return 'foundation';
+    if (is_string($value) && in_array(strtolower($value), RoadmapParser::NAMED, TRUE)) {
+      return strtolower($value);
     }
     if (!is_string($value) || !preg_match('/^\d+(?:\.\d+)?$/', $value)) {
-      throw new ParseException('phase: required, the phase number from ROADMAP.md (e.g. "0.5") or "foundation". Quote it.');
+      throw new ParseException('phase: required, the phase number from ROADMAP.md (e.g. "0.5"), "foundation" or "handover". Quote it.');
     }
     return $value;
   }
