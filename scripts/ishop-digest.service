@@ -1,5 +1,5 @@
 [Unit]
-Description=ishop: Cody's morning digest (only when switched on; skipped on the birthday)
+Description=ishop: Cody's morning digest (only when switched on)
 After=mariadb.service
 
 [Service]

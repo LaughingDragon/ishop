@@ -31,8 +31,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  * About 7 a.m. Pacific: what needs Cody, bills due, today's calendar,
  * to-dos, items waiting to be posted, and a storage check. Short plain text
  * for the phone. Sent to the owner (Cody) only after Liam's OK (STATE['cody']),
- * never on the owner's birthday (the birthday email replaces it), and the
- * owner can turn it off on the account page. Tests go to webmaster only.
+ * and the owner can turn it off on the account page. Tests go to webmaster only.
  */
 final class Digest {
 
@@ -57,7 +56,6 @@ final class Digest {
     private readonly EntityTypeManagerInterface $entityTypeManager,
     private readonly MailManagerInterface $mailManager,
     private readonly UserDataInterface $userData,
-    private readonly Birthday $birthday,
     private readonly StaleNudges $nudges,
     private readonly Bills $bills,
     private readonly Todos $todos,
@@ -98,7 +96,6 @@ final class Digest {
     return match (TRUE) {
       !$settings['cody'] => 'Cody\'s digest is not switched on yet (waiting for Liam\'s OK)',
       $this->codyOptedOut() => 'Cody turned the digest off on his account page',
-      $this->birthday->isTheDay() => 'it is Cody\'s birthday (the birthday email replaces it)',
       $settings['sent'] === LogBook::today() => 'already sent today',
       default => NULL,
     };

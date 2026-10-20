@@ -21,7 +21,7 @@ const RESELLER_MATRIX_WORDMARK = 'Reseller Matrix';
  */
 function reseller_matrix_preprocess_page(array &$variables): void {
   $account = \Drupal::currentUser();
-  // A module may set its own motto first (birthday mode).
+  // A module may set its own motto first.
   $variables['wordmark'] ??= RESELLER_MATRIX_WORDMARK;
   $variables['site_name'] = \Drupal::config('system.site')->get('name');
   $variables['user_name'] = $account->isAuthenticated() ? $account->getDisplayName() : '';

@@ -9,7 +9,6 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
-use Drupal\Core\Cache\Cache;
 use Drupal\ishop_items\Controller\StaleController;
 use Drupal\ishop_items\Money;
 use Drupal\ishop_ai\AiRuns;
@@ -26,7 +25,6 @@ use Drupal\ishop_items\Platforms;
 use Drupal\ishop_items\ShipBy;
 use Drupal\ishop_items\Shipping;
 use Drupal\ishop_items\Stale;
-use Drupal\ishop_matrix\Birthday;
 use Drupal\ishop_matrix\Form\SeasonForm;
 use Drupal\ishop_matrix\Rooms;
 use Drupal\ishop_matrix\Season;
@@ -49,7 +47,6 @@ final class MatrixController extends ControllerBase {
   public function __construct(
     private readonly DateFormatterInterface $dateFormatter,
     private readonly TimeInterface $time,
-    private readonly Birthday $birthday,
     private readonly Season $season,
     private readonly StaleNudges $nudges,
     private readonly Money $money,
@@ -75,25 +72,12 @@ final class MatrixController extends ControllerBase {
         'glance' => $glances[$slug],
       ];
     }
-    // TEMPORARY (birthday mode): see TEMPORARY.md.
-    $birthday_cache = $this->birthday->cacheability();
-    $party = $this->birthday->isActive($this->currentUser()) ? [
-      'badge' => $this->t('Today is a very big deal'),
-      // Two lines on the sign: "Happy birthday," / "boss!".
-      'hello_1' => $this->t('Happy birthday,'),
-      'hello_2' => $this->t('boss!'),
-      'line' => $this->t("The whole building is celebrating. Every room, every shelf, every listing. Take the day. You've earned it."),
-      'start' => $this->t('Start the party'),
-      'video_title' => $this->t('Your requested wake-up call'),
-      'video_line' => $this->t('You asked, the crew delivers.'),
-      'video_url' => Birthday::VIDEO_URL,
-      'video_button' => $this->t('Play it on YouTube'),
-    ] : NULL;
-    // On the birthday, birthday mode replaces the football accents.
-    $game = $party ? NULL : $this->season->todaysGame();
+    // The date line changes at midnight (Pacific).
+    $midnight = (new \DateTimeImmutable('@' . $now))->setTimezone(new \DateTimeZone(date_default_timezone_get()))->modify('tomorrow')->getTimestamp();
+    $game = $this->season->todaysGame();
     // Stale-listing nudges: only the few most overdue, each with Done /
-    // Snooze 2 weeks / Keep as is. They can wait on the birthday.
-    $due = $party ? [] : $this->nudges->due();
+    // Snooze 2 weeks / Keep as is.
+    $due = $this->nudges->due();
     $return = Url::fromRoute('ishop_matrix.dashboard')->toString();
     foreach (array_slice($due, 0, StaleNudges::DASHBOARD_LIMIT) as $row) {
       $needs[] = [
@@ -175,10 +159,8 @@ final class MatrixController extends ControllerBase {
     }
     return [
       '#type' => 'inline_template',
-      '#template' => '{% if party %}<section class="rm-greeting rm-party-sign"><div class="rm-confetti" aria-hidden="true"></div><div class="rm-greeting__text"><span class="rm-badge rm-badge--party">{{ party.badge }}</span><h1><span>{{ party.hello_1 }}</span> <span>{{ party.hello_2 }}</span></h1><p>{{ party.line }}</p><button type="button" class="rm-button rm-button--gold rm-party-toggle" hidden>{{ party.start }}</button></div></section>
-<section class="rm-card rm-party-video" aria-labelledby="rm-party-video-title"><h2 id="rm-party-video-title">{{ party.video_title }}</h2><p>{{ party.video_line }}</p><a class="rm-button rm-button--gold" href="{{ party.video_url }}" target="_blank" rel="noopener noreferrer">{{ party.video_button }}</a></section>
-{% else %}<section class="rm-greeting"><div class="rm-greeting__text"><h1>{{ hello }}</h1><p>{{ date }}</p></div>{% if game %}<span class="rm-badge rm-badge--game">{% include "@reseller_matrix/includes/room-icon.html.twig" with { room: "football", size: 22 } only %}{{ game.badge }}</span>{% else %}<span class="rm-badge">{{ badge }}</span>{% endif %}</section>
-{% if score %}<section class="rm-scoreboard" aria-labelledby="rm-season"><h2 id="rm-season">{{ score.title }} <span class="rm-scoreboard__since">{{ score.since }}</span></h2><dl class="rm-scoreboard__cells">{% for c in score.cells %}<div class="rm-scoreboard__cell"><dt>{{ c.label }}</dt><dd>{{ c.value }}</dd>{% if c.note %}<dd class="rm-scoreboard__note">{{ c.note }}</dd>{% endif %}</div>{% endfor %}</dl></section>{% endif %}{% endif %}
+      '#template' => '<section class="rm-greeting"><div class="rm-greeting__text"><h1>{{ hello }}</h1><p>{{ date }}</p></div>{% if game %}<span class="rm-badge rm-badge--game">{% include "@reseller_matrix/includes/room-icon.html.twig" with { room: "football", size: 22 } only %}{{ game.badge }}</span>{% else %}<span class="rm-badge">{{ badge }}</span>{% endif %}</section>
+{% if score %}<section class="rm-scoreboard" aria-labelledby="rm-season"><h2 id="rm-season">{{ score.title }} <span class="rm-scoreboard__since">{{ score.since }}</span></h2><dl class="rm-scoreboard__cells">{% for c in score.cells %}<div class="rm-scoreboard__cell"><dt>{{ c.label }}</dt><dd>{{ c.value }}</dd>{% if c.note %}<dd class="rm-scoreboard__note">{{ c.note }}</dd>{% endif %}</div>{% endfor %}</dl></section>{% endif %}
 <section class="rm-needs" id="needs" aria-labelledby="rm-now"><h2 id="rm-now">{{ needs_title }}</h2>
 {% for n in needs %}<div class="rm-needs__row"><span>{{ n.text }}</span>{% if n.buttons %}<span class="rm-needs__buttons">{% for b in n.buttons %}<a class="rm-button{% if b.ghost %} rm-button--ghost{% endif %}" href="{{ b.url }}">{{ b.label }}</a>{% endfor %}</span>{% else %}<a class="rm-button{% if n.ghost %} rm-button--ghost{% endif %}" href="{{ n.url }}">{{ n.action }}</a>{% endif %}</div>
 {% else %}<p class="rm-needs__empty">{{ nothing }}</p>{% endfor %}</section>
@@ -194,24 +176,23 @@ final class MatrixController extends ControllerBase {
           ])
           : $this->t("@date. Here's the building at a glance.", ['@date' => $this->dateFormatter->format($now, 'custom', 'l, F j')]),
         'game' => $game ? ['badge' => $this->t('Game day')] : NULL,
-        'score' => $party ? NULL : $this->scoreboard(),
+        'score' => $this->scoreboard(),
         'badge' => $this->t('Open for business'),
         'needs_title' => $this->t('Needs you now'),
         'needs' => $needs,
-        'nothing' => $party ? $this->t("Nothing that can't wait until tomorrow. It's your birthday.") : $this->t('Nothing needs you right now.'),
+        'nothing' => $this->t('Nothing needs you right now.'),
         'building' => $this->t('The building'),
         'rooms' => $rooms,
-        'party' => $party,
       ],
       '#attached' => ['library' => ['ishop_matrix/matrix']],
       '#cache' => [
-        'tags' => Cache::mergeTags(['node_list:item', 'platform_listing_list', Season::CACHE_TAG, 'ishop_needs'], $birthday_cache['tags']),
+        'tags' => ['node_list:item', 'platform_listing_list', Season::CACHE_TAG, 'ishop_needs'],
         // 'user': some Needs rows are crew-only (disk warnings), and Cody's
         // administrator account has the same permissions as webmaster.
-        'contexts' => Cache::mergeContexts(['user.permissions', 'user'], $birthday_cache['contexts']),
+        'contexts' => ['user.permissions', 'user'],
         // The date line and "closes in N days" change daily. Buttons (nudges,
         // bills, to-dos) carry a per-session token: never cache.
-        'max-age' => $due || array_filter(array_column($needs, 'buttons')) ? 0 : min(3600, $birthday_cache['max-age']),
+        'max-age' => $due || array_filter(array_column($needs, 'buttons')) ? 0 : min(3600, max($midnight - $now, 60)),
       ],
     ];
   }
