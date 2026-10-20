@@ -7,12 +7,14 @@ namespace Drupal\ishop_inbox;
 use Drupal\ishop_office\Form\MailSetupForm;
 
 /**
- * The inbox's Gmail address and app password, kept like the mail ones.
+ * The inbox's Gmail address and app password.
  *
+ * The business Gmail both sends and receives the site's mail, and one
+ * Google app password works for both, so the inbox uses the sending
+ * address and app password (Mail setup, top part). An inbox-only app
+ * password saved on Mail setup's inbox part takes over if there is one.
  * Files in the secrets folder (outside the web root, owner and group
- * only). Cody saves the app password on Mail setup; it is never shown
- * again, and "Turn off" deletes it. A separate app password from the one
- * that sends mail, so either can be revoked on its own.
+ * only); never shown again.
  */
 final class InboxCredentials {
 
@@ -23,13 +25,20 @@ final class InboxCredentials {
    * The saved address ('' when none).
    */
   public static function address(): string {
-    return self::read(self::ADDRESS);
+    return self::ownPassword() ? self::read(self::ADDRESS) : MailSetupForm::savedAddress();
   }
 
   /**
    * Whether an app password is saved.
    */
   public static function hasPassword(): bool {
+    return self::password() !== '';
+  }
+
+  /**
+   * Whether an inbox-only app password is saved (else the sending one).
+   */
+  public static function ownPassword(): bool {
     return self::read(self::PASSWORD) !== '';
   }
 
@@ -37,7 +46,7 @@ final class InboxCredentials {
    * The app password ('' when none). Only for logging in.
    */
   public static function password(): string {
-    return self::read(self::PASSWORD);
+    return self::ownPassword() ? self::read(self::PASSWORD) : self::read('app_password.txt');
   }
 
   /**
@@ -48,7 +57,7 @@ final class InboxCredentials {
   }
 
   /**
-   * Deletes the app password (the inbox stops).
+   * Deletes the inbox-only app password (the sending one takes over).
    */
   public static function forget(): void {
     @unlink(MailSetupForm::DIR . '/' . self::PASSWORD);

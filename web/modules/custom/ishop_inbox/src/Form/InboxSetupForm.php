@@ -37,8 +37,9 @@ final class InboxSetupForm extends FormBase {
     $form['#cache']['max-age'] = 0;
     $form['#attributes']['id'] = 'inbox';
     $set_up = InboxCredentials::hasPassword();
+    $own = InboxCredentials::ownPassword();
     $on = (bool) $this->config('ishop_inbox.settings')->get('enabled');
-    $address = InboxCredentials::address() ?: MailSetupForm::savedAddress();
+    $address = InboxCredentials::address();
     $form['state'] = [
       '#type' => 'inline_template',
       '#template' => '<section class="so-callout{% if not set_up %} so-callout--warn{% endif %}"><div class="so-callout__body"><h2>{{ title }}</h2><p>{{ text }}</p></div></section>',
@@ -47,8 +48,8 @@ final class InboxSetupForm extends FormBase {
         'title' => $this->t('Marketplace inbox'),
         'text' => match (TRUE) {
           $set_up && $on => $this->t('The site reads emails from eBay, Poshmark, Mercari, Depop, Grailed, Vinted and Facebook Marketplace in @address every 10 minutes, and puts what needs you on the front desk. It only reads: it never sends, deletes or marks anything in your mailbox.', ['@address' => $address]),
-          $set_up => $this->t('The app password is saved. The inbox switches on after a test with the emails already in your inbox.'),
-          default => $this->t('Save an app password for @address so the site can read your marketplace emails (sales, labels, ship-by dates, offers, returns). It only reads: it never sends, deletes or marks anything.', ['@address' => $address ?: $this->t('the business Gmail')]),
+          $set_up => $this->t('The inbox uses the same app password the site sends mail with. It switches on after a test with the emails already in your inbox.'),
+          default => $this->t('Save the app password in the part above first: the inbox uses the same one to read your marketplace emails (sales, labels, ship-by dates, offers, returns). It only reads: it never sends, deletes or marks anything.'),
         },
       ],
     ];
@@ -61,21 +62,20 @@ final class InboxSetupForm extends FormBase {
     ];
     $form['inbox_password'] = [
       '#type' => 'password',
-      '#title' => $this->t('App password for the inbox'),
-      '#description' => $this->t('Make a new app password in Google (name it "iShop inbox reader") and type its 16 letters here. It is saved privately on the server and never shown again.'),
-      '#required' => TRUE,
+      '#title' => $this->t('Different app password for the inbox (optional)'),
+      '#description' => $this->t('Leave empty: the inbox uses the app password above. Only fill this in to give the inbox its own. It is saved privately on the server and never shown again.'),
       '#attributes' => ['autocomplete' => 'off', 'autocapitalize' => 'off', 'spellcheck' => 'false'],
     ];
     $form['actions'] = ['#type' => 'actions'];
     $form['actions']['save'] = [
       '#type' => 'submit',
-      '#value' => $this->t('Save and test the inbox'),
+      '#value' => $this->t('Test the inbox'),
       '#button_type' => 'primary',
     ];
-    if ($set_up) {
+    if ($own) {
       $form['actions']['remove'] = [
         '#type' => 'submit',
-        '#value' => $this->t('Turn off the inbox'),
+        '#value' => $this->t('Remove the inbox app password'),
         '#submit' => ['::remove'],
         '#limit_validation_errors' => [],
         '#attributes' => ['class' => ['button--danger'], 'formnovalidate' => 'formnovalidate'],
@@ -92,7 +92,11 @@ final class InboxSetupForm extends FormBase {
     if (!preg_match('/^[a-z0-9.+_-]+@gmail\.com$/', $address)) {
       $form_state->setErrorByName('inbox_address', $this->t('Use the full Gmail address, ending in @gmail.com.'));
     }
-    if (MailSetupForm::normalizePassword((string) $form_state->getValue('inbox_password')) === NULL) {
+    $typed = (string) $form_state->getValue('inbox_password');
+    if ($typed === '' && !InboxCredentials::hasPassword()) {
+      $form_state->setErrorByName('inbox_password', $this->t('No app password saved yet: save one in the part above first.'));
+    }
+    if ($typed !== '' && MailSetupForm::normalizePassword($typed) === NULL) {
       $form_state->setErrorByName('inbox_password', $this->t("That doesn't look like a Google app password: it should be 16 letters (Google shows them in four groups of four)."));
     }
   }
@@ -102,8 +106,20 @@ final class InboxSetupForm extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
     $address = strtolower(trim((string) $form_state->getValue('inbox_address')));
-    $password = MailSetupForm::normalizePassword((string) $form_state->getValue('inbox_password'));
+    $typed = (string) $form_state->getValue('inbox_password');
     $form_state->setValue('inbox_password', NULL);
+    if ($typed === '') {
+      $error = $this->inbox->testLogin($address, InboxCredentials::password());
+      if ($error !== NULL) {
+        $this->messenger()->addError($this->t('The inbox could not log in: @error', ['@error' => $error]));
+        return;
+      }
+      $this->inbox->resetStatus();
+      $this->messenger()->addStatus($this->t('The site logged in to @address and could read it.', ['@address' => $address]));
+      return;
+    }
+    $password = MailSetupForm::normalizePassword($typed);
+    unset($typed);
     $error = $this->inbox->testLogin($address, $password);
     if ($error !== NULL) {
       unset($password);
@@ -122,11 +138,11 @@ final class InboxSetupForm extends FormBase {
   }
 
   /**
-   * Turns the inbox off: deletes the app password.
+   * Deletes the inbox-only app password; the sending one takes over.
    */
   public function remove(array &$form, FormStateInterface $form_state): void {
     InboxCredentials::forget();
-    $this->messenger()->addStatus($this->t('Inbox turned off: its app password was deleted from the server. You can also remove "iShop inbox" from your Google app passwords.'));
+    $this->messenger()->addStatus($this->t('The inbox app password was deleted from the server. The inbox now uses the app password above.'));
     $this->logger('ishop_inbox')->notice('Inbox app password removed by @user.', ['@user' => $this->currentUser()->getAccountName()]);
   }
 
