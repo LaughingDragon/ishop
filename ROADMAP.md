@@ -431,9 +431,11 @@ Not phases: early phases closed 2026-10-20 (Liam) so the site goes live with an 
   match), labels don't attach to sold items, and "other" mail is too noisy. eBay sale, ship-by,
   return and case emails must match their items (eBay is email-only). Fix, re-preview on new
   site-made items, show Liam, switch on.
-- **eBay Sell APIs (was 9 C): DROPPED for now (Liam, 2026-10-20).** eBay rejected Cody's developer
-  account (punch 633); the marketplace inbox covers eBay through its emails. Cody appeals (punch 637);
-  if eBay approves, revisit: OAuth
+- [ ] **eBay appeal outcome (was 9 C), by 2026-11-19.** eBay rejected Cody's developer account; one
+  appeal (punch 633). Approved: build the Sell API connection as specified. Declined or no reply in
+  30 days: drop the eBay API integration entirely (no scaffolding exists yet) and log it; eBay stays
+  as a platform on items (listing rows, Sold-here cascade, paste-ready text, Terapeak). Meanwhile the
+  inbox covers eBay through its emails. Approved path: OAuth
   accept/decline pages and eBay's account-deletion notice endpoint, then the keyset item for Cody.
 
 ## Later, only if the business grows
