@@ -428,10 +428,12 @@ Not phases: early phases closed 2026-10-20 (Liam) so the site goes live with an 
 - [ ] **CSP enforced** on or after 10/23 if the report log is clean (punch 311).
 - [ ] **Marketplace inbox (was 9 B):** uses the business Gmail app password the site sends with
   (fdf9ecd). Preview 10-20: 81 emails, all genuine; offers match, but sale emails get no title (no
-  match), labels don't attach to sold items, and "other" mail is too noisy. Fix, re-preview on new
+  match), labels don't attach to sold items, and "other" mail is too noisy. eBay sale, ship-by,
+  return and case emails must match their items (eBay is email-only). Fix, re-preview on new
   site-made items, show Liam, switch on.
-- [ ] **eBay Sell APIs (was 9 C): ON HOLD.** eBay rejected Cody's developer account on 2026-10-20
-  (punch 633). If it is ever retried: developer account first, then OAuth
+- **eBay Sell APIs (was 9 C): DROPPED for now (Liam, 2026-10-20).** eBay rejected Cody's developer
+  account (punch 633); the marketplace inbox covers eBay through its emails. Cody appeals (punch 637);
+  if eBay approves, revisit: OAuth
   accept/decline pages and eBay's account-deletion notice endpoint, then the keyset item for Cody.
 
 ## Later, only if the business grows
