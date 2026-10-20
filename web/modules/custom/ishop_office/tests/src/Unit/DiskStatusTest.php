@@ -44,4 +44,22 @@ final class DiskStatusTest extends UnitTestCase {
     ], DiskStatus::problems($missing));
   }
 
+  /**
+   * Early warnings: under 25% free on either disk; a missing disk is skipped.
+   */
+  public function testEarlyWarnings(): void {
+    $this->assertSame([], DiskStatus::earlyWarnings([
+      'boot_disk' => DiskStatus::summarize(25, 100),
+      'data_disk' => DiskStatus::summarize(90, 100),
+    ]));
+    $this->assertSame(['Boot disk' => 13, 'Data disk' => 24], DiskStatus::earlyWarnings([
+      'boot_disk' => DiskStatus::summarize(13, 100),
+      'data_disk' => DiskStatus::summarize(24, 100),
+    ]));
+    $this->assertSame(['Boot disk' => 20], DiskStatus::earlyWarnings([
+      'boot_disk' => DiskStatus::summarize(20, 100),
+      'data_disk' => NULL,
+    ]));
+  }
+
 }

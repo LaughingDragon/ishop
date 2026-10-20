@@ -206,7 +206,9 @@ final class MatrixController extends ControllerBase {
       '#attached' => ['library' => ['ishop_matrix/matrix']],
       '#cache' => [
         'tags' => Cache::mergeTags(['node_list:item', 'platform_listing_list', Season::CACHE_TAG, 'ishop_needs'], $birthday_cache['tags']),
-        'contexts' => Cache::mergeContexts(['user.permissions'], $birthday_cache['contexts']),
+        // 'user': some Needs rows are crew-only (disk warnings), and Cody's
+        // administrator account has the same permissions as webmaster.
+        'contexts' => Cache::mergeContexts(['user.permissions', 'user'], $birthday_cache['contexts']),
         // The date line and "closes in N days" change daily. Buttons (nudges,
         // bills, to-dos) carry a per-session token: never cache.
         'max-age' => $due || array_filter(array_column($needs, 'buttons')) ? 0 : min(3600, $birthday_cache['max-age']),

@@ -7,8 +7,9 @@ namespace Drupal\ishop_office;
 /**
  * The two disks: is the data disk mounted, and how full is each one.
  *
- * The data disk (ishopway2muchdata, /srv/ishop-data) holds only item photos
- * and local backup files. The site and database never depend on it. Each of
+ * The data disk (ishopway2muchdata, /srv/ishop-data) holds item photos, local
+ * backup files and, since the handover countdown (2026-10-20), the swap file.
+ * The site and database never depend on it. Each of
  * its bind mounts carries a marker file; when the disk is missing, the empty
  * read-only mountpoint underneath has no marker.
  */
@@ -38,6 +39,11 @@ final class DiskStatus {
    * Warn when a disk has less than this share free.
    */
   public const LOW_FREE_PERCENT = 15;
+
+  /**
+   * Early warning for the crew (handover step 1f): below this share free.
+   */
+  public const WARN_FREE_PERCENT = 25;
 
   /**
    * Whether item photos can be shown and added.
@@ -95,6 +101,22 @@ final class DiskStatus {
       'boot_disk' => self::space('/'),
       'data_disk' => $mounted ? self::space(self::DATA_MOUNT) : NULL,
     ];
+  }
+
+  /**
+   * Early warnings for the crew: each disk under WARN_FREE_PERCENT free.
+   *
+   * @return array<string, int>
+   *   Disk label => percent free, for the disks below the warning line.
+   */
+  public static function earlyWarnings(array $report): array {
+    $warnings = [];
+    foreach (['boot_disk' => 'Boot disk', 'data_disk' => 'Data disk'] as $key => $label) {
+      if (isset($report[$key]['free_percent']) && $report[$key]['free_percent'] < self::WARN_FREE_PERCENT) {
+        $warnings[$label] = $report[$key]['free_percent'];
+      }
+    }
+    return $warnings;
   }
 
   /**
