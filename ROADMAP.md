@@ -430,7 +430,8 @@ Not phases: early phases closed 2026-10-20 (Liam) so the site goes live with an 
   (fdf9ecd). Preview 10-20: 81 emails, all genuine; offers match, but sale emails get no title (no
   match), labels don't attach to sold items, and "other" mail is too noisy. Fix, re-preview on new
   site-made items, show Liam, switch on.
-- [ ] **eBay Sell APIs (was 9 C):** Cody's developer account first (punch 633), then OAuth
+- [ ] **eBay Sell APIs (was 9 C): ON HOLD.** eBay rejected Cody's developer account on 2026-10-20
+  (punch 633). If it is ever retried: developer account first, then OAuth
   accept/decline pages and eBay's account-deletion notice endpoint, then the keyset item for Cody.
 
 ## Later, only if the business grows
