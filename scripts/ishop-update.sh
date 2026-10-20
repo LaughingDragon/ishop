@@ -6,9 +6,10 @@
 # 1. Refuse to start unless git and config are clean.
 # 2. Maintenance mode on, database dump to /var/backups/ishop/update (on the
 #    data disk; the update refuses to start if that disk isn't mounted).
-# 3. composer update within composer.json limits (core: patch releases only).
+# 3. composer update within composer.json limits (core: patch releases only),
+#    without dev packages (none are installed on the server; tests live in git).
 # 4. drush updb, cr, cex. Maintenance mode off.
-# 5. Checks: bootstrap, login page 200, site office 403 to anonymous, unit tests.
+# 5. Checks: bootstrap, login page 200, site office 403 to anonymous.
 # 6. Pass: commit and file a site office build report.
 #    Fail: restore composer files, vendor and database, then open a punch list
 #    item for Liam and file a report.
@@ -89,7 +90,7 @@ rollback() {
   echo "== $(date +%T) rolling back"
   git checkout -- composer.json composer.lock config/sync || true
   git clean -fdq -- config/sync || true
-  composer install --no-interaction --no-progress || true
+  composer install --no-dev --no-interaction --no-progress || true
   if [[ -n "$DUMP" && -f "$DUMP" ]]; then
     gunzip -c "$DUMP" | "$DRUSH" sql:cli || echo "!! database restore failed"
   fi
@@ -146,7 +147,7 @@ test -s "$DUMP"
 composer show --locked --format=json > "$WORK/before.json"
 
 step "composer update"
-composer update --with-all-dependencies --no-interaction --no-progress
+composer update --no-dev --with-all-dependencies --no-interaction --no-progress
 composer show --locked --format=json > "$WORK/after.json"
 CHANGES=$(python3 -I - "$WORK/before.json" "$WORK/after.json" <<'PY'
 import json, sys
@@ -191,7 +192,6 @@ test "$("$DRUSH" status --field=bootstrap)" == "Successful"
 test "$(curl -s -o /dev/null -w '%{http_code}' "$SITE/user/login")" == "200"
 test "$(curl -s -o /dev/null -w '%{http_code}' "$SITE/site-office")" == "403"
 test "$(curl -s -o /dev/null -w '%{http_code}' "$SITE/site-office/status.json")" == "403"
-vendor/bin/phpunit -c web/core web/modules/custom/ishop_office/tests/src/Unit
 if [[ "${ISHOP_UPDATE_FORCE_FAIL:-0}" == "1" ]]; then
   echo "!! ISHOP_UPDATE_FORCE_FAIL=1: failing on purpose to test the rollback"
   false

@@ -1,0 +1,9 @@
+[Unit]
+Description=Run ishop backups nightly at 02:15 Pacific
+
+[Timer]
+OnCalendar=*-*-* 02:15:00 America/Los_Angeles
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,12 @@
+[Unit]
+Description=ishop nightly Drupal backups (Backup and Migrate schedules)
+After=mariadb.service
+
+[Service]
+Type=oneshot
+User=www-data
+Group=www-data
+Environment=HOME=/tmp
+PrivateTmp=true
+WorkingDirectory=/var/www/ishop
+ExecStart=/var/www/ishop/vendor/bin/drush php:script scripts/ishop-backup.php
