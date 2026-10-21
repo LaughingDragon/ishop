@@ -157,6 +157,34 @@ final class PlatformListing extends ContentEntityBase implements RevisionLogInte
   }
 
   /**
+   * A short line after the status chip, for example "Oct 21, $11".
+   *
+   * Posted: date posted and listed price. Sold here: date sold and what it
+   * sold for. Others: nothing, or why a platform is left out.
+   */
+  public function summary(): string {
+    $date = function (string $field): ?string {
+      $value = (string) $this->get($field)->value;
+      return $value === '' ? NULL : date('M j', strtotime($value));
+    };
+    $money = function (string $field): ?string {
+      $value = $this->get($field)->value;
+      if ($value === NULL || $value === '') {
+        return NULL;
+      }
+      return '$' . (fmod((float) $value, 1.0) == 0.0 ? number_format((float) $value) : number_format((float) $value, 2));
+    };
+    $parts = match ($this->getStatus()) {
+      Platforms::POSTED, Platforms::AT_RISK => [$date('date_posted'), $money('listed_price')],
+      Platforms::SOLD_HERE => [$this->get('date_sold_unknown')->value ? (string) t('before the site') : $date('date_sold'), $money('sold_price')],
+      Platforms::NOT_ALLOWED => [$this->get('not_allowed_auto')->value ? (string) t("doesn't fit") : (string) t('set by hand')],
+      Platforms::NOT_NEEDED_SOLD => [(string) t('sold elsewhere')],
+      default => [],
+    };
+    return implode(', ', array_filter($parts));
+  }
+
+  /**
    * {@inheritdoc}
    */
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type): array {
@@ -286,6 +314,15 @@ final class PlatformListing extends ContentEntityBase implements RevisionLogInte
       ->setLabel(t('Condition when sold'))
       ->setRevisionable(TRUE)
       ->setSetting('target_type', 'taxonomy_term');
+
+    // Liam, 2026-10-21: platforms that don't fit the item are set to Not
+    // allowed by the site (ListingManager::applyEligibility). The flag tells
+    // those apart from a Not allowed set by hand, which is never changed.
+    $fields['not_allowed_auto'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(t('Not allowed set by the site'))
+      ->setRevisionable(TRUE)
+      ->setDefaultValue(FALSE)
+      ->setInitialValue(FALSE);
 
     // Bookkeeping for the "Sold here" cascade, so un-marking can undo it.
     $fields['cascade_sale'] = BaseFieldDefinition::create('entity_reference')

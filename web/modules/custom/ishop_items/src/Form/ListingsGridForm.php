@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Drupal\ishop_items\Form;
 
+use Drupal\Component\Utility\Html;
+use Drupal\Component\Render\MarkupInterface;
 use Drupal\Core\Form\FormBase;
+use Drupal\Core\Render\Markup;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\ishop_items\Cleared;
 use Drupal\ishop_items\Eligibility;
@@ -71,71 +74,95 @@ final class ListingsGridForm extends FormBase {
     }
 
     $form['heading'] = ['#type' => 'html_tag', '#tag' => 'h2', '#value' => $this->t('Listings')];
-    $form['rows'] = [
-      '#type' => 'table',
-      '#header' => array_merge([$this->t('Platform'), $this->t('Status'), $this->t('Listing URL')], array_values($this->moneyHeaders())),
-      '#empty' => $this->t('No listings yet.'),
-      '#attributes' => ['class' => ['ishop-listings__table']],
-    ];
+    // One compact row per platform (Liam, 2026-10-21): status chip and a short
+    // summary; tap a row to open its details. Sold for, fees and shipping
+    // only show once that platform is Sold here.
+    $form['rows'] = ['#tree' => TRUE];
     $facts = self::eligibilityFacts($item);
-    foreach ($this->listings->forItem($item) as $platform => $listing) {
+    $listings = $this->listings->forItem($item);
+    if (!$listings) {
+      $form['rows']['#markup'] = $this->t('No listings yet.');
+    }
+    foreach ($listings as $platform => $listing) {
       $name = Platforms::PLATFORMS[$platform];
+      $status = $listing->getStatus();
       $eligibility = PlatformCategories::evaluate($facts + [
         'override' => $listing->get('eligibility_override')->value,
         'override_note' => $listing->get('eligibility_note')->value,
       ], $platform);
-      $row = [];
-      $row['platform'] = [
+      $nudge = $this->listings->nudge($listing);
+      $row = [
+        '#type' => 'details',
+        '#title' => $this->rowSummary($name, $status, $listing->summary(), $nudge ? Stale::line($nudge) : NULL),
+        '#open' => FALSE,
+        '#attributes' => ['class' => ['ishop-listing', 'ishop-listing--' . $status]],
+      ];
+      $row['eligibility'] = [
         '#type' => 'inline_template',
-        '#template' => '<strong>{{ name }}</strong> <details class="ishop-chip ishop-chip--{{ e.verdict }}"><summary>{{ e.label }}{% if e.overridden %} ({{ by_hand }}){% endif %}</summary><p>{{ e.reason }}</p></details>{% if stale %}<p class="ishop-stale">{{ stale }}</p>{% endif %}',
-        '#context' => [
-          'name' => $name,
-          'e' => $eligibility,
-          'by_hand' => $this->t('set by hand'),
-          'stale' => ($nudge = $this->listings->nudge($listing)) ? Stale::line($nudge) : NULL,
-        ],
-        '#wrapper_attributes' => ['data-label' => (string) $this->t('Platform')],
+        '#template' => '<p class="ishop-listing__fit ishop-listing__fit--{{ e.verdict }}"><strong>{{ e.label }}{% if e.overridden %} ({{ by_hand }}){% endif %}:</strong> {{ e.reason }}</p>',
+        '#context' => ['e' => $eligibility, 'by_hand' => $this->t('set by hand')],
       ];
       $row['status'] = [
         '#type' => 'select',
-        '#title' => $this->t('@platform status', ['@platform' => $name]),
-        '#title_display' => 'invisible',
+        '#title' => $this->t('Status'),
         '#options' => Platforms::STATUSES,
-        '#default_value' => $listing->getStatus(),
-        '#wrapper_attributes' => ['data-label' => (string) $this->t('Status')],
-        '#attributes' => ['class' => ['ishop-listings__status', 'ishop-status--' . $listing->getStatus()]],
+        '#default_value' => $status,
+        '#attributes' => ['class' => ['ishop-listings__status', 'ishop-status--' . $status]],
+        '#description' => $status === Platforms::NOT_ALLOWED ? $this->t('To post it here anyway, choose To post and save.') : NULL,
       ];
       $row['url'] = [
         '#type' => 'url',
-        '#title' => $this->t('@platform listing URL', ['@platform' => $name]),
-        '#title_display' => 'invisible',
+        '#title' => $this->t('Listing link (if you have it)'),
         '#default_value' => (string) $listing->get('url')->value,
         '#size' => 28,
-        '#wrapper_attributes' => ['data-label' => (string) $this->t('Listing URL')],
       ];
+      $sold_only = [':input[name="rows[' . $platform . '][status]"]' => ['value' => Platforms::SOLD_HERE]];
       foreach ($this->moneyHeaders() as $field => $header) {
         $row[$field] = [
           '#type' => 'number',
-          '#title' => $this->t('@platform @what', ['@platform' => $name, '@what' => mb_strtolower((string) $header)]),
-          '#title_display' => 'invisible',
+          '#title' => $header,
           '#min' => 0,
           '#step' => 0.01,
           '#field_prefix' => '$',
           '#size' => 7,
           '#default_value' => $listing->get($field)->value,
-          '#wrapper_attributes' => ['data-label' => (string) $header],
+          '#wrapper_attributes' => ['class' => ['ishop-listing__money']],
         ];
+        if ($field !== 'listed_price') {
+          $row[$field]['#states'] = ['visible' => $sold_only];
+        }
       }
+      $row['save'] = [
+        '#type' => 'submit',
+        '#value' => $this->t('Save @platform', ['@platform' => $name]),
+        '#name' => 'save_' . $platform,
+        '#button_type' => 'primary',
+      ];
       $form['rows'][$platform] = $row;
     }
-    $form['actions'] = ['#type' => 'actions'];
-    $form['actions']['save'] = [
-      '#type' => 'submit',
-      '#value' => $this->t('Save listings'),
-      '#button_type' => 'primary',
-    ];
     $form['#cache']['max-age'] = 0;
     return $form;
+  }
+
+  /**
+   * A row's summary line: platform, status chip, short summary, stale note.
+   */
+  private function rowSummary(string $name, string $status, string $summary, ?string $stale): MarkupInterface {
+    $chip = [
+      Platforms::TO_POST => 'todo',
+      Platforms::POSTED => 'live',
+      Platforms::AT_RISK => 'alert',
+      Platforms::SOLD_HERE => 'sold',
+      Platforms::TAKE_DOWN => 'alert',
+    ][$status] ?? NULL;
+    return Markup::create(sprintf(
+      '<span class="ishop-listing__name">%s</span> <span class="rm-chip%s">%s</span> <span class="ishop-listing__summary">%s</span>%s',
+      Html::escape($name),
+      $chip ? ' rm-chip--' . $chip : '',
+      Html::escape(Platforms::STATUSES[$status] ?? $status),
+      Html::escape($summary),
+      $stale ? '<span class="ishop-stale">' . Html::escape($stale) . '</span>' : '',
+    ));
   }
 
   /**
@@ -254,6 +281,7 @@ final class ListingsGridForm extends FormBase {
     // other listings mid-loop; those rows must not be written back from the
     // (now stale) submitted values unless the user changed them.
     $original = array_map(fn (PlatformListing $l) => $l->getStatus(), $listings);
+    $facts = self::eligibilityFacts($item);
     foreach ($rows as $platform => $row) {
       $listing = $listings[$platform];
       $was = $original[$platform];
@@ -274,6 +302,13 @@ final class ListingsGridForm extends FormBase {
         // Changed by the user in this form: their choice wins, even over a
         // listing the un-marked sale just restored.
         $listing->set('status', $row['status']);
+        $listing->set('not_allowed_auto', FALSE);
+        // A platform the rules leave out, added by hand: say so, so the
+        // site doesn't set it back to Not allowed.
+        if ($row['status'] !== Platforms::NOT_ALLOWED && $this->listings->verdict($facts, $listing) === Eligibility::NO) {
+          $listing->set('eligibility_override', Eligibility::YES);
+          $listing->set('eligibility_note', 'Added by hand on the item page.');
+        }
         $dirty = TRUE;
       }
       if ($dirty) {
@@ -285,6 +320,9 @@ final class ListingsGridForm extends FormBase {
       $this->messenger()->addStatus($this->t('Sale un-marked. Put back: @list.', [
         '@list' => implode(', ', array_map(fn ($p, $s) => Platforms::PLATFORMS[$p] . ' → ' . Platforms::STATUSES[$s], array_keys($restored), $restored)),
       ]));
+    }
+    if ($changed) {
+      $this->listings->syncItemStatus($item, 'Listings changed on the item page.');
     }
     if ($sale) {
       $form_state->set('pending_sale', ['platform' => $sale, 'implied' => $implied]);

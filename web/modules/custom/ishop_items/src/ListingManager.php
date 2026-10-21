@@ -8,6 +8,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\ishop_items\Entity\PlatformListing;
 use Drupal\ishop_items\Form\ListingsGridForm;
+use Drupal\ishop_items\Hook\ItemHooks;
 use Drupal\node\NodeInterface;
 
 /**
@@ -284,6 +285,159 @@ final class ListingManager {
       $item->save();
     }
     return $restore;
+  }
+
+  /**
+   * Revision log of a markPosted() save; undoPosted() looks for it.
+   */
+  public const POSTED_LOG = 'Posted with "I posted it" on the Post page.';
+
+  /**
+   * "I posted it on <Platform>": Posted, at the asking price, posted today.
+   *
+   * The listing link is optional. Undo with undoPosted().
+   */
+  public function markPosted(PlatformListing $listing, ?string $url = NULL): void {
+    $item = $listing->getItem();
+    $asking = $item->get('field_asking_price')->value;
+    $listing->set('status', Platforms::POSTED);
+    if ($asking !== NULL && $asking !== '') {
+      $listing->set('listed_price', $asking);
+    }
+    $listing->set('date_posted', \Drupal::service('date.formatter')->format(\Drupal::time()->getRequestTime(), 'custom', 'Y-m-d'));
+    if ($url !== NULL && trim($url) !== '') {
+      $listing->set('url', trim($url));
+    }
+    $listing->set('not_allowed_auto', FALSE);
+    $this->saveRevision($listing, self::POSTED_LOG);
+    $this->syncItemStatus($item, sprintf('Posted on %s.', Platforms::PLATFORMS[$listing->getPlatform()]));
+  }
+
+  /**
+   * Whether the listing's last change was "I posted it" (so Undo can apply).
+   */
+  public function canUndoPosted(PlatformListing $listing): bool {
+    return $listing->getStatus() === Platforms::POSTED && $listing->getRevisionLogMessage() === self::POSTED_LOG;
+  }
+
+  /**
+   * Undoes "I posted it": status, price, date and link go back as they were.
+   *
+   * @return bool
+   *   FALSE when the last change wasn't "I posted it" (nothing undone).
+   */
+  public function undoPosted(PlatformListing $listing): bool {
+    if (!$this->canUndoPosted($listing)) {
+      return FALSE;
+    }
+    $storage = $this->entityTypeManager->getStorage('platform_listing');
+    $previous = $storage->getQuery()->accessCheck(FALSE)->allRevisions()
+      ->condition('id', $listing->id())
+      ->condition('revision_id', $listing->getRevisionId(), '<')
+      ->sort('revision_id', 'DESC')
+      ->range(0, 1)
+      ->execute();
+    if (!$previous) {
+      return FALSE;
+    }
+    $before = $storage->loadRevision(key($previous));
+    foreach (['status', 'listed_price', 'date_posted', 'url', 'not_allowed_auto'] as $field) {
+      $listing->set($field, $before->get($field)->getValue());
+    }
+    $this->saveRevision($listing, 'Undo: "I posted it" taken back.');
+    $this->syncItemStatus($listing->getItem(), sprintf('Undo: not posted on %s after all.', Platforms::PLATFORMS[$listing->getPlatform()]));
+    return TRUE;
+  }
+
+  /**
+   * The item's status follows its listings (Liam, 2026-10-21).
+   *
+   * Draft or Ready becomes Listed when any listing is live; Listed goes back
+   * to Ready (Draft if the checklist isn't complete) when none is. Sold,
+   * donated and kept items are left alone.
+   */
+  public function syncItemStatus(NodeInterface $item, string $why): void {
+    $status = (string) $item->get('field_item_status')->value;
+    $live = array_filter($this->forItem($item), fn (PlatformListing $l) => in_array($l->getStatus(), Stale::LIVE, TRUE));
+    $new = $status;
+    if ($live && in_array($status, ['draft', 'ready'], TRUE)) {
+      $new = 'listed';
+    }
+    elseif (!$live && $status === 'listed') {
+      $new = ReadyCheck::missing(ItemHooks::checkValues($item)) ? 'draft' : 'ready';
+    }
+    if ($new === $status) {
+      return;
+    }
+    $item->set('field_item_status', $new);
+    $item->setNewRevision(TRUE);
+    $item->setRevisionLogMessage($why);
+    $item->setRevisionUserId($this->currentUser->id());
+    $item->setRevisionCreationTime(\Drupal::time()->getRequestTime());
+    $item->save();
+  }
+
+  /**
+   * Platforms that don't fit the item are set to Not allowed automatically.
+   *
+   * A "To post" listing the rules rule out (Skip, Not allowed) becomes Not
+   * allowed, flagged as set by the site; if the item changes so the platform
+   * fits again, a flagged one goes back to To post. Listings set by hand are
+   * never touched.
+   *
+   * @return string[]
+   *   Platform names that changed.
+   */
+  public function applyEligibility(NodeInterface $item): array {
+    $facts = ListingsGridForm::eligibilityFacts($item);
+    $changed = [];
+    foreach ($this->forItem($item) as $platform => $listing) {
+      $verdict = $this->verdict($facts, $listing);
+      if ($verdict === Eligibility::NO && $listing->getStatus() === Platforms::TO_POST) {
+        $listing->set('status', Platforms::NOT_ALLOWED);
+        $listing->set('not_allowed_auto', TRUE);
+        $this->saveRevision($listing, sprintf("Not allowed automatically: this item doesn't fit %s.", Platforms::PLATFORMS[$platform]));
+        $changed[] = Platforms::PLATFORMS[$platform];
+      }
+      elseif ($verdict !== Eligibility::NO && $listing->get('not_allowed_auto')->value && $listing->getStatus() === Platforms::NOT_ALLOWED) {
+        $listing->set('status', Platforms::TO_POST);
+        $listing->set('not_allowed_auto', FALSE);
+        $this->saveRevision($listing, sprintf('Back to To post: the item now fits %s.', Platforms::PLATFORMS[$platform]));
+        $changed[] = Platforms::PLATFORMS[$platform];
+      }
+    }
+    return $changed;
+  }
+
+  /**
+   * The first platform still to post after $after (wrapping round), or NULL.
+   *
+   * Platforms the rules rule out are skipped.
+   */
+  public function nextToPost(NodeInterface $item, ?string $after = NULL): ?string {
+    $facts = ListingsGridForm::eligibilityFacts($item);
+    $listings = $this->forItem($item);
+    $order = array_keys($listings);
+    if ($after !== NULL && ($at = array_search($after, $order, TRUE)) !== FALSE) {
+      $order = array_merge(array_slice($order, $at + 1), array_slice($order, 0, $at));
+    }
+    foreach ($order as $platform) {
+      $listing = $listings[$platform];
+      if ($listing->getStatus() === Platforms::TO_POST && $this->verdict($facts, $listing) !== Eligibility::NO) {
+        return $platform;
+      }
+    }
+    return NULL;
+  }
+
+  /**
+   * The eligibility verdict for a listing, with its manual override if any.
+   */
+  public function verdict(array $facts, PlatformListing $listing): string {
+    return PlatformCategories::evaluate($facts + [
+      'override' => $listing->get('eligibility_override')->value,
+      'override_note' => $listing->get('eligibility_note')->value,
+    ], $listing->getPlatform())['verdict'];
   }
 
   /**

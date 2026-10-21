@@ -25,6 +25,7 @@ use Drupal\ishop_items\ReadyCheck;
 use Drupal\ishop_items\ItemPhotos;
 use Drupal\ishop_items\ListingImport\ListingImporter;
 use Drupal\ishop_items\Shipping;
+use Drupal\ishop_items\Stale;
 use Drupal\ishop_items\SoldSearch;
 use Drupal\image\Entity\ImageStyle;
 use Drupal\Core\Url;
@@ -87,6 +88,10 @@ final class ItemHooks {
           'zip_url' => NULL,
           'tips' => [],
           'queue' => [],
+          'open_url' => NULL,
+          'undo' => NULL,
+          'posted_form' => NULL,
+          'posted_summary' => NULL,
         ],
       ],
     ];
@@ -171,12 +176,27 @@ final class ItemHooks {
   }
 
   /**
-   * Implements hook_ENTITY_TYPE_insert() for nodes: six "To post" listings.
+   * Implements hook_ENTITY_TYPE_insert() for nodes: one listing per platform.
+   *
+   * "To post", except platforms that don't fit the item: Not allowed.
    */
   #[Hook('node_insert')]
   public function nodeInsert(NodeInterface $node): void {
     if ($node->bundle() === 'item') {
       $this->listings->createDefaults($node);
+      $this->listings->applyEligibility($node);
+    }
+  }
+
+  /**
+   * Implements hook_ENTITY_TYPE_update() for nodes.
+   *
+   * A new category or description can change which platforms fit.
+   */
+  #[Hook('node_update')]
+  public function nodeUpdate(NodeInterface $node): void {
+    if ($node->bundle() === 'item' && !in_array((string) $node->get('field_item_status')->value, Stale::ITEM_DONE, TRUE)) {
+      $this->listings->applyEligibility($node);
     }
   }
 

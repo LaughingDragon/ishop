@@ -477,3 +477,28 @@ function ishop_items_update_11011(): string {
   }
   return sprintf('Sold before the site: flag added, %d imported sales marked.', count($ids));
 }
+
+/**
+ * Platforms that don't fit an item are set to Not allowed automatically.
+ *
+ * Liam, 2026-10-21 (posting flow): adds the "set by the site" flag and applies
+ * the rule to every item that isn't finished.
+ */
+function ishop_items_update_11012(): string {
+  $manager = \Drupal::entityDefinitionUpdateManager();
+  if (!$manager->getFieldStorageDefinition('not_allowed_auto', 'platform_listing')) {
+    $fields = \Drupal\ishop_items\Entity\PlatformListing::baseFieldDefinitions(\Drupal::entityTypeManager()->getDefinition('platform_listing'));
+    $manager->installFieldStorageDefinition('not_allowed_auto', 'platform_listing', 'ishop_items', $fields['not_allowed_auto']);
+  }
+  $listings = \Drupal::service(\Drupal\ishop_items\ListingManager::class);
+  $nodes = \Drupal::entityTypeManager()->getStorage('node');
+  $nids = $nodes->getQuery()->accessCheck(FALSE)
+    ->condition('type', 'item')
+    ->condition('field_item_status', \Drupal\ishop_items\Stale::ITEM_DONE, 'NOT IN')
+    ->execute();
+  $changed = 0;
+  foreach ($nodes->loadMultiple($nids) as $item) {
+    $changed += count($listings->applyEligibility($item));
+  }
+  return sprintf('Not allowed set automatically on %d listings of %d items.', $changed, count($nids));
+}

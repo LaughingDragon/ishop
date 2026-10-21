@@ -12,6 +12,8 @@ use Drupal\ishop_items\Cleared;
 use Drupal\ishop_items\Eligibility;
 use Drupal\ishop_items\PlatformCategories;
 use Drupal\ishop_items\Form\ListingsGridForm;
+use Drupal\ishop_items\Form\PostedForm;
+use Drupal\ishop_items\Form\UndoPostedForm;
 use Drupal\ishop_items\Hook\ItemHooks;
 use Drupal\ishop_items\ListingManager;
 use Drupal\ishop_items\Platforms;
@@ -20,6 +22,7 @@ use Drupal\ishop_items\ReadyCheck;
 use Drupal\node\NodeInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -40,9 +43,16 @@ final class PostController extends ControllerBase {
     Platforms::TAKE_DOWN => 'alert',
   ];
 
+  /**
+   * How long after "I posted it" the Undo bar can still show (it hides
+   * itself after 10 seconds; this covers a slow page load).
+   */
+  private const UNDO_SECONDS = 60;
+
   public function __construct(
     private readonly ListingManager $listings,
     private readonly FileSystemInterface $fileSystem,
+    private readonly RequestStack $requestStack,
   ) {}
 
   /**
@@ -53,14 +63,7 @@ final class PostController extends ControllerBase {
       $this->messenger()->addWarning($this->t("Check it's OK to sell first, then tick Cleared to sell on the item."));
       return $this->redirect('entity.node.canonical', ['node' => $node->id()]);
     }
-    $facts = ListingsGridForm::eligibilityFacts($node);
-    $first = array_key_first(Platforms::PLATFORMS);
-    foreach ($this->listings->forItem($node) as $platform => $listing) {
-      if ($listing->getStatus() === Platforms::TO_POST && $this->eligibility($facts, $listing, $platform)['verdict'] !== Eligibility::NO) {
-        $first = $platform;
-        break;
-      }
-    }
+    $first = $this->listings->nextToPost($node) ?? array_key_first(Platforms::PLATFORMS);
     return $this->redirect('ishop_items.post', ['node' => $node->id(), 'platform' => $first]);
   }
 
@@ -102,6 +105,11 @@ final class PostController extends ControllerBase {
     foreach (Platforms::PLATFORMS as $key => $name) {
       $listing = $listings[$key] ?? NULL;
       $status = $listing?->getStatus();
+      // Platforms that don't fit the item stay off the tabs (Liam,
+      // 2026-10-21); the item page can still add one by hand.
+      if ($status === Platforms::NOT_ALLOWED && $key !== $platform) {
+        continue;
+      }
       $tabs[] = [
         'name' => $name,
         'url' => Url::fromRoute('ishop_items.post', ['node' => $node->id(), 'platform' => $key])->toString(),
@@ -127,12 +135,20 @@ final class PostController extends ControllerBase {
     [$previous, $next, $queue_size] = $this->queueNeighbours($node, $platform);
     $listing = $listings[$platform] ?? NULL;
 
+    // "Posted on X" with Undo, for a few seconds after "I posted it".
+    $undo = NULL;
+    $request = $this->requestStack->getCurrentRequest();
+    $posted = (string) $request->query->get('posted');
+    $at = (int) $request->query->get('at');
+    if (isset($listings[$posted]) && \Drupal::time()->getRequestTime() - $at <= self::UNDO_SECONDS && $this->listings->canUndoPosted($listings[$posted])) {
+      $undo = $this->formBuilder()->getForm(UndoPostedForm::class, $node, $posted, $this->listings->nextToPost($node) === NULL);
+    }
+
     return [
       '#theme' => 'ishop_post_page',
       '#item' => [
         'title' => $node->label(),
         'url' => $node->toUrl()->toString(),
-        'listings_url' => $node->toUrl()->setOption('fragment', 'listings')->toString(),
       ],
       '#platform' => [
         'key' => $platform,
@@ -150,6 +166,12 @@ final class PostController extends ControllerBase {
       '#photos_left_out' => max(count($all_photos) - $spec['max_photos'], 0),
       '#zip_url' => $photos ? Url::fromRoute('ishop_items.post_zip', ['node' => $node->id(), 'platform' => $platform])->toString() : NULL,
       '#tips' => $pack['tips'],
+      '#open_url' => Platforms::NEW_LISTING[$platform],
+      '#undo' => $undo,
+      '#posted_form' => $listing?->getStatus() === Platforms::TO_POST || !$listing
+        ? $this->formBuilder()->getForm(PostedForm::class, $node, $platform)
+        : NULL,
+      '#posted_summary' => $listing?->summary(),
       '#queue' => [
         'previous' => $previous ? Url::fromRoute('ishop_items.post', ['node' => $previous, 'platform' => $platform])->toString() : NULL,
         'next' => $next ? Url::fromRoute('ishop_items.post', ['node' => $next, 'platform' => $platform])->toString() : NULL,

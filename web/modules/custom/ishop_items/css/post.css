@@ -44,7 +44,21 @@
 .ishop-post__photo-list img { display: block; width: 100%; aspect-ratio: 1; object-fit: contain; background: #FFFFFF; border-radius: 8px; }
 .ishop-post__photo-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 
-.ishop-post__done { margin: 26px 0 0; }
+.ishop-post__open { margin: 0 0 16px; }
+.ishop-post__open .rm-button { display: inline-flex; align-items: center; gap: 6px; min-height: 48px; }
+
+/* "I posted it": the big button, then the optional link. */
+.ishop-post__posted { margin: 26px 0 0; padding: 18px 0 0; border-top: 1px solid var(--rm-line, #3D302D); }
+.ishop-posted__button { display: block; width: 100%; min-height: 56px; font-size: 1.15rem; }
+.ishop-posted .form-item { margin: 16px 0 0; }
+.ishop-posted input[type="url"] { box-sizing: border-box; width: 100%; min-height: 44px; }
+.ishop-post__posted-line { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0; font-size: 1.05rem; }
+
+/* "Posted on X" with Undo, at the top for a few seconds. */
+.rm-card.ishop-undo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 16px; padding: 12px 16px; border-left: 6px solid var(--rm-ok, #2E7D4A); }
+.ishop-undo[hidden] { display: none; }
+.ishop-undo__text { margin: 0; font-weight: 700; }
+.ishop-undo__button { min-height: 44px; }
 .ishop-post__queue { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; margin: 22px 0 0; padding: 14px 0 0; border-top: 1px solid var(--rm-line, #3D302D); }
 .ishop-post__queue > :last-child { justify-self: end; }
 .ishop-post__queue-size { text-align: center; font-size: 0.9rem; color: var(--rm-text-soft, #D3C6B2); }

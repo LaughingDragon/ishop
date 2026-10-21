@@ -9,6 +9,8 @@
 <div class="ishop-post">
   <p class="ishop-post__back"><a href="{{ item.url }}">&larr; {{ 'Back to the item'|t }}</a></p>
 
+  {{ undo }}
+
   <nav class="ishop-post__tabs" aria-label="{{ 'Platforms'|t }}">
     <ul>
       {% for tab in tabs %}
@@ -26,6 +28,10 @@
     <h2>{{ platform.display_name }}</h2>
     {% if platform.status %}<span class="rm-chip{{ platform.chip ? ' rm-chip--' ~ platform.chip }}">{{ platform.status }}</span>{% endif %}
   </div>
+
+  <p class="ishop-post__open">
+    <a class="rm-button rm-button--gold" href="{{ open_url }}" target="_blank" rel="noopener noreferrer">{{ 'Open @platform to list'|t({'@platform': platform.name}) }} <span aria-hidden="true">&#8599;</span><span class="visually-hidden"> {{ '(opens in a new tab)'|t }}</span></a>
+  </p>
 
   {% if eligibility.verdict == 'no' %}
     <div class="rm-card ishop-post__callout ishop-post__callout--no" role="note">
@@ -96,6 +102,14 @@
     {% endif %}
   </section>
 
+  <section class="ishop-post__posted" aria-label="{{ 'Done posting?'|t }}">
+    {% if posted_form %}
+      {{ posted_form }}
+    {% else %}
+      <p class="ishop-post__posted-line"><span class="rm-chip{{ platform.chip ? ' rm-chip--' ~ platform.chip }}">{{ platform.status }}</span> {{ posted_summary }}</p>
+    {% endif %}
+  </section>
+
   {% if platform.key == 'depop' %}
     <p class="ishop-post__bulk"><a href="{{ path('ishop_items.depop_bulk') }}">{{ 'Several items for Depop? Use the bulk upload (one CSV for all of them)'|t }}</a></p>
   {% endif %}
@@ -106,8 +120,6 @@
       <ul>{% for tip in tips %}<li>{{ tip }}</li>{% endfor %}</ul>
     </section>
   {% endif %}
-
-  <p class="ishop-post__done">{{ 'Posted it? Paste the listing link into the item\'s Listings and set it to Posted.'|t }} <a href="{{ item.listings_url }}">{{ 'Go to Listings'|t }}</a></p>
 
   <nav class="ishop-post__queue" aria-label="{{ 'To-post queue'|t }}">
     {% if queue.previous %}<a class="rm-button rm-button--ghost" href="{{ queue.previous }}" rel="prev">&larr; {{ 'Previous'|t }}</a>{% else %}<span></span>{% endif %}

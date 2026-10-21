@@ -1,6 +1,6 @@
 /**
  * @file
- * "Post this item": Copy buttons and "Save photos to phone".
+ * "Post this item": Copy buttons, "Save photos to phone", the Undo bar.
  *
  * Without JavaScript the fields can still be selected by hand and the photos
  * downloaded one by one or as a ZIP; the buttons stay hidden.
@@ -32,6 +32,13 @@
 
   Drupal.behaviors.ishopPost = {
     attach(context) {
+      // "Posted on X" with Undo goes away by itself after a few seconds.
+      once('ishop-undo', '[data-ishop-undo]', context).forEach((bar) => {
+        setTimeout(() => {
+          bar.hidden = true;
+        }, Number(bar.dataset.ishopUndo) * 1000);
+      });
+
       // On a phone the tab row scrolls sideways: bring the current tab in.
       once('ishop-post-tabs', '.ishop-post__tabs ul', context).forEach((row) => {
         const current = row.querySelector('.is-current');

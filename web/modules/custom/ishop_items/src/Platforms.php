@@ -58,6 +58,24 @@ final class Platforms {
   ];
 
   /**
+   * Each platform's new-listing page ("Open <Platform> to list").
+   *
+   * Web links; on the iPhone they open the app when it's installed. Checked
+   * 2026-10-21: Poshmark, eBay, Vinted and Facebook answer with their listing
+   * page (or a sign-in that returns to it). Mercari, Depop and Grailed block
+   * the server with a bot check, so theirs are unconfirmed from here.
+   */
+  public const NEW_LISTING = [
+    'poshmark' => 'https://poshmark.com/create-listing',
+    'mercari' => 'https://www.mercari.com/sell/',
+    'ebay' => 'https://www.ebay.com/sl/sell',
+    'depop' => 'https://www.depop.com/products/create/',
+    'grailed' => 'https://www.grailed.com/sell/new',
+    'vinted' => 'https://www.vinted.com/items/new',
+    'facebook' => 'https://www.facebook.com/marketplace/create/item',
+  ];
+
+  /**
    * Hostnames (and suffixes) of each platform's listing and share links.
    *
    * Includes the short links the apps share (posh.mk, merc.li, ...).

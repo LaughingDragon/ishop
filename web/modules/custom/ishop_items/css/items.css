@@ -14,23 +14,28 @@
   background: var(--rm-ok-pale, #EAF4EE);
 }
 
-/* Listings: one card per platform at every width (one column on phones,
-   two on wider screens), so the status dropdown is always full width. */
-.ishop-listings__table, .ishop-listings__table tbody, .ishop-listings__table tr, .ishop-listings__table td { display: block; width: 100%; }
-.ishop-listings__table { border: 0; background: none; }
-.ishop-listings__table thead { display: none; }
-.ishop-listings__table tbody { display: grid; grid-template-columns: 1fr; gap: 14px; }
-.ishop-listings__table tr { margin: 0; padding: 10px 12px; border: 2px solid var(--rm-line, var(--line, #D9D5CC)); border-radius: var(--radius-inner, 10px); background: var(--rm-surface, var(--paper, #fff)); }
-.ishop-listings__table td { padding: 4px 0; border: 0; }
-.ishop-listings__table td[data-label]::before { content: attr(data-label); display: block; font-size: 0.85rem; font-weight: 600; color: var(--rm-text-soft, var(--ink-soft, #57544D)); }
-.ishop-listings__table select, .ishop-listings__table input { min-height: 44px; width: 100%; }
-/* The four money fields (columns 4-7), two per row. */
-.ishop-listings__table td:nth-child(n+4) { display: inline-block; width: 48%; vertical-align: top; }
-.ishop-listings__table td:nth-child(n+4) .form-item { display: flex; align-items: center; gap: 4px; }
+.ishop-listings > h2 { margin-top: 20px; }
+/* Listings (2026-10-21): one compact row per platform, status chip and a
+   short summary; tap a row to open its details. */
+.ishop-listings details.ishop-listing { margin: 0 0 8px; border: 2px solid var(--rm-line, var(--line, #D9D5CC)); border-radius: var(--radius-inner, 10px); background: var(--rm-surface, var(--paper, #fff)); }
+.ishop-listings details.ishop-listing > summary { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; min-height: 52px; padding: 8px 12px; cursor: pointer; list-style: none; }
+.ishop-listings details.ishop-listing > summary::-webkit-details-marker { display: none; }
+.ishop-listings details.ishop-listing > summary::after { content: "\203A"; margin-left: auto; font-size: 1.4rem; line-height: 1; color: var(--rm-text-soft, #D3C6B2); transition: transform 0.15s; }
+.ishop-listings details.ishop-listing[open] > summary::after { transform: rotate(90deg); }
+.ishop-listings details.ishop-listing > summary:focus-visible { outline: 3px solid var(--rm-gold, #F2C14E); outline-offset: 2px; }
+.ishop-listing__name { min-width: 5.5em; font-weight: 700; }
+.ishop-listing__summary { color: var(--rm-text-soft, #D3C6B2); }
+.ishop-listing .ishop-stale { flex-basis: 100%; }
+.ishop-listing--not_allowed > summary, .ishop-listing--not_needed_sold > summary { opacity: 0.75; }
+.ishop-listings details.ishop-listing[open] { padding: 0 12px 14px; }
+.ishop-listings details.ishop-listing[open] > summary { margin: 0 -12px; border-bottom: 1px solid var(--rm-line, #3D302D); }
+.ishop-listing__fit { margin: 8px 0 12px; font-size: 0.95rem; }
+.ishop-listing select, .ishop-listing input { box-sizing: border-box; min-height: 44px; width: 100%; }
+.ishop-listing .ishop-listing__money { display: inline-grid; grid-template-columns: auto 1fr; align-items: center; gap: 4px 6px; width: 48%; vertical-align: top; }
+.ishop-listing .ishop-listing__money label { grid-column: 1 / -1; }
+.ishop-listing .ishop-listing__money[style*="none"] { display: none; }
+.ishop-listing .form-submit { margin-top: 12px; }
 .ishop-status--sold_here { font-weight: 700; }
-@media (min-width: 720px) {
-  .ishop-listings__table tbody { grid-template-columns: 1fr 1fr; }
-}
 
 /* Eligibility chips: the word always says it, colour only reinforces. */
 .ishop-chip { display: inline-block; margin-left: 6px; vertical-align: middle; }
