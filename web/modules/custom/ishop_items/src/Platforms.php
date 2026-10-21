@@ -63,7 +63,8 @@ final class Platforms {
    * Web links; on the iPhone they open the app when it's installed. Checked
    * 2026-10-21: Poshmark, eBay, Vinted and Facebook answer with their listing
    * page (or a sign-in that returns to it). Mercari, Depop and Grailed block
-   * the server with a bot check, so theirs are unconfirmed from here.
+   * the server with a bot check; Cody tapped those three on his iPhone and
+   * all opened their site (punch 647, 2026-10-21).
    */
   public const NEW_LISTING = [
     'poshmark' => 'https://poshmark.com/create-listing',
