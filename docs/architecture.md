@@ -119,6 +119,15 @@ photo prep, posting helpers, sale cascade, shipping, stale nudges, the spreadshe
   `TaxExport`, `PriceBook`, `Shipping`, `ListingImport\ListingImporter`, `EventSubscriber\WebpTypeSubscriber`.
   Other classes: `Cascade` (when one platform sells, the others go to "take down"), `Cleared`, `Eligibility`,
   `PostPack`, `PlatformCategories`, `DepopBulk`, `ShipBy`, `Tracking`, `Stale`, `SoldSearch`, `ReadyCheck`.
+- **Posting flow (2026-10-21, decision 645):** the Post page (`PostController`, `ishop-post-page.html.twig`) has an
+  "Open <Platform> to list" link (`Platforms::NEW_LISTING`) and `Form\PostedForm` ("I posted it": Posted, listed price =
+  asking price, date posted = today, optional link, then on to `ListingManager::nextToPost()`), with
+  `Form\UndoPostedForm` for 10 seconds (`?posted=&at=`; `ListingManager::undoPosted()` copies the previous revision back).
+  `ListingManager::applyEligibility()` (node insert/update, update 11012) sets To post listings the rules rule out to
+  Not allowed, flagged `not_allowed_auto`; hand-set ones are never touched, and choosing To post on one in the item page
+  sets the eligibility override to Yes. `ListingManager::syncItemStatus()`: Draft/Ready -> Listed when any listing is
+  live; Listed -> Ready (Draft if the checklist is incomplete) when none is. The item page's `ListingsGridForm` is one
+  `<details>` row per platform (chip + `PlatformListing::summary()`); sold money fields use #states (Sold here only).
 - **Drush:** `ishop:import-preview`.
 - **Hooks:** cron (deletes old shipping labels, deletes orphan /add photos after a day, deletes a finished sale's
   photos, cleans up stale nudges), entity_extra_field_info, file_presave (photo prep), form_node_form_alter,
@@ -224,7 +233,7 @@ page_attachments. It has no routes, services or Drush commands.
 It is revisionable, with tables `platform_listing` and `platform_listing_revision`, and paths `/listing/{id}`
 (+ `/edit`, `/delete`). Base fields: item (node ref), platform, status (to_post, posted, sold_here, take_down,
 not_needed_sold, at_risk, not_allowed), url, listed_price, sold_price, fees, shipping_paid, date_posted, date_sold,
-date_sold_unknown, eligibility_override and eligibility_note, sold_category and sold_condition (snapshot used for
+date_sold_unknown, eligibility_override and eligibility_note, not_allowed_auto (Not allowed set by the site), sold_category and sold_condition (snapshot used for
 the price book), cascade_sale, status_before_cascade, item_status_before_sale, ship_by, ship_by_estimated,
 shipping_label (private file), carrier, tracking_number, date_shipped, date_delivered, created, changed.
 

@@ -12,6 +12,10 @@
 | Code | git at `/var/www/ishop`, remote `origin` (GitHub, private) |
 | Site time zone | America/Los_Angeles (Pacific). All timers are in Pacific time. |
 
+## What it doesn't do
+
+The site never posts to the marketplaces itself. Most of them have no public listing API, and automating their websites breaks their terms of service. Cody posts by hand from **Post this item** (copy fields, photos, an "Open <Platform> to list" link) and taps **I posted it** (decision 645). eBay posting can be built only if Cody's eBay developer appeal is approved (decision 639). If Cody ever wants one-tap crossposting, paid crosslisting services are the option.
+
 ## Accounts
 
 After close-out the site has two accounts:

@@ -77,3 +77,5 @@ One file per report, as filed on the site office (oldest first).
 - [2026-10-20-1: 2026-10-20: Fix: a typed Sold for price now marks the sale (punch 303)](2026-10-20-1.md)
 - [2026-10-20-2: 2026-10-20: Go-live reset, Phases 5, 9 and 10 closed](2026-10-20-2.md)
 - [2026-10-20-3: 2026-10-20: Close-out prep part 1, build data removed](2026-10-20-3.md)
+- [2026-10-20-4: 2026-10-20: Close-out prep part 2, documentation package](2026-10-20-4.md)
+- [2026-10-21-1: 2026-10-21: Posting flow simplified (one tap "I posted it")](2026-10-21-1.md)

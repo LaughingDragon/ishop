@@ -431,3 +431,9 @@ eBay rejected Cody's developer account with no reason given; appeals are often a
 - Decided by: liam
 
 Liam's close-out prep brief, 2026-10-20. Replaces decision 638. Build as specified: OAuth consent, token stored like other secrets, renewal reminder; never passwords, cookies or scraping.
+
+## 2026-10-21 (645): Posting flow simplified: one-tap "I posted it" with Undo, listing link optional, platforms that don't fit set to Not allowed automatically, compact listing rows, item status follows listings
+
+- Decided by: liam, claude (review)
+
+Cody got stuck on his first new item (644) at "Paste the listing link... Go to Listings", which landed on a 7 x 6 grid. The listing link was never meant to be required. The site never posts to marketplaces itself: no public listing APIs for most of them, and automating their sites breaks their terms. eBay posting only if the API appeal is approved; paid crosslisting services are the option if Cody wants one-tap crossposting.

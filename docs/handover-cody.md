@@ -10,6 +10,21 @@ Hi Cody. The site is built and it's yours. This page says what runs by itself, t
 
 The Stockroom is empty on purpose. You took your listings down so every item goes through the site from the start. For each item: **Add** it (photos first), let the site write and price the listing, post it from **Post this item**, and mark it **Sold here** when it sells. The site takes care of the rest.
 
+## Posting an item
+
+Tap **Post this item**. You get one tab per site that fits the item. Sites that don't fit (Grailed and Facebook for home goods, for example) are left out by themselves.
+
+1. Tap **Open Poshmark to list** (or eBay, Mercari, ...). The site's listing page opens in a new tab, or the app if you have it.
+2. Copy the title, description and price across, and save the photos to your phone.
+3. When it's up, come back and tap **I posted it on Poshmark**. That's all. The site marks it Posted at your asking price with today's date, and moves you to the next site still to post.
+4. Wrong button? Tap **Undo** in the green bar at the top. It stays for 10 seconds.
+
+The listing link box under the button is optional. Fill it in only if you have the link handy.
+
+The item page's **Listings** shows one row per site, like "Poshmark · Posted · Oct 21, $11". Tap a row to change it. **Sold for**, fees and shipping only show up once you choose **Sold here**. To post on a site the item was left out of, open its row, choose **To post** and save.
+
+**The site doesn't post to the marketplaces for you.** Most of them have no way for outside sites to post, and having a site click through their pages for you breaks their rules (it can get your account closed). eBay is the exception: if your developer appeal is approved, the site can post to eBay directly. If you ever want one tap to post everywhere, paid crosslisting services do that. Ask Liam before signing up for one.
+
 ## What runs by itself
 
 - **Morning digest** at about 7 a.m.: what needs you today, bills due, your calendar, and what's waiting to be posted. You can turn it off on your account page.
