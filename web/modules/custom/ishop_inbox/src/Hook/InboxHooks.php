@@ -30,4 +30,12 @@ final class InboxHooks {
     return $this->inbox->needs($return);
   }
 
+  /**
+   * Implements hook_ishop_office_status_alter(): Gmail delivery failures.
+   */
+  #[Hook('ishop_office_status_alter')]
+  public function statusAlter(array &$data): void {
+    $data['mail_bounces'] = $this->inbox->bounceSummary();
+  }
+
 }

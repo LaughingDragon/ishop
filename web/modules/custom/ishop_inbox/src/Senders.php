@@ -35,6 +35,51 @@ final class Senders {
   }
 
   /**
+   * Local parts of delivery-failure senders (mailer-daemon@googlemail.com).
+   */
+  public const BOUNCE_SENDERS = ['mailer-daemon', 'postmaster'];
+
+  /**
+   * The Gmail search for delivery-failure notices (crew only, never Cody).
+   */
+  public static function bounceQuery(int $days): string {
+    return sprintf('from:(%s) newer_than:%dd', implode(' OR ', self::BOUNCE_SENDERS), max(1, $days));
+  }
+
+  /**
+   * Whether a From address is a delivery-failure notice.
+   */
+  public static function isBounce(string $from): bool {
+    return (bool) preg_match('/(?:^|[<\s"])(?:' . implode('|', self::BOUNCE_SENDERS) . ')@/i', $from);
+  }
+
+  /**
+   * What a delivery-failure notice is about: the failed recipient and the
+   * returned message's subject and date (headers only, no body text).
+   *
+   * @return array{recipient: string, subject: string, sent: string}
+   */
+  public static function bounceDetails(string $raw): array {
+    $raw = preg_replace("/\r?\n[ \t]+/", ' ', $raw);
+    $last = function (string $name) use ($raw): string {
+      if (!preg_match_all('/^' . $name . ':[ \t]*(.*)$/mi', $raw, $m)) {
+        return '';
+      }
+      $value = trim((string) end($m[1]));
+      return trim((string) (@iconv_mime_decode($value, ICONV_MIME_DECODE_CONTINUE_ON_ERROR, 'UTF-8') ?: $value));
+    };
+    $recipient = '';
+    if (preg_match('/^(?:X-Failed-Recipients:|Final-Recipient:\s*rfc822;)\s*(\S+)/mi', $raw, $m)) {
+      $recipient = $m[1];
+    }
+    return [
+      'recipient' => mb_substr($recipient ?: $last('To'), 0, 255),
+      'subject' => mb_substr($last('Subject'), 0, 255),
+      'sent' => mb_substr($last('Date'), 0, 64),
+    ];
+  }
+
+  /**
    * The platform a From address belongs to, or NULL.
    */
   public static function platform(string $from): ?string {

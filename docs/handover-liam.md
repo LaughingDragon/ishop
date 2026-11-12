@@ -37,10 +37,28 @@
 | Hash salt | `secrets/hash_salt.txt` |
 | TFA encryption key | `secrets/tfa_encryption.key` (Key `tfa_encryption`) |
 | Gmail address + app password (send, and inbox read) | `secrets/mail/address.txt`, `secrets/mail/app_password.txt` |
+| Who gets admin alerts (Update Manager notices): your address | `secrets/mail/alerts_to.txt` |
 | Cody's Anthropic API key | `secrets/anthropic/api_key.txt` (Key module, file provider) |
 | GitHub deploy key | `~/.ssh/ishop_github_deploy` |
 
 `secrets/` and `private/` are gitignored, owner liampward, group www-data, no world access.
+
+## Email addresses: never use the site's domain
+
+**Never use an `@<site domain>` email address** (`admin@`, `site-foreman@`, anything at the site's hostname),
+not even as a placeholder in config, accounts or scripts. The domain is a FreeDNS name with no mail service: mail
+sent there goes out through the business Gmail, bounces, and Gmail retries for days. That is what happened from
+2026-10-21 to 2026-11-12: the Update Manager sent 12 "New release(s) available" notices to `admin@` at the site
+domain (an install-time default), producing 27 delivery-failure notices in the business Gmail.
+
+- Sender for everything: the business Gmail (settings.php sets it from `secrets/mail/address.txt`).
+- Admin alerts: your address, from `secrets/mail/alerts_to.txt` (settings.php sets `update.settings`
+  notification emails; threshold `security`, since the weekly update applies normal releases).
+- `site-foreman` has no email address at all. Stored config holds no addresses (`system.site` mail and
+  `update.settings` emails are empty in `config/sync`); the reports' `SecretScanner` refuses every address.
+- The server's exim4 is local-only (`dc_eximconfig_configtype='local'`) and sends nothing off the VM.
+- Bounces: `ishop:inbox-check` lists Gmail delivery-failure notices from the last 14 days (hourly, read-only,
+  headers only) in `status.json` under `mail_bounces`. They are never shown to Cody.
 
 ## Accounts and access
 

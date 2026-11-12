@@ -46,6 +46,17 @@ final class Inbox {
    */
   public const GRACE_DAYS = 3;
 
+  /**
+   * State key: delivery-failure notices found in the inbox (crew only).
+   */
+  public const BOUNCES = 'ishop_inbox.bounces';
+
+  /**
+   * Seconds between bounce scans, and how many days back each looks.
+   */
+  public const BOUNCE_EVERY = 3600;
+  public const BOUNCE_DAYS = 14;
+
   public function __construct(
     private readonly EntityTypeManagerInterface $entityTypeManager,
     private readonly Connection $database,
@@ -63,8 +74,10 @@ final class Inbox {
    * Reads new marketplace mail (the timer's job). Returns a summary line.
    */
   public function check(): string {
+    // Crew monitoring, so it runs even while Cody's inbox is switched off.
+    $bounces = $this->scanBounces();
     if (!$this->configFactory->get('ishop_inbox.settings')->get('enabled')) {
-      return 'Off: the marketplace inbox is switched off.';
+      return 'Off: the marketplace inbox is switched off.' . ($bounces ? ' ' . $bounces : '');
     }
     $counts = [];
     $result = $this->read(FALSE, NULL, function (array $row) use (&$counts) {
@@ -78,6 +91,70 @@ final class Inbox {
       $parts[] = "$n $status";
     }
     return 'Checked: ' . ($parts ? implode(', ', $parts) : 'nothing new') . '.';
+  }
+
+  /**
+   * Lists Gmail delivery-failure notices for crew (status.json), at most
+   * hourly. Read-only: headers of the returned message only, nothing
+   * stored in the inbox table, nothing shown to Cody.
+   *
+   * @return string
+   *   A summary line, or '' when it wasn't due.
+   */
+  public function scanBounces(bool $force = FALSE): string {
+    $last = $this->state->get(self::BOUNCES);
+    $now = $this->time->getRequestTime();
+    if (!$force && is_array($last) && $now - (int) ($last['at'] ?? 0) < self::BOUNCE_EVERY) {
+      return '';
+    }
+    $address = InboxCredentials::address();
+    $password = InboxCredentials::password();
+    if ($address === '' || $password === '') {
+      return '';
+    }
+    $found = [];
+    try {
+      $client = ImapClient::connect();
+      $client->login($address, $password);
+      unset($password);
+      $client->examine();
+      foreach ($client->searchGmail(Senders::bounceQuery(self::BOUNCE_DAYS)) as $uid) {
+        $raw = $client->fetch($uid);
+        if ($raw === NULL) {
+          continue;
+        }
+        $mail = MessageReader::read($raw);
+        $found[] = [
+          'received' => date('c', $mail['received']),
+          'notice' => $mail['subject'],
+        ] + Senders::bounceDetails($raw);
+      }
+      $client->logout();
+    }
+    catch (ImapException $e) {
+      $this->state->set(self::BOUNCES, ['at' => $now, 'ok' => FALSE, 'error' => $e->getMessage(), 'items' => $last['items'] ?? []]);
+      return 'Bounce scan failed: ' . $e->getMessage();
+    }
+    $this->state->set(self::BOUNCES, ['at' => $now, 'ok' => TRUE, 'items' => $found]);
+    return sprintf('Delivery-failure notices (last %d days): %d.', self::BOUNCE_DAYS, count($found));
+  }
+
+  /**
+   * The "mail_bounces" section of status.json.
+   */
+  public function bounceSummary(): array {
+    $last = $this->state->get(self::BOUNCES);
+    if (!is_array($last)) {
+      return ['checked' => NULL, 'count' => 0, 'items' => []];
+    }
+    return [
+      'checked' => date('c', (int) $last['at']),
+      'ok' => $last['ok'],
+      'error' => $last['error'] ?? NULL,
+      'days' => self::BOUNCE_DAYS,
+      'count' => count($last['items']),
+      'items' => $last['items'],
+    ];
   }
 
   /**
@@ -219,6 +296,10 @@ final class Inbox {
       'changed' => $now,
     ];
     $extra = ['subject' => $mail['subject'], 'pdfs' => count($mail['pdfs']), 'authentic' => FALSE, 'item' => NULL];
+    if (Senders::isBounce($mail['from'])) {
+      $row['status'] = 'ignored';
+      return $this->record($row, $dry, $extra, 'Delivery-failure notice: crew only (status.json).');
+    }
     if ($row['platform'] === 'unknown') {
       $row['status'] = 'ignored';
       return $this->record($row, $dry, $extra, 'Not a marketplace sender.');

@@ -397,6 +397,7 @@ All of these are outside the web root (`web/`) and git-ignored (`/secrets/` and 
 | `secrets/anthropic/api_key.txt` | Cody's Anthropic API key (Key `anthropic_api_key`, file provider), written by `/site-office/ai-setup` | 0640 www-data:www-data, dir 2770 |
 | `secrets/mail/address.txt` | Gmail sending address | 0640 www-data:www-data, dir 2770 |
 | `secrets/mail/app_password.txt` | Gmail app password (SMTP, and IMAP by default) | 0640 |
+| `secrets/mail/alerts_to.txt` | Admin alert recipient (Liam), applied to `update.settings` by settings.php | 0640 liampward:www-data |
 | `secrets/mail/inbox_address.txt`, `inbox_app_password.txt` | Optional separate inbox credentials (`InboxCredentials`). **Not present now** | written 0640 atomically |
 
 Other protections:
@@ -425,7 +426,12 @@ Other protections:
   failure. **Both live in ishop_office; see section 2.**
 - Cody sets the credentials on `/site-office/mail-setup` (`MailSetupForm`, theowner/webmaster only). Saving sends a
   test email.
-- Mail senders: ishop_matrix (digest), ishop_ai (key reminders), webform, and core (password resets).
+- Mail senders: ishop_matrix (digest), ishop_ai (key reminders), webform, core (password resets) and the Update
+  Manager (security release notices to the address in `secrets/mail/alerts_to.txt`, set by settings.php).
+- **Never use an `@<site domain>` address** anywhere (config, accounts, scripts, placeholders): the domain has no
+  mail service, so such mail bounces through the business Gmail (incident 2026-10-21 to 2026-11-12, see the
+  technical handover note). Stored config keeps `system.site` mail and `update.settings` emails empty; the real
+  values come from `secrets/mail/` at runtime. `site-foreman` has no email address.
 
 ### Marketplace inbox
 
@@ -435,6 +441,10 @@ Other protections:
   matches it to a listing, then raises "Needs you now" rows.
 - Credentials: it uses the sending address and app password unless separate inbox files are saved (via the inbox
   section of the mail setup page).
+- Gmail delivery-failure notices (From `mailer-daemon@` / `postmaster@`) are never shown to Cody: the marketplace
+  query doesn't fetch them and `Inbox::process()` ignores them if one ever arrives. `Inbox::scanBounces()` lists
+  the last 14 days' notices (failed recipient, returned subject and date; headers only) in State
+  `ishop_inbox.bounces`, at most hourly, and `status.json` shows them under `mail_bounces` (crew only).
 - **State on 2026-10-20: switched off** (`ishop_inbox.settings: enabled: false`). `ishop-inbox.timer` still runs
-  every 10 minutes and `ishop:inbox-check` returns without connecting. Turn it on with `drush ishop:inbox-switch on`
+  every 10 minutes; while off, `ishop:inbox-check` connects only for the hourly bounce scan. Turn it on with `drush ishop:inbox-switch on`
   (records `enabled_since`) or from the setup page.

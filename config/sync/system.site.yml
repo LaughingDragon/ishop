@@ -3,7 +3,7 @@ _core:
 langcode: en
 uuid: 939bcd1d-2966-474c-9f7c-ef5fff66df66
 name: 'I Shop on Amazon Way Too Much'
-mail: admin@ishoponamazonwaytoomuch.ohbah.com
+mail: ''
 slogan: ''
 page:
   403: /user/login

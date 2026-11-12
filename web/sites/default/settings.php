@@ -941,3 +941,13 @@ if (is_readable("$ishop_mail_dir/address.txt") && is_readable("$ishop_mail_dir/a
   }
   unset($ishop_mail_password);
 }
+// ishop: who gets admin alerts (Update Manager release notices). Liam's address,
+// kept out of config and git like the Gmail login above. Never an address at the
+// site's own domain: it has no mail service, so those bounce (2026-11-12).
+if (is_readable("$ishop_mail_dir/alerts_to.txt")) {
+  $ishop_alerts_to = trim((string) file_get_contents("$ishop_mail_dir/alerts_to.txt"));
+  if ($ishop_alerts_to !== '') {
+    $config['update.settings']['notification']['emails'] = [$ishop_alerts_to];
+  }
+  unset($ishop_alerts_to);
+}

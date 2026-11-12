@@ -13,9 +13,10 @@ namespace Drupal\ishop_office\Parser;
 final class SecretScanner {
 
   /**
-   * Email domains that are fine to mention (site placeholders).
+   * Email domains that are fine to mention. None: the site's own domain has
+   * no mail service, so even placeholder addresses there are refused.
    */
-  private const ALLOWED_EMAIL_DOMAINS = ['ishoponamazonwaytoomuch.ohbah.com'];
+  private const ALLOWED_EMAIL_DOMAINS = [];
 
   /**
    * The kind reported for an email address (personal data, not a secret).

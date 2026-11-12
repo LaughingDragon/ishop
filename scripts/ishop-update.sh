@@ -203,7 +203,7 @@ step "commit and report"
 # composer update also rewrites scaffold files in web/ (.htaccess, example.settings.local.php, ...).
 # The preflight made the tree clean, so anything changed now came from this update.
 git add -A composer.json composer.lock config/sync web
-git -c user.name="ishop weekly update" -c user.email="ishop-update@ishoponamazonwaytoomuch.ohbah.com" \
+git -c user.name="ishop weekly update" -c user.email="ishop-update@invalid" \
   commit -q -m "Automatic weekly update $TODAY" -m "$CHANGES"
 HASH=$(git rev-parse --short HEAD)
 AUDIT=$(composer audit --no-interaction 2>&1 | tail -3 || true)
