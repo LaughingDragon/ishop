@@ -91,6 +91,7 @@ rollback() {
   git checkout -- composer.json composer.lock config/sync || true
   git clean -fdq -- config/sync || true
   composer install --no-dev --no-interaction --no-progress || true
+  git checkout -- web || true  # scaffold files (the preflight left web/ clean)
   if [[ -n "$DUMP" && -f "$DUMP" ]]; then
     gunzip -c "$DUMP" | "$DRUSH" sql:cli || echo "!! database restore failed"
   fi
@@ -199,7 +200,9 @@ fi
 UPDATING=0
 
 step "commit and report"
-git add composer.json composer.lock config/sync
+# composer update also rewrites scaffold files in web/ (.htaccess, example.settings.local.php, ...).
+# The preflight made the tree clean, so anything changed now came from this update.
+git add -A composer.json composer.lock config/sync web
 git -c user.name="ishop weekly update" -c user.email="ishop-update@ishoponamazonwaytoomuch.ohbah.com" \
   commit -q -m "Automatic weekly update $TODAY" -m "$CHANGES"
 HASH=$(git rev-parse --short HEAD)
@@ -208,7 +211,7 @@ file_report "Automatic weekly update: $(echo "$CHANGES" | wc -l) package(s) upda
   "Weekly update applied and checked." \
   "$CHANGES" \
   "Next run next Thursday at 02:30 Pacific." \
-  "- Drupal boots; login page 200; /site-office and status.json 403 to anonymous visitors.\n- Unit tests pass.\n- Security advisories after the update: $AUDIT" \
+  "- Drupal boots; login page 200; /site-office and status.json 403 to anonymous visitors.\n- Security advisories after the update: $AUDIT" \
   "$HASH"
 
 step "tidy: keep the last 4 dumps and 26 logs"
