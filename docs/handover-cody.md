@@ -55,9 +55,11 @@ The same password also lets the site read your marketplace emails, so you only e
 
 The site reads your marketplace emails (Vinted, Depop, Mercari, Poshmark, eBay, Grailed, Facebook Marketplace) every 10 minutes and puts what needs you on the front desk:
 
-- **A sale:** "Vinted: <item> sold for $15. Mark it sold here and add the shipping label?" Tap **Yes, mark sold** and the site marks it sold, saves the price and ship-by date, puts the label in the Shipping room, and tells you which other sites to take it down from. Tap **Not this item** if it guessed wrong.
-- **Offers and buyer messages:** a line with **Open it**, which opens the email.
-- **Nothing happens until you tap.** The site never changes an item by itself, and it never sends, deletes or marks anything in your Gmail.
+- **A sale it's sure about** (same site, the item is Posted there, the title matches only that item, and the price is within 10% of what you listed): the site marks it sold by itself, saves the price, date, label and ship-by date, and the front desk says "Sold on Vinted: <item>, $18. Take it down on Mercari, Poshmark". Tap **Undo** within 7 days if it's wrong, or **OK** to clear the line.
+- **A sale it isn't sure about** (for example, you accepted a lower offer): "Vinted: <item> sold for $15. Mark it sold here and add the shipping label?" Tap **Yes, mark sold**, or **Not this item** if it guessed wrong.
+- **Shipped, delivered and payouts** for a sale already marked: done by itself the same way (or a one-tap question if it isn't sure).
+- **Returns and cases always wait for you**, with the answer-by date when the email gives one. **Offers and buyer messages:** a line with **Open it**.
+- **Everything it did by itself** is in your morning email under **While you were away**. Don't want it? Untick **Mark certain sales automatically** on **My office > Mail setup**, and it will ask you every time. It never sends, deletes or marks anything in your Gmail.
 - **When something sells, tap Yes on the front desk or Sold here instead of deleting it**, so you get the take-down reminders for the other sites. If you delete an item that is still posted somewhere, the site asks whether it sold first.
 
 eBay: the eBay developer account wasn't approved, so the site doesn't connect to eBay directly. eBay still works on the site like every other platform, and its emails are read like the others.

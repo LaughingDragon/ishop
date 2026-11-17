@@ -447,10 +447,24 @@ Other protections:
   `ishop_inbox.bounces`, at most hourly, and `status.json` shows them under `mail_bounces` (crew only).
 - **On since 2026-11-17 06:59** (`ishop_inbox.settings: enabled: true`, `enabled_since` recorded; mail from more than
   3 days before that is only recorded). `ishop-inbox.timer` runs every 10 minutes. `drush ishop:inbox-switch off` stops it.
-- **Nothing changes an item or listing without Cody's tap.** A sale email (or a label email for an unsold listing)
-  becomes one "Mark it sold here?" row; a label PDF is only kept with the row (`fid`) and deleted if he says no.
-  A sale email and its label email are joined into one row. For sales already marked, "Add label" / "Save date"
-  (`/inbox/{id}/apply`). Mail with nothing to act on (favorites, promotions, "on its way", payouts without an amount)
+- **Automatic where certain, otherwise ask (since 2026-11-17, setting `ishop_inbox.settings:auto`, on; checkbox
+  "Mark certain sales automatically" on Mail setup in My office).** `Matcher::certain()`: the listing's own link in
+  the email, or the title matches exactly one item (score >= 0.9, every other item < 0.6) that has a listing on the
+  sending platform. `Inbox::decide()`:
+  - sale or label email, listing Posted / at risk, price within 10% of the listed price when both are known (and no
+    open question for that sale): **automatic sale**. Sold here with the cascade, price, email date, label, ship-by.
+    Front desk "Sold on Vinted: X, $18. Take it down on ..." with **Undo** (7 days, `undoAuto()`: status and cascade,
+    price, labels the inbox added) and **OK**;
+  - label / ship-by onto a sale; shipped (tracking number from the email); delivered (shipped too if needed; a payout
+    amount sets fees = sold price minus payout); payout with an amount; "listing is live" link onto an empty listing;
+  - returns, cases, delays, offers, messages: never automatic. Returns and cases show "Answer by <date>" when the
+    email gives one.
+  Anything less certain asks as before: one "Mark it sold here?" row per sale (sale and label emails joined; the label
+  PDF kept in `fid` and deleted on "Not this item"), "Add label" / "Save date" / "Mark shipped" / "Mark delivered" /
+  "Record payout" / "Save link" (`/inbox/{id}/apply`). Automatic actions set `acted` and are listed in the morning
+  digest's **WHILE YOU WERE AWAY** section (`hook_ishop_digest_away`, last 24 h).
+- Preview (`drush ishop:inbox-preview --days=30`) shows `WOULD: AUTO ...` / `ask (reason)` per email (as if the
+  setting were on). Mail with nothing to act on (favorites, promotions, "on its way", payouts without an amount)
   is recorded with status `ignored`. Buyer handles are never stored as titles.
 - Known gaps: Depop offer emails carry no item title; Depop labels are a download link (not attached); no real eBay
   sale email seen yet.

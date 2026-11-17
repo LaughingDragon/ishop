@@ -9,7 +9,8 @@ What changed between the 2026-10-21 export and go-live, and how the site stands 
 - **Bounced admin email, fixed 11/12.** Update Manager mailed `admin@<site domain>`, which has no mail service. Alerts now go to Liam from `secrets/mail/alerts_to.txt`. The inbox lists delivery failures for crew only (eece4a6). Rule: never use an address at the site's domain.
 - **AI queue stuck 11/16 12:48 to 11/17 06:43, fixed.** A queued draft for a deleted item crashed the runner every minute (string ID passed to an int parameter), so nothing behind it ran (b9a9c0c).
 - **AI keys (ee8ca05).** Keys can have no expiry (the default). A daily 07:05 health check (one Haiku call, about $0.0003 a month) pauses AI and emails Cody once if the key or credit fails. The key test moved from Opus to Haiku.
-- **CSP enforcing** (cb73fed). **Marketplace inbox on** (fbbb11b). **eBay API dropped** (decision 738). See [follow-ups.md](follow-ups.md).
+- **CSP enforcing** (cb73fed). **Marketplace inbox on** (fbbb11b), then **automatic where certain** (6fb5f8c, Liam's directive): certain sales are marked by themselves with Undo for 7 days, shipping/payout/listing-link updates too, everything listed in the digest's "While you were away"; setting on Mail setup. Replaying the real last 30 days: 2 automatic sales, both right, no wrong matches. **eBay API dropped** (decision 738). See [follow-ups.md](follow-ups.md).
+- **Delete guard** (0c8128b): deleting an item still Posted elsewhere asks "Did it sell?" first. The 8 items deleted 11/17 stay deleted, and taxes are out of scope (decision 743).
 - **Go-live look (ff67968).** The site office is crew only (webmaster, site-foreman). Cody's account sees no office link, reports or board. AI setup, Mail setup and the public-shop switch moved to `/room/my-office/...` in the Reseller Matrix theme. The "Coming soon / being built" card is gone. Error messages say "tell Liam".
 
 ## How it stands
