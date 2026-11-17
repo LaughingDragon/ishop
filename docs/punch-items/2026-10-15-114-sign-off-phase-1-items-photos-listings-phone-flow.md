@@ -1,7 +1,7 @@
 # 114: Sign off Phase 1 (items, photos, listings, phone flow)
 
 - Opened: 2026-10-15
-- Waiting on: liam
+- Waiting on: liam, claude
 - Status: closed
 - Closed: 2026-10-15
 - Answered by: liam

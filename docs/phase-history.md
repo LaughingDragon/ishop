@@ -43,3 +43,8 @@ Built 2026-10-15 to 2026-10-20 in phases. Liam approved each one, and each has i
 - **10, bring in Cody's current listings:** spreadsheet import with Crosslister photos (2026-10-18). On 2026-10-20 the Stockroom was emptied for go-live: Cody took all his marketplace listings down and adds items fresh through the site (decision 635).
 - **11, close the site office and hand over:** next, after Liam's go.
 - **Handover countdown:** the last steps before close-out (boot disk tidy, Phases 9 and 10, birthday mode removal, close-out).
+
+## After go-live (2026-11-17)
+
+- The three follow-ups are done: CSP enforcing, marketplace inbox on, eBay API dropped ([follow-ups.md](follow-ups.md)).
+- Handover step 6 (Phase 11 close-out): Stage A is done with this export. Stage B (removing the site office) waits for Liam's go. See [final-state.md](final-state.md).

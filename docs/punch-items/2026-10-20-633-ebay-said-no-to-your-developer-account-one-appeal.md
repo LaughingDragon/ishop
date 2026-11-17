@@ -2,10 +2,14 @@
 
 - Opened: 2026-10-20
 - Waiting on: cody
-- Status: open
+- Status: closed
+- Closed: 2026-11-17
+- Answered by: site_foreman
 - Phase: 9 (Phase 9: shipping and marketplace mail)
 
 ## Instructions
+
+> **Update (Oct 21): no email is fine.** You said you can't find an email from eBay, only the on-screen message. That's expected for some people, and you can still appeal. Skip step 1 and step 4 and go straight to **step 5**: send the appeal through eBay's support form. Leave out "(reference: ____ )" because you don't have a number. Then answer this item when eBay replies.
 
 eBay turned down your developer account. Its message said: *"Your account registration was rejected due to problems with the data provided or other irregularities. If you believe this rejection is in error, please see our FAQs and Contact Channels page or work with your eBay representative directly."* It doesn't say which detail it didn't like. You get **one appeal**. If eBay still says no, or doesn't answer within 30 days, we drop the eBay connection, and nothing on the site changes for you: eBay stays on your items as it is now. About 15 minutes.
 
@@ -51,3 +55,7 @@ Fill the reference blank with the number from the email, or delete "(reference: 
 ### How to answer
 
 **Answer this item with eBay's reply when it comes.** Open this item, tap **Answer this**, choose your name, and paste or describe eBay's answer (approved, rejected, or their questions). If 30 days go by with no reply, answer **no reply**. If eBay approves you, **don't create any keys yet**: the site foreman will send the next steps.
+
+## Answer
+
+Withdrawn 2026-11-17 by Liam's go-live brief: no reply on the eBay developer appeal since 10/21, so the eBay API integration is dropped (decision logged). Nothing to delete: no eBay API code, settings or keys were ever built. eBay stays a platform on items (listing rows, Sold-here, paste-ready text, Terapeak and Check sold prices), and the marketplace inbox reads eBay's emails. Cody: nothing more to do; if eBay ever writes back with an approval, tell Liam.

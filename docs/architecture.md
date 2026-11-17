@@ -31,7 +31,7 @@ private files `private/`; secrets `secrets/`; ops scripts and unit copies `scrip
 | tfa | Two-factor login (TOTP, `tfa_totp`). Enabled, but no role is required to use it |
 | password_policy (+ _length, _username) | Policy `ishop_default`: at least 12 characters, must not contain the username, no expiry |
 | flood_control | Admin UI for login flood limits |
-| seckit | Security headers. CSP is in report-only mode, and violations are logged to watchdog type `seckit` |
+| seckit | Security headers. CSP **enforcing** since 2026-11-17 (report-only before); violation reports still go to watchdog type `seckit` |
 | webform (+ webform_ui) | `ask_cody` (site-office style questionnaire) and `contact` |
 | field_group | Groups fields on the item edit form |
 | physical | `physical_dimensions` and `physical_measurement` fields for item size and weight (used for shipping) |
@@ -87,7 +87,7 @@ the decision log, and Cody's style questionnaire results. Access requires the pe
 - **Defines:** the hook `ishop_office_status_alter`.
 - **Routes:** `/site-office`, `/site-office/reports`, `/site-office/punch-list`, `/site-office/decisions`,
   `/site-office/ask-cody/results`, `/site-office/screenshots/{name}`, `/site-office/status.json`,
-  **`/site-office/mail-setup`** (`ishop_office.mail_setup`).
+  **`/room/my-office/mail-setup`** (`ishop_office.mail_setup`).
 - **Content types:** `office_phase`, `office_plan`, `office_report`, `office_punch`, `office_decision`; webform
   `ask_cody`; text format `office_markdown`.
 
@@ -101,8 +101,8 @@ the decision log, and Cody's style questionnaire results. Access requires the pe
 | ishop_inbox | `MailSetupForm::DIR`, `::savedAddress()`, `::normalizePassword()`, renders `MailSetupForm` (`InboxController::mailSetup`); `RouteSubscriber` alters route `ishop_office.mail_setup`; `Inbox` links to it | Inbox credentials and the combined mail-setup page break |
 | ishop_ai | Implements `hook_ishop_office_status_alter` (harmless without office); unit test uses `IshopMail::isAuthFailure()` | Only the `.info.yml` dependency blocks uninstall |
 | ishop_ai, ishop_matrix, ishop_inbox, ishop_items `.info.yml` | Declare `ishop_office:ishop_office` | Drupal refuses to uninstall ishop_office until these lines are removed |
-| `/site-office/*` setup pages owned by other modules (`ai-setup`, `public-shop`) | Sit under the office path, so `OfficeThemeNegotiator` renders them in the Construction theme | Without office they fall back to Reseller Matrix. They should get new paths |
-| `/site-office/mail-setup` access | Needs the permission `access site office` plus the account check | Cody loses the mail setup page together with the role and permission |
+| Setup pages owned by other modules (`ai-setup`, `public-shop`) | **Done 2026-11-17:** moved to `/room/my-office/ai-setup` and `/room/my-office/public-shop` (Reseller Matrix theme) | Nothing left to do |
+| `/room/my-office/mail-setup` | **Done 2026-11-17:** moved out of `/site-office`; access is the account check only (theowner, webmaster). The form class still lives in ishop_office | Move `MailSetupForm` to a module that stays |
 | `scripts/ishop-update.sh` | Runs `drush ishop:report` and `ishop:punch`, and its post-update check expects `/site-office` to give anonymous a 403 | The weekly update's checks and reporting fail |
 | Messages | Digest and ShopController text tell the reader to "see the site office board" / "Switch it in the site office" | Stale wording only |
 | State keys | `ishop_office.mail_last`, `ishop_office.mail_last_ok` (written by `IshopMail`) | Need a new namespace if IshopMail moves |
@@ -176,12 +176,12 @@ expiry reminders.
   parsing), `AiRuns` (queue, pause, monthly cap). Custom table `ishop_ai_run`.
 - **Forms:** `AiSetupForm` (accounts theowner and webmaster only), `SuggestionForm`. **Controller:**
   `WriteListingController`.
-- **Drush:** `ishop:ai-run`, `ishop:ai-reminders`.
+- **Drush:** `ishop:ai-run`, `ishop:ai-reminders` (daily 07:05: `AiKeyManager::healthCheck()`, one Haiku test call, then the expiry reminder if the key has a date).
 - **Hooks:** form alters on the add and bulk-add forms, ishop_office_status_alter, ishop_sold_search_title_alter, mail,
   node_view.
-- **Routes:** `/site-office/ai-setup`, `/item/{n}/write-listing`.
+- **Routes:** `/room/my-office/ai-setup`, `/item/{n}/write-listing`.
 
-### ishop_inbox: marketplace inbox (read-only IMAP; currently off)
+### ishop_inbox: marketplace inbox (read-only IMAP; on since 2026-11-17)
 
 This module reads marketplace emails from the business Gmail and turns them into "Needs you now" items.
 
@@ -192,7 +192,7 @@ This module reads marketplace emails from the business Gmail and turns them into
   `ishop_inbox_message`.
 - **Drush:** `ishop:inbox-check`, `ishop:inbox-preview`, `ishop:inbox-switch on|off`.
 - **Hooks:** ishop_needs. **Routes:** `/inbox/{id}/{action}`. It also takes over the controller of
-  `/site-office/mail-setup` to add `InboxSetupForm` under the sending form.
+  `/room/my-office/mail-setup` to add `InboxSetupForm` under the sending form.
 
 ### ishop_shop: public catalog (switch currently off)
 
@@ -202,7 +202,7 @@ return 404 to everyone except theowner and webmaster while `ishop_shop.settings:
 now).
 
 - **Services:** `Shop`, `ShopPhotos` (public photo copies that exist only while the switch is on),
-  `EventSubscriber\ShopSubscriber`. **Form:** `ShopSwitchForm` at `/site-office/public-shop`.
+  `EventSubscriber\ShopSubscriber`. **Form:** `ShopSwitchForm` at `/room/my-office/public-shop`.
 - **Hooks:** cron (photo sync), entity_insert / entity_update / entity_delete, theme. **Drush:** none.
 
 ### ishop_ui: interface tweaks
@@ -285,9 +285,9 @@ The front page (`system.site:page.front`) is `/reseller-matrix`. The 403 page is
 | `/post/stale` | Stale-listing nudges |
 | `/listing/{id}` | A single platform listing |
 | `/shop` | Public catalog (off; preview for theowner and webmaster) |
-| **Setup:** `/site-office/mail-setup` | Gmail sending address and app password, plus the inbox section |
-| **Setup:** `/site-office/ai-setup` | Anthropic API key (status, renew) |
-| **Setup:** `/site-office/public-shop` | Public shop on/off |
+| **Setup:** `/room/my-office/mail-setup` | Gmail sending address and app password, plus the inbox section |
+| **Setup:** `/room/my-office/ai-setup` | Anthropic API key (status, renew) |
+| **Setup:** `/room/my-office/public-shop` | Public shop on/off |
 
 Crew only: `/site-office/*` board pages.
 
@@ -394,7 +394,7 @@ All of these are outside the web root (`web/`) and git-ignored (`/secrets/` and 
 | `secrets/db.settings.php` | Database credentials, `require`d from settings.php | 0640 liampward:www-data |
 | `secrets/hash_salt.txt` | Drupal hash salt, read by settings.php | 0640 |
 | `secrets/tfa_encryption.key` | TFA encryption key (Key `tfa_encryption`, file provider, base64; used by the encrypt profile `tfa` / real_aes) | 0640 |
-| `secrets/anthropic/api_key.txt` | Cody's Anthropic API key (Key `anthropic_api_key`, file provider), written by `/site-office/ai-setup` | 0640 www-data:www-data, dir 2770 |
+| `secrets/anthropic/api_key.txt` | Cody's Anthropic API key (Key `anthropic_api_key`, file provider), written by `/room/my-office/ai-setup` | 0640 www-data:www-data, dir 2770 |
 | `secrets/mail/address.txt` | Gmail sending address | 0640 www-data:www-data, dir 2770 |
 | `secrets/mail/app_password.txt` | Gmail app password (SMTP, and IMAP by default) | 0640 |
 | `secrets/mail/alerts_to.txt` | Admin alert recipient (Liam), applied to `update.settings` by settings.php | 0640 liampward:www-data |
@@ -424,7 +424,7 @@ Other protections:
   (time, ok, mail id, whether it was an auth failure; never the recipient) in State `ishop_office.mail_last(_ok)`.
   `IshopMail::problem()` puts "Email stopped working: renew the app password" on the front desk after a 535 auth
   failure. **Both live in ishop_office; see section 2.**
-- Cody sets the credentials on `/site-office/mail-setup` (`MailSetupForm`, theowner/webmaster only). Saving sends a
+- Cody sets the credentials on `/room/my-office/mail-setup` (`MailSetupForm`, theowner/webmaster only). Saving sends a
   test email.
 - Mail senders: ishop_matrix (digest), ishop_ai (key reminders), webform, core (password resets) and the Update
   Manager (security release notices to the address in `secrets/mail/alerts_to.txt`, set by settings.php).
@@ -445,6 +445,12 @@ Other protections:
   query doesn't fetch them and `Inbox::process()` ignores them if one ever arrives. `Inbox::scanBounces()` lists
   the last 14 days' notices (failed recipient, returned subject and date; headers only) in State
   `ishop_inbox.bounces`, at most hourly, and `status.json` shows them under `mail_bounces` (crew only).
-- **State on 2026-10-20: switched off** (`ishop_inbox.settings: enabled: false`). `ishop-inbox.timer` still runs
-  every 10 minutes; while off, `ishop:inbox-check` connects only for the hourly bounce scan. Turn it on with `drush ishop:inbox-switch on`
-  (records `enabled_since`) or from the setup page.
+- **On since 2026-11-17 06:59** (`ishop_inbox.settings: enabled: true`, `enabled_since` recorded; mail from more than
+  3 days before that is only recorded). `ishop-inbox.timer` runs every 10 minutes. `drush ishop:inbox-switch off` stops it.
+- **Nothing changes an item or listing without Cody's tap.** A sale email (or a label email for an unsold listing)
+  becomes one "Mark it sold here?" row; a label PDF is only kept with the row (`fid`) and deleted if he says no.
+  A sale email and its label email are joined into one row. For sales already marked, "Add label" / "Save date"
+  (`/inbox/{id}/apply`). Mail with nothing to act on (favorites, promotions, "on its way", payouts without an amount)
+  is recorded with status `ignored`. Buyer handles are never stored as titles.
+- Known gaps: Depop offer emails carry no item title; Depop labels are a download link (not attached); no real eBay
+  sale email seen yet.

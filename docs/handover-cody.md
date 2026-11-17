@@ -35,26 +35,32 @@ The item page's **Listings** shows one row per site, like "Poshmark · Posted ·
 
 ## Two things to renew
 
-**1. Your AI key, every 30 days.** The AI writing and pricing use your own Anthropic account. Its keys last 30 days. You'll get an email a week before, 2 days before and the day before it runs out. When you do:
+**1. Your AI key, only if it stops working.** The AI writing and pricing use your own Anthropic account. The site checks the key every morning. If it stops working (or the account runs out of credit), the AI pauses and you get one email, plus a line on the front desk. If you gave the key an expiry date, you also get reminders a week before, 2 days before and on the day. To renew:
 
 1. Go to **console.anthropic.com** and sign in.
 2. **Settings > API keys > Create key**. Name it "Reseller Matrix" plus the month.
 3. Copy the key (Anthropic only shows it once).
-4. On the site, open **AI setup**, paste it, and tap **Test and switch to this key**.
+4. On the site, go to **My office > AI setup**, paste it, leave **No expiry** (or enter the date Anthropic shows), and tap **Test and switch to this key**.
 
-If you miss it, nothing breaks: the AI just pauses, and everything else keeps working until you add a new key.
+If you miss it, nothing breaks: the AI just pauses, your "Write my listing" requests wait, and everything else keeps working until the key works again. If your current key has no expiry date, tap **My key has no expiry date** on AI setup to stop the reminders.
 
 **2. The Gmail app password, only if mail stops.** The site sends your mail through the business Gmail with an "app password" (16 letters from Google, not your Gmail password). If the front desk says mail stopped, or you change your Gmail password:
 
 1. Go to **myaccount.google.com/apppasswords** in the business Gmail and make a new one.
-2. On the site, open **Mail setup**. In the **top** part, paste the 16 letters and tap **Save and send a test email**.
+2. On the site, go to **My office > Mail setup**. In the **top** part, paste the 16 letters and tap **Save and send a test email**.
 
-The same password also lets the site read your marketplace emails once that's switched on, so you only ever need one.
+The same password also lets the site read your marketplace emails, so you only ever need one.
 
-## Coming later
+## Your marketplace emails
 
-- **Reading your marketplace emails** (sales, labels, ship-by dates) and putting them on the front desk. It's built; it gets switched on once it reads them right.
-- **eBay:** your appeal (the punch item with the steps). If eBay says yes, the site can read your eBay orders directly. If not, eBay keeps working on the site just like it does now.
+The site reads your marketplace emails (Vinted, Depop, Mercari, Poshmark, eBay, Grailed, Facebook Marketplace) every 10 minutes and puts what needs you on the front desk:
+
+- **A sale:** "Vinted: <item> sold for $15. Mark it sold here and add the shipping label?" Tap **Yes, mark sold** and the site marks it sold, saves the price and ship-by date, puts the label in the Shipping room, and tells you which other sites to take it down from. Tap **Not this item** if it guessed wrong.
+- **Offers and buyer messages:** a line with **Open it**, which opens the email.
+- **Nothing happens until you tap.** The site never changes an item by itself, and it never sends, deletes or marks anything in your Gmail.
+- **Please mark sales instead of deleting the item.** A deleted item drops out of your money totals and taxes.
+
+eBay: the eBay developer account wasn't approved, so the site doesn't connect to eBay directly. eBay still works on the site like every other platform, and its emails are read like the others.
 
 ## Who to call
 

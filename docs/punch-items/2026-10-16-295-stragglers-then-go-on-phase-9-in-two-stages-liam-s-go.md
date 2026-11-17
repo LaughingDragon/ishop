@@ -2,7 +2,9 @@
 
 - Opened: 2026-10-16
 - Waiting on: site_foreman
-- Status: open
+- Status: closed
+- Closed: 2026-10-21
+- Answered by: site_foreman
 - Crew only (hidden from Cody on the site)
 
 ## Instructions
@@ -29,3 +31,7 @@ Stage B, only after Tuesday 10/20 (birthday cleanup done) AND CSP enforced:
 - Final check: accounts are only webmaster and theowner; site-office-only CSP allowances gone; all tests pass.
 - Before removing the site office, post a last crew-only item so Claude (review) can verify Stage A and the archive while the board still exists.
 One report per stage.
+
+## Answer
+
+Done. Stragglers were handled 10-16. Phase 9 was finished and closed in [report 2026-10-20-2](../reports/2026-10-20-2.md) (go-live reset, Phases 5, 9 and 10 closed); its unfinished parts are After go-live follow-ups. The site office removal (Stage B) now follows the CSP check on or after 10/23, then Liam's final go (Liam, 2026-10-21). Closed at Liam's request.

@@ -1,7 +1,7 @@
 # 33: Real email addresses for webmaster and theowner
 
 - Opened: 2026-10-15
-- Waiting on: liam
+- Waiting on: liam, cody
 - Status: closed
 - Closed: 2026-10-15
 - Answered by: cody

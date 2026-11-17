@@ -73,7 +73,7 @@ domain (an install-time default), producing 27 delivery-failure notices in the b
 
 ## Open after go-live
 
-[follow-ups.md](follow-ups.md): CSP enforcement on or after 10/23, inbox matching fixes, and the eBay appeal outcome by 11/19.
+[follow-ups.md](follow-ups.md): all three are done (2026-11-17): CSP enforcing, marketplace inbox on, eBay API dropped. See [final-state.md](final-state.md).
 
 ## Before removing the site office (Phase 11 Stage B)
 
@@ -83,7 +83,7 @@ Other modules depend on ishop_office (the full list is in [architecture.md](arch
 - The **Mail setup** page and its permission.
 - **DiskStatus** (the photo upload forms and the digest).
 - The anonymous-permission guard.
-- The `/site-office/ai-setup` and `/site-office/public-shop` paths.
+- The `/room/my-office/ai-setup` and `/room/my-office/public-shop` paths.
 - The update script.
 
 Move those first, then remove the office.

@@ -1,7 +1,7 @@
 # 103: Install Cody's theme: Reseller Matrix (Look C, Red & Gold Marquee)
 
 - Opened: 2026-10-15
-- Waiting on: liam
+- Waiting on: liam, site_foreman
 - Status: closed
 - Closed: 2026-10-15
 - Answered by: site_foreman

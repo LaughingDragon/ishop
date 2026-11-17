@@ -31,7 +31,7 @@ The key is stored in a file in `secrets/anthropic/` through the Key module; the 
 The business Gmail sends the site's mail (SMTP) and, once the inbox is switched on, is read by it (IMAP). **One Google app password covers both.** Replace it if Google revokes it, the Gmail password changes, or mail stops ("Needs you now" says so, and so does the mail line on the site office board).
 
 1. Signed in to the business Gmail: https://myaccount.google.com/apppasswords. Create one named "iShop" (the name is just a label).
-2. On the site: **Mail setup** (`/site-office/mail-setup` while the site office exists). In the **top** part, check the Gmail address, paste the 16 letters into **App password from Google**, and tap **Save and send a test email**. A test email arrives.
+2. On the site: **Mail setup** (`/room/my-office/mail-setup`, also a button in My office). In the **top** part, check the Gmail address, paste the 16 letters into **App password from Google**, and tap **Save and send a test email**. A test email arrives.
 3. The inbox uses the same password automatically. To check it: in the **Marketplace inbox** part, leave the password box empty and tap **Test the inbox**.
 4. Delete the old app password in Google afterwards.
 

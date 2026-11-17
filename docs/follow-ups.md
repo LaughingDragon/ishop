@@ -1,28 +1,17 @@
 # Follow-ups after go-live
 
-None of these are part of the handover. The same list is in [ROADMAP.md](ROADMAP.md) under "After go-live: follow-ups".
+All three follow-ups from the 2026-10-20 handover are **done** (2026-11-17). The same list is in [ROADMAP.md](ROADMAP.md) under "After go-live: follow-ups".
 
-## 1. Content security policy: switch to enforcing, on or after 2026-10-23
+## 1. Content security policy: enforcing (done 2026-11-17)
 
-The CSP has run in **report-only** mode since Phase 0. Violations are logged to the Drupal log (watchdog type `seckit`), and there were none on 2026-10-20. The log now keeps 10,000 rows, so it covers the full week.
+CSP ran in report-only mode from Phase 0. From 10/21 to 11/17 the only reports were 10 blocked Google font (Mulish) requests from one browser session on the password-reset pages on 11/12. The site links to no external fonts, so something in that browser injected it. Enforcing since 2026-11-17 06:44 (commit cb73fed, punch 311, report 2026-11-17-1). Checked in headless Chromium at iPhone size as theowner on 18 pages: no blocked resources, no console errors.
 
-- On or after 10/23: `cd /var/www/ishop && vendor/bin/drush ws --type=seckit --count=50`.
-- If it's clean for the week, switch Security Kit's CSP from report-only to enforce (`/admin/config/system/seckit`, or `drush cset seckit.settings seckit_xss.csp.report-only false --input-format=yaml -y`), then `drush cex`, commit, and check the pages Cody uses still load (front desk, Stockroom, Add, item pages, Shipping room, My office, AI setup).
-- If there are violations, fix the cause first (usually a new external resource).
+Undo: `drush cset -y seckit.settings seckit_xss.csp.report-only 1 --input-format=yaml && drush cr` (dump before: `/var/backups/ishop/pre-csp-enforce-20261117.gz`).
 
-## 2. Marketplace inbox (was Phase 9 B): fix matching, then switch on
+## 2. Marketplace inbox: on (done 2026-11-17)
 
-The inbox reads the business Gmail over IMAP, read-only, with the **same app password the site sends with** (commit fdf9ecd). It's built and switched **off**. A read-only test on 2026-10-20 found 81 marketplace emails, all genuine. Before switching it on:
+Tuned on 30 days of real mail (151 emails). Vinted, Depop and Mercari sale emails now give the item's title and price, and match the listing when the item is on the site. A sale email and its label email become one question. Noise is recorded quietly. Nothing changes an item without Cody's tap. Switched on 06:59 (commit fbbb11b, report 2026-11-17-3). Known gaps: Depop offer emails have no title; Depop labels are a download link; no real eBay sale email seen yet.
 
-- **Sale emails get no item title**, so they don't match an item: Mercari "You've made a sale: TITLE"; Vinted "You sold an item on Vinted" (the title is in the body). Fix the classifier.
-- **Label emails don't attach when the item is already marked sold** (Vinted's "TITLE shipping label – use by …"). Fix the matcher.
-- **"Other" marketplace mail is too noisy** (71 of 81; 43 from Vinted). Show only messages that need Cody.
-- **eBay is email-only now**, so eBay sale, ship-by, return and case emails must match their items.
-- Re-test with `drush ishop:inbox-preview --days=30` (read-only; add `--subjects` in the terminal only) once Cody has items on the site again. Show Liam, then `drush ishop:inbox-switch on`.
+## 3. eBay appeal: dropped (2026-11-17)
 
-## 3. eBay appeal outcome, by 2026-11-19
-
-eBay rejected Cody's developer account ("problems with the data provided or other irregularities"). Cody gets **one appeal** (punch item 633, decision 639).
-
-- **Approved:** build the eBay Sell API connection as specified: OAuth consent from Cody's own seller account; token stored like other secrets (a file in `secrets/`, owner and group only); a renewal reminder before it expires; never passwords, cookies or page scraping. eBay requires a marketplace account-deletion notification endpoint before a production keyset works, and an HTTPS accept/decline URL for the RuName.
-- **Declined, or no reply within 30 days:** drop the eBay API integration entirely and log the decision. There's no eBay API code or settings to remove (none was built). eBay stays as a platform on items: listing rows, the Sold-here cascade, paste-ready text and Check sold prices via Terapeak don't need the API.
+No reply to Cody's developer-account appeal since 10/21, so the eBay Sell API integration is dropped (decision 738, punch 633). Nothing had been built. eBay stays a platform on items (listing rows, Sold-here cascade, paste-ready text, Terapeak and Check sold prices), and its emails go through the inbox. Revisit only if eBay approves the account.

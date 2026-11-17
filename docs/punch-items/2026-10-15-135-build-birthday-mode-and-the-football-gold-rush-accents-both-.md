@@ -1,7 +1,7 @@
 # 135: Build Birthday mode and the football / Gold Rush accents (both approved)
 
 - Opened: 2026-10-15
-- Waiting on: liam
+- Waiting on: liam, site_foreman
 - Status: closed
 - Closed: 2026-10-15
 - Answered by: site_foreman

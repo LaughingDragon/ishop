@@ -79,7 +79,7 @@ The TFA module is installed and configured but required for no role. Strong pass
 
 ## 2026-10-15 (24): Accounts: theowner (Cody) is a full administrator; webmaster is Liam's; site-foreman is the agent's, working only through Drush
 
-- Decided by: cody
+- Decided by: cody, liam
 - Phase: 0 (Phase 0: safety net)
 
 Cody decided his own account has full rights. This replaces the roadmap's original restricted owner role, which was never created. Liam set up webmaster and site-foreman.
@@ -93,7 +93,7 @@ Asked and decided 2026-10-15. Cody logs in as theowner from now on.
 
 ## 2026-10-15 (47): Disks: system disk grows to 20 GB; a new 10 GB data disk holds the site and database, and backups stay on the system disk
 
-- Decided by: liam
+- Decided by: liam, site_foreman
 - Phase: 0 (Phase 0: safety net)
 
 Liam asked for more space and separate system and site disks. Claude suggested keeping the backups on the other disk from the site, so either disk can fail without losing both. The Apache program stays on the system disk with the rest of Debian; only site data moves. Waiting on Liam's console steps (punch list).
@@ -162,7 +162,7 @@ Liam answered "site office" (2026-10-15), replacing decision 74's "blank until d
 
 ## 2026-10-15 (79): Phase 1 approved as proposed, plus the review's 10 gaps
 
-- Decided by: liam
+- Decided by: liam, claude
 - Phase: 1 (Phase 1: the item model and phone app)
 
 Punch item 78: Claude (review) listed gaps, and Liam delegated the decisions to its recommendations (custom listing entity; Color and Original price added; no Crosslister ID; purchase source taxonomy; custom manifest; boot disk to 30 GB after a snapshot; photos backed up daily to the bucket; six To post rows plus a confirmed, reversible Sold-here cascade). Storage locations and Cody's phone are asked of Cody.
@@ -353,6 +353,7 @@ Liam and Cody, 2026-10-16: nothing is bought to resell. 'What I paid (if you rem
 
 - Decided by: liam
 - Phase: 7.5 (Phase 7.5: pricing redesign)
+- Crew only (hidden from Cody on the site)
 
 Liam approved the proposed order in chat, 2026-10-16. Pricing first because it serves Cody's daily loop; the two-step AI replaces decision 264.
 
@@ -402,6 +403,7 @@ Liam's Phase 10 rule: store only what's needed. Labels are deleted 30 days after
 
 - Decided by: liam
 - Phase: 10 (Phase 10: bring in Cody's current listings)
+- Crew only (hidden from Cody on the site)
 
 Liam: "Ok dry run" (2026-10-18) after the crew-only report 2026-10-18-1: 111 rows, 22 sold $631.42, per-platform counts.
 
@@ -434,6 +436,12 @@ Liam's close-out prep brief, 2026-10-20. Replaces decision 638. Build as specifi
 
 ## 2026-10-21 (645): Posting flow simplified: one-tap "I posted it" with Undo, listing link optional, platforms that don't fit set to Not allowed automatically, compact listing rows, item status follows listings
 
-- Decided by: liam, claude (review)
+- Decided by: liam, claude
 
 Cody got stuck on his first new item (644) at "Paste the listing link... Go to Listings", which landed on a 7 x 6 grid. The listing link was never meant to be required. The site never posts to marketplaces itself: no public listing APIs for most of them, and automating their sites breaks their terms. eBay posting only if the API appeal is approved; paid crosslisting services are the option if Cody wants one-tap crossposting.
+
+## 2026-11-17 (738): eBay Sell API integration dropped: no reply to Cody's developer-account appeal (punch 633)
+
+- Decided by: liam
+
+Liam's go-live brief 2026-11-17: declined or no reply -> drop it. No API code, settings or keys existed. eBay stays as a platform (listing rows, Sold-here cascade, paste-ready text, Terapeak/Check sold prices) and through the marketplace inbox. Revisit only if eBay approves the account.

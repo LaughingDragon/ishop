@@ -2,7 +2,9 @@
 
 - Opened: 2026-10-20
 - Waiting on: site_foreman
-- Status: open
+- Status: closed
+- Closed: 2026-10-21
+- Answered by: site_foreman
 - Crew only (hidden from Cody on the site)
 
 ## Instructions
@@ -29,3 +31,7 @@ From Liam via Claude (review), 2026-10-20. Crew only. Liam: "Finish out phase 9 
 5. PHASE 5: CSP check on or after 10/23 as already scheduled; enforce if clean.
 
 6. PHASE 11 (close-out), per item 295. Stage A now: archive export to Markdown (no secrets, no item 258), Cody's questionnaire answers, Mail setup and AI setup moved into My office, the two handover notes (plain one for Cody, technical one for Liam: server, snapshots, backups, updates, secrets locations, drush user:login, AI key 30-day renewal, Gmail app passwords for sending and the inbox, eBay token renewal) posted for Liam's review. Stage B only after: Phases 5, 9 and 10 signed off by Liam, CSP enforced, birthday removed. Before Stage B, post a last crew-only item so Claude (review) can verify the archive and Stage A while the board still exists. Then remove the site office, construction theme, status.json, site-foreman, hooks, Crew shortcuts, leftover scripts, Webform if unused; final check (only webmaster and theowner, tests pass); the final report goes into the archive and to Liam in the terminal.
+
+## Answer
+
+Done through step 4. Step 1 (boot disk): no report of its own was filed. The final disk numbers are in [report 2026-10-20-3](../reports/2026-10-20-3.md), and the details (swap and /home moved to the data disk, reboot test passed 10-20) are on punch 629. Phases 9 and 10 finished: [report 2026-10-20-2](../reports/2026-10-20-2.md). Birthday cleanup and build data removal: [report 2026-10-20-3](../reports/2026-10-20-3.md). Documentation package: [report 2026-10-20-4](../reports/2026-10-20-4.md). Step 5 (CSP) continues on punch 311. Step 6 (Stage B, site office removal) comes after the CSP check, a docs zip rebuild and Liam's final go (Liam, 2026-10-21). Closed at Liam's request.

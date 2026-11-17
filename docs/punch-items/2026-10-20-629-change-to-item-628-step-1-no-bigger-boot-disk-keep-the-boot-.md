@@ -2,7 +2,9 @@
 
 - Opened: 2026-10-20
 - Waiting on: site_foreman
-- Status: open
+- Status: closed
+- Closed: 2026-10-21
+- Answered by: site_foreman
 - Crew only (hidden from Cody on the site)
 
 ## Instructions
@@ -24,3 +26,7 @@ d) The site code (/var/www/ishop) and the MariaDB data: propose to Liam whether 
 e) Verify with a reboot test (announce it to Liam first): everything comes back, data disk mounted, site up, then report free space on both disks.
 f) Early warning in Needs you now (crew) at 25% free on either disk.
 Update the technical handover note with the final layout.
+
+## Answer
+
+Done. The boot disk holds the system only; nothing was grown. Moved to the data disk with nofail: the swap file (/srv/ishop-data/swapfile) and /home (bind mount from /srv/ishop-data/home). Old backup folders were copied there and deleted from the boot disk. Also: old kernel purged, journald capped at 200 MB, logrotate compression on. The reboot test passed on 10-20. Boot disk free space went from 1.3G to 5.2G. No separate step 1 report was filed; the final numbers are in [report 2026-10-20-3](../reports/2026-10-20-3.md). Site code and MariaDB stay on the boot disk (Liam's go, 10-20). Closed at Liam's request.
