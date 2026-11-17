@@ -5,6 +5,8 @@ ishop_office.board:
     _title: 'Site office'
   requirements:
     _permission: 'access site office'
+    # Go-live 2026-11-17: the site office is crew only (webmaster, site-foreman).
+    _custom_access: '\Drupal\ishop_office\Controller\OfficeController::crewAccess'
 
 ishop_office.reports:
   path: '/site-office/reports'
@@ -13,6 +15,8 @@ ishop_office.reports:
     _title: 'Build reports'
   requirements:
     _permission: 'access site office'
+    # Go-live 2026-11-17: the site office is crew only (webmaster, site-foreman).
+    _custom_access: '\Drupal\ishop_office\Controller\OfficeController::crewAccess'
 
 ishop_office.punch_list:
   path: '/site-office/punch-list'
@@ -21,6 +25,8 @@ ishop_office.punch_list:
     _title: 'Punch list'
   requirements:
     _permission: 'access site office'
+    # Go-live 2026-11-17: the site office is crew only (webmaster, site-foreman).
+    _custom_access: '\Drupal\ishop_office\Controller\OfficeController::crewAccess'
 
 ishop_office.decisions:
   path: '/site-office/decisions'
@@ -29,6 +35,8 @@ ishop_office.decisions:
     _title: 'Decision log'
   requirements:
     _permission: 'access site office'
+    # Go-live 2026-11-17: the site office is crew only (webmaster, site-foreman).
+    _custom_access: '\Drupal\ishop_office\Controller\OfficeController::crewAccess'
 
 ishop_office.ask_cody_results:
   path: '/site-office/ask-cody/results'
@@ -49,12 +57,11 @@ ishop_office.screenshot:
     name: '[a-z0-9][a-z0-9-]*\.png'
 
 ishop_office.mail_setup:
-  path: '/site-office/mail-setup'
+  path: '/room/my-office/mail-setup'
   defaults:
     _form: '\Drupal\ishop_office\Form\MailSetupForm'
     _title: 'Mail setup'
   requirements:
-    _permission: 'access site office'
     _custom_access: '\Drupal\ishop_office\Form\MailSetupForm::access'
   options:
     no_cache: TRUE
@@ -66,3 +73,5 @@ ishop_office.status_json:
   methods: [GET]
   requirements:
     _permission: 'access site office'
+    # Go-live 2026-11-17: the site office is crew only (webmaster, site-foreman).
+    _custom_access: '\Drupal\ishop_office\Controller\OfficeController::crewAccess'

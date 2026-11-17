@@ -1,5 +1,5 @@
 ishop_ai.setup:
-  path: '/site-office/ai-setup'
+  path: '/room/my-office/ai-setup'
   defaults:
     _form: '\Drupal\ishop_ai\Form\AiSetupForm'
     _title: 'AI setup'

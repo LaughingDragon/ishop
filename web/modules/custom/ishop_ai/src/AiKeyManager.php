@@ -77,7 +77,7 @@ final class AiKeyManager {
     if (!AnthropicKey::save($key, $this->file)) {
       return [
         'ok' => FALSE,
-        'message' => 'The key works, but the server could not save it. Nothing was changed; tell site-foreman.',
+        'message' => 'The key works, but the server could not save it. Nothing was changed; tell Liam.',
         'old4' => NULL,
       ];
     }

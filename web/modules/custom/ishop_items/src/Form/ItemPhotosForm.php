@@ -159,7 +159,7 @@ final class ItemPhotosForm extends FormBase {
    */
   public function validateForm(array &$form, FormStateInterface $form_state): void {
     if (!DiskStatus::photosOnline()) {
-      $form_state->setErrorByName('', $this->t("Photo storage is offline right now, so photos can't be added. Tell site-foreman."));
+      $form_state->setErrorByName('', $this->t("Photo storage is offline right now, so photos can't be added. Tell Liam."));
       return;
     }
     $mids = $this->photoIds($form_state);

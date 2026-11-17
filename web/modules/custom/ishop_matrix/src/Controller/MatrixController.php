@@ -28,6 +28,7 @@ use Drupal\ishop_items\Stale;
 use Drupal\ishop_matrix\Form\SeasonForm;
 use Drupal\ishop_matrix\Rooms;
 use Drupal\ishop_matrix\Season;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -540,14 +541,13 @@ final class MatrixController extends ControllerBase {
   }
 
   /**
-   * My office: the season settings and game days (the rest is coming).
+   * My office: money, taxes, logs, bills, setup and the season settings.
    */
   public function myOffice(): array {
-    $build = $this->room('my-office');
     return [
       'log' => [
         '#type' => 'inline_template',
-        '#template' => '<p class="rm-office-links"><a class="rm-button rm-button--gold" href="{{ url }}">{{ label }}</a> <a class="rm-button rm-button--ghost" href="{{ bills }}">{{ bills_label }}</a>{% if import %} <a class="rm-button rm-button--ghost" href="{{ import }}">{{ import_label }}</a>{% endif %}</p>',
+        '#template' => '<p class="rm-office-links"><a class="rm-button rm-button--gold" href="{{ url }}">{{ label }}</a> <a class="rm-button rm-button--ghost" href="{{ bills }}">{{ bills_label }}</a>{% if import %} <a class="rm-button rm-button--ghost" href="{{ import }}">{{ import_label }}</a>{% endif %}{% for link in setup %} <a class="rm-button rm-button--ghost" href="{{ link.url }}">{{ link.label }}</a>{% endfor %}</p>',
         '#context' => [
           'url' => Url::fromRoute('ishop_life.log')->toString(),
           'label' => $this->t('Log a trip or an expense'),
@@ -556,38 +556,32 @@ final class MatrixController extends ControllerBase {
           // Phase 10: bring in listings from a spreadsheet (theowner, webmaster).
           'import' => $this->currentUser()->hasPermission('import listings') ? Url::fromRoute('ishop_items.import_listings')->toString() : NULL,
           'import_label' => $this->t('Import listings'),
+          // AI setup and Mail setup (Cody and the webmaster only).
+          'setup' => array_map(fn (array $link) => ['url' => $link['url']->toString()] + $link, array_values(array_filter([
+            ['url' => Url::fromRoute('ishop_ai.setup'), 'label' => $this->t('AI setup')],
+            ['url' => Url::fromRoute('ishop_office.mail_setup'), 'label' => $this->t('Mail setup')],
+          ], fn (array $link) => $link['url']->access()))),
         ],
-        '#cache' => ['contexts' => ['user.permissions']],
+        '#cache' => ['contexts' => ['user.permissions', 'user']],
       ],
       'money' => $this->moneySection(),
       'tax' => $this->taxSection(),
       'season' => $this->formBuilder()->getForm(SeasonForm::class),
-      'rest' => $build,
       '#attached' => ['library' => ['ishop_matrix/matrix']],
     ];
   }
 
   /**
-   * A room. None are built yet, so each says what it will be for.
+   * /room/{room} for a room without its own page: the front desk.
+   *
+   * Every room has its own page now; this only catches /room/front-desk
+   * and old links.
    */
-  public function room(string $room): array {
+  public function room(string $room): RedirectResponse {
     if (!isset(Rooms::ROOMS[$room])) {
       throw new NotFoundHttpException();
     }
-    [$name, $icon, $word, $purpose] = Rooms::ROOMS[$room];
-    return [
-      '#type' => 'inline_template',
-      '#template' => '<div class="rm-card rm-coming-soon"><span class="rm-room__icon">{% include "@reseller_matrix/includes/room-icon.html.twig" with { room: icon, size: 30 } only %}<span class="rm-room__word">{{ word }}</span></span><h2>{{ soon }}</h2><p>{{ purpose }}</p><p><a class="rm-button rm-button--ghost" href="{{ back }}">{{ back_label }}</a></p></div>',
-      '#context' => [
-        'icon' => $icon,
-        'word' => $word,
-        'soon' => $this->t('Coming soon'),
-        'purpose' => $this->t('@name: @purpose This room is being built.', ['@name' => $name, '@purpose' => $purpose]),
-        'back' => Url::fromRoute('ishop_matrix.dashboard')->toString(),
-        'back_label' => $this->t('Back to the front desk'),
-      ],
-      '#attached' => ['library' => ['ishop_matrix/matrix']],
-    ];
+    return $this->redirect('ishop_matrix.dashboard', [], ['fragment' => $room === 'front-desk' ? 'needs' : NULL]);
   }
 
   /**

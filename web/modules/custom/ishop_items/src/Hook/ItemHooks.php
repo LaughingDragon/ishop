@@ -540,7 +540,7 @@ final class ItemHooks {
         '#template' => '<div class="rm-card so-callout so-callout--warn ishop-photos-offline" role="alert"><div class="so-callout__body"><h2>{{ title }}</h2><p>{{ text }}</p></div></div>',
         '#context' => [
           'title' => t('Photo storage offline'),
-          'text' => t("The disk that holds item photos isn't mounted, so photos can't be shown or added right now. Everything else works. Tell site-foreman (punch list)."),
+          'text' => t("The disk that holds item photos isn't mounted, so photos can't be shown or added right now. Everything else works. Tell Liam (punch list)."),
         ],
       ];
     }

@@ -41,10 +41,14 @@ final class OfficeStructure {
   }
 
   /**
-   * Whether a node is marked crew only.
+   * Whether a node is crew only.
+   *
+   * Since go-live (2026-11-17) every office node is: the site office is for
+   * the webmaster and site-foreman only, not the owner.
    */
   public static function isCrewOnly(NodeInterface $node): bool {
-    return $node->hasField('field_crew_only') && (bool) $node->get('field_crew_only')->value;
+    return isset(self::BUNDLES[$node->bundle()])
+      || ($node->hasField('field_crew_only') && (bool) $node->get('field_crew_only')->value);
   }
 
   public const BUNDLES = [

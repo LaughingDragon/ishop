@@ -143,7 +143,7 @@ final class MailSetupForm extends FormBase {
     $form_state->setValue('app_password', NULL);
 
     if (!$this->write('address.txt', $address) || !$this->write('app_password.txt', $password)) {
-      $this->messenger()->addError($this->t('Could not save on the server. Nothing was changed; tell site-foreman.'));
+      $this->messenger()->addError($this->t('Could not save on the server. Nothing was changed; tell Liam.'));
       return;
     }
 

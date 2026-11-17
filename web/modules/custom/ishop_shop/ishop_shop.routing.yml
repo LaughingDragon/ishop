@@ -26,7 +26,7 @@ ishop_shop.item:
     slug: '[a-z0-9-]*\d+'
 
 ishop_shop.switch:
-  path: '/site-office/public-shop'
+  path: '/room/my-office/public-shop'
   defaults:
     _form: '\Drupal\ishop_shop\Form\ShopSwitchForm'
     _title: 'Public shop'

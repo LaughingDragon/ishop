@@ -10,7 +10,7 @@ field_name: field_internal_notes
 entity_type: node
 bundle: item
 label: 'Internal notes'
-description: 'Only the crew sees these.'
+description: 'Only you see these: never shown on listings.'
 required: false
 translatable: true
 default_value: {  }

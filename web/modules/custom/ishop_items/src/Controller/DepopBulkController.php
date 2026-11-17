@@ -90,7 +90,7 @@ final class DepopBulkController extends ControllerBase {
           'reason' => $s['reason'],
           'url' => $post($s['item']),
         ], $bulk['skipped']),
-        'note' => $this->t('Only items still "To post" on Depop that Depop allows are included. The columns match Depop\'s template as of October 2026; if Depop rejects the file, its template may have changed: tell the site office.'),
+        'note' => $this->t('Only items still "To post" on Depop that Depop allows are included. The columns match Depop\'s template as of October 2026; if Depop rejects the file, its template may have changed: tell Liam.'),
       ],
       '#attached' => ['library' => ['ishop_items/post']],
       '#cache' => ['max-age' => 0],

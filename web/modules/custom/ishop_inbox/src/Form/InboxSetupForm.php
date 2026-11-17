@@ -128,7 +128,7 @@ final class InboxSetupForm extends FormBase {
     }
     if (!InboxCredentials::save($address, $password)) {
       unset($password);
-      $this->messenger()->addError($this->t('Could not save on the server. Nothing was changed; tell site-foreman.'));
+      $this->messenger()->addError($this->t('Could not save on the server. Nothing was changed; tell Liam.'));
       return;
     }
     unset($password);

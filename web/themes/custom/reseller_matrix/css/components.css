@@ -65,3 +65,13 @@
 .rm-season-form__days caption { text-align: left; margin-bottom: 8px; color: var(--rm-text-soft); font-size: 16px; }
 .rm-season-form__days td { padding: 4px 8px 4px 0; vertical-align: top; }
 .rm-season-form__days th { text-align: left; font-size: 15px; color: var(--rm-text-soft); padding-bottom: 4px; }
+
+/* Status panels on the setup pages (AI setup, Mail setup, inbox). */
+.so-callout { background: var(--rm-surface); border: 1.5px solid var(--rm-line); border-radius: var(--rm-radius); padding: 20px 22px; margin: 0 0 16px; }
+.so-callout--warn { background: var(--rm-raised); border-color: var(--rm-gold); }
+.so-callout__body h2 { margin: 0 0 8px; font-size: 24px; }
+.so-callout__body p { margin: 0 0 12px; color: var(--rm-text-soft); overflow-wrap: anywhere; }
+.so-callout__body dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0; }
+.so-callout__body dt { font-weight: 700; }
+.so-callout__body dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 480px) { .so-callout__body dl { grid-template-columns: 1fr; } .so-callout__body dd { margin-bottom: 8px; } }

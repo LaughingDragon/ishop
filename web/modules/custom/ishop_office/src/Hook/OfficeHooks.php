@@ -104,6 +104,8 @@ final class OfficeHooks {
           ->fields('crew', ['entity_id'])
           ->condition('crew.field_crew_only_value', 1);
         $query->condition($alias . '.nid', $hidden, 'NOT IN');
+        // Since go-live every office node is crew only.
+        $query->condition($alias . '.type', array_keys(OfficeStructure::BUNDLES), 'NOT IN');
         return;
       }
     }
