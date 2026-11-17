@@ -14,7 +14,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  * Saving, renewing, testing and removing Cody's Anthropic key.
  *
  * A new key is always tested first and only switched over on success, so a
- * failed test leaves the old key in place. Also sends the expiry reminders.
+ * failed test leaves the old key in place. Also sends the expiry reminders
+ * and runs the daily health check.
  */
 final class AiKeyManager {
 
@@ -84,7 +85,7 @@ final class AiKeyManager {
     $this->logger->notice('Anthropic key @what (ends in @last4, expires @expires).', [
       '@what' => $old4 ? 'renewed' : 'saved',
       '@last4' => AnthropicKey::last4($key),
-      '@expires' => $expires,
+      '@expires' => $expires === '' ? 'never' : $expires,
     ]);
     return ['ok' => TRUE, 'message' => 'Key works.', 'old4' => $old4];
   }
@@ -123,6 +124,65 @@ final class AiKeyManager {
     AnthropicKey::remove($this->file);
     $this->status->recordRemoved();
     $this->logger->notice('Anthropic key removed.');
+  }
+
+  /**
+   * The daily health check: one tiny call with the saved key.
+   *
+   * A refused key, an empty account or a key without model access pauses AI
+   * (queued drafts wait) and emails Cody once per pause, with the renew link.
+   * Busy or unreachable is only noted. A later passing check resumes AI.
+   */
+  public function healthCheck(): string {
+    $status = $this->status->get();
+    if (empty($status['configured'])) {
+      return 'Health check: no key saved.';
+    }
+    $result = $this->testSaved();
+    if ($result['ok']) {
+      return 'Health check: key works.';
+    }
+    if (!in_array($result['kind'], AiStatus::PAUSING_KINDS, TRUE)) {
+      $this->logger->warning('AI health check could not finish: @message', ['@message' => $result['message']]);
+      return 'Health check: could not finish (' . $result['kind'] . '): ' . $result['message'];
+    }
+    $this->logger->warning('AI health check failed, AI paused: @message', ['@message' => $result['message']]);
+    if (!empty($this->status->get()['pause_notified'])) {
+      return 'Health check: still failing, AI paused (Cody already told).';
+    }
+    return $this->sendPauseNotice($result['message']);
+  }
+
+  /**
+   * Emails Cody that AI is paused and how to fix it.
+   */
+  private function sendPauseNotice(string $why): string {
+    $account = $this->entityTypeManager->getStorage('user')->load(self::OWNER_UID);
+    if (!$account?->getEmail()) {
+      return 'Health check: AI paused; the owner account has no email address.';
+    }
+    $renew = Url::fromRoute('ishop_ai.setup', [], ['absolute' => TRUE, 'fragment' => 'renew'])->toString();
+    $subject = 'AI is paused: your Anthropic key stopped working';
+    $body = implode("\n", [
+      'This morning\'s check of your AI key failed, so the AI listing helpers are paused.',
+      '',
+      'What Anthropic said: ' . $why,
+      '',
+      'Everything else keeps working: items and photos still save, and any "Write my listing" requests wait and run once AI is back.',
+      '',
+      'To fix it, open AI setup: ' . $renew,
+      'If the account is out of credit, add credit in the Anthropic Console (Billing). Otherwise create a new key and paste it there. AI turns back on by itself once a check passes.',
+    ]);
+    $result = $this->mailManager->mail('ishop_ai', 'key_paused', $account->getEmail(), $account->getPreferredLangcode(), [
+      'subject' => $subject,
+      'body' => $body,
+    ]);
+    if (empty($result['result'])) {
+      return 'Health check: AI paused; the email to Cody could not be sent (see the mail status).';
+    }
+    $this->status->markPauseNotified();
+    $this->logger->notice('AI paused notice sent to the owner.');
+    return 'Health check: AI paused; Cody emailed.';
   }
 
   /**

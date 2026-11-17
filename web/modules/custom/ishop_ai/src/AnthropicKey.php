@@ -32,9 +32,12 @@ final class AnthropicKey {
   public const KEY_ID = 'anthropic_api_key';
 
   /**
-   * The model the site uses (the current Opus).
+   * The model for the key test and the daily health check.
+   *
+   * Haiku: the cheapest model the site uses (a test is ~$0.00001, so a daily
+   * check costs well under 1 cent a month).
    */
-  public const MODEL = 'claude-opus-5-5';
+  public const MODEL = 'claude-haiku-5-5';
 
   /**
    * Whether a key is saved.

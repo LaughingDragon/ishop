@@ -10,16 +10,18 @@ cd /var/www/ishop
 
 ---
 
-## Renew Cody's AI key (every 30 days)
+## Cody's AI key: health check, renewal
 
-Anthropic API keys last 30 days. Cody gets reminder emails 7 days and 2 days before, and on the day before it expires (`ishop-ai-reminders.timer`, 07:05). If it lapses, AI pauses and everything else keeps working.
+Every morning at 07:05 (`ishop-ai-reminders.timer` -> `drush ishop:ai-reminders`) the site makes one tiny Haiku call with the saved key (about $0.00001, well under 1 cent a month). If Anthropic refuses the key, the account is out of credit, or the key can't use the models, AI pauses: queued "Write my listing" requests wait, everything else keeps working, "Needs you now" says so, and Cody gets one email per pause with the AI setup link. A busy or unreachable Anthropic is only logged. AI resumes by itself on the next passing check (or Cody taps **Test the saved key**).
 
-Cody does this himself, on the **AI setup** page (signed in as `theowner`), which lists the same steps:
+A key can have **no expiry** (the default on the form). If Cody gives it an expiry date at Anthropic and enters it, he also gets reminder emails 7 days and 2 days before, and on the day. **My key has no expiry date** on AI setup removes a saved date (no reminders after that).
+
+Cody renews or replaces the key himself, on the **AI setup** page (signed in as `theowner`), which lists the same steps:
 
 1. Go to console.anthropic.com and sign in with **his own** account.
 2. Open Settings > API keys > **Create key**, and name it "Reseller Matrix YYYY-MM".
 3. Copy the key (it's shown once and starts with `sk-ant-`).
-4. Paste it into **New Anthropic API key**. If Anthropic shows an expiry date, enter it; otherwise leave the default (30 days).
+4. Paste it into **New Anthropic API key**. Leave **No expiry**, or choose **Expires on a date** and enter the date Anthropic shows.
 5. Tap **Test and switch to this key**. If the test fails, nothing changes and the old key keeps working.
 
 The key is stored in a file in `secrets/anthropic/` through the Key module; the value is never shown. To check from the server: the AI setup page shows the last 4 characters, the expiry date, and the last success and error.

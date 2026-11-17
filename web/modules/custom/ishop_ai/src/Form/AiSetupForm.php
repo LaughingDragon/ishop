@@ -18,7 +18,8 @@ use Drupal\ishop_ai\AnthropicKey;
  *
  * Shows what the site knows about the key (never the key), and renews it:
  * a new key is tested first and switched over only if it works, so a failed
- * test leaves the old key in place. Anthropic keys last 30 days.
+ * test leaves the old key in place. A key can have no expiry; a daily health
+ * check pauses AI and emails Cody if it stops working.
  */
 final class AiSetupForm extends FormBase {
 
@@ -65,7 +66,7 @@ final class AiSetupForm extends FormBase {
         ['label' => $this->t('Saved on'), 'value' => $status['saved_on']],
         [
           'label' => $this->t('Expires on'),
-          'value' => $days === NULL ? '' : ($days < 0
+          'value' => $days === NULL ? $this->t('No expiry') : ($days < 0
             ? $this->t('@date (expired)', ['@date' => $status['expires_on']])
             : $this->formatPlural($days, '@date (1 day left)', '@date (@count days left)', ['@date' => $status['expires_on']])),
         ],
@@ -90,7 +91,7 @@ final class AiSetupForm extends FormBase {
           default => $this->t('AI is on'),
         },
         'text' => $status['configured']
-          ? $this->t('The AI helpers use your own Anthropic account. Keys last 30 days; you get a reminder 7 days, 2 days and on the day before it expires. When AI is paused, everything else keeps working and items and photos still save.')
+          ? $this->t('The AI helpers use your own Anthropic account. The site checks the key every morning; if it stops working, AI pauses and you get an email. If the key has an expiry date, you also get a reminder 7 days, 2 days and on the day it expires. When AI is paused, everything else keeps working and items and photos still save.')
           : $this->t('The AI listing helpers (Phase 7) run on your own Anthropic account and are paid by it.'),
         'rows' => $rows,
       ],
@@ -110,7 +111,7 @@ final class AiSetupForm extends FormBase {
           $this->t('Go to console.anthropic.com and sign in with your own account.'),
           $this->t('Open Settings, then API keys, and choose Create key. Name it "Reseller Matrix @month".', ['@month' => date('Y-m')]),
           $this->t('Anthropic shows the key once. It starts with "sk-ant-". Copy it.'),
-          $this->t('Paste it below. If Anthropic shows an expiry date for the key, enter it; otherwise leave the date as it is (30 days from today).'),
+          $this->t('Paste it below. If you gave the key an expiry date at Anthropic, choose "Expires on" and enter that date; otherwise leave "No expiry".'),
           $this->t('Tap "Test and switch to this key". If the test works, the site switches over at once. If it fails, nothing changes and the old key keeps working.'),
         ],
       ],
@@ -121,10 +122,22 @@ final class AiSetupForm extends FormBase {
       '#description' => $this->t('Saved privately on the server and never shown again, not even to you.'),
       '#attributes' => ['autocomplete' => 'off', 'autocapitalize' => 'off', 'spellcheck' => 'false'],
     ];
+    $form['renew']['expiry_mode'] = [
+      '#type' => 'radios',
+      '#title' => $this->t('Does the key expire?'),
+      '#options' => [
+        'never' => $this->t('No expiry'),
+        'date' => $this->t('Expires on a date'),
+      ],
+      '#default_value' => 'never',
+    ];
     $form['renew']['expires'] = [
       '#type' => 'date',
       '#title' => $this->t('Key expires on'),
       '#default_value' => AiStatus::defaultExpiry($today),
+      '#states' => [
+        'visible' => [':input[name="expiry_mode"]' => ['value' => 'date']],
+      ],
     ];
     $form['renew']['save'] = [
       '#type' => 'submit',
@@ -140,6 +153,14 @@ final class AiSetupForm extends FormBase {
         '#submit' => ['::testSaved'],
         '#limit_validation_errors' => [],
       ];
+      if ($status['expires_on']) {
+        $form['actions']['no_expiry'] = [
+          '#type' => 'submit',
+          '#value' => $this->t('My key has no expiry date'),
+          '#submit' => ['::noExpiry'],
+          '#limit_validation_errors' => [],
+        ];
+      }
       $form['actions']['remove'] = [
         '#type' => 'submit',
         '#value' => $this->t('Remove key'),
@@ -160,7 +181,7 @@ final class AiSetupForm extends FormBase {
       $form_state->setErrorByName('api_key', $this->t('That doesn\'t look like an Anthropic API key: it should start with "sk-ant-" and be one long line. Copy it again from the Anthropic Console.'));
     }
     $expires = (string) $form_state->getValue('expires');
-    if ($expires === '' || $expires < AiStatus::today()) {
+    if ($form_state->getValue('expiry_mode') === 'date' && ($expires === '' || $expires < AiStatus::today())) {
       $form_state->setErrorByName('expires', $this->t('Enter the date the new key expires (today or later).'));
     }
   }
@@ -172,7 +193,8 @@ final class AiSetupForm extends FormBase {
     $typed = (string) $form_state->getValue('api_key');
     // Drop the typed value from the form state as soon as possible.
     $form_state->setValue('api_key', NULL);
-    $result = $this->keys->renew($typed, (string) $form_state->getValue('expires'));
+    $expires = $form_state->getValue('expiry_mode') === 'date' ? (string) $form_state->getValue('expires') : '';
+    $result = $this->keys->renew($typed, $expires);
     unset($typed);
     if (!$result['ok']) {
       $this->messenger()->addError($this->t('The new key did not work, so nothing changed (the old key, if any, is still in use): @message', ['@message' => $result['message']]));
@@ -192,6 +214,14 @@ final class AiSetupForm extends FormBase {
     $result['ok']
       ? $this->messenger()->addStatus($this->t('Key works. AI is on.'))
       : $this->messenger()->addError($this->t('The saved key does not work: @message', ['@message' => $result['message']]));
+  }
+
+  /**
+   * The saved key never expires: stop the expiry reminders.
+   */
+  public function noExpiry(array &$form, FormStateInterface $form_state): void {
+    $this->status->clearExpiry();
+    $this->messenger()->addStatus($this->t('Saved: your key has no expiry date, so there will be no expiry reminders. The site still checks the key every morning and emails you if it stops working.'));
   }
 
   /**

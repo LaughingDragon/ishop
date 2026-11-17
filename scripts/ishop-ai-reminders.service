@@ -1,5 +1,5 @@
 [Unit]
-Description=ishop: AI key expiry reminder to Cody (7, 2 and 0 days before)
+Description=ishop: daily AI key health check, then the expiry reminder to Cody (7, 2 and 0 days before)
 After=mariadb.service
 
 [Service]

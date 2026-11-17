@@ -42,7 +42,7 @@ final class AiCommands extends DrushCommands {
   }
 
   /**
-   * Sends the AI key expiry reminder to Cody if one is due (7, 2, 0 days).
+   * Daily key health check, then the expiry reminder if one is due (7, 2, 0 days).
    */
   #[CLI\Command(name: 'ishop:ai-reminders')]
   #[CLI\Option(name: 'check', description: 'Only say what is due; send nothing.')]
@@ -53,6 +53,9 @@ final class AiCommands extends DrushCommands {
       $this->logger()->notice(json_encode(AiStatus::summary($status, AiStatus::today()) + ['reminder_due' => $due]));
       return self::EXIT_SUCCESS;
     }
+    // Daily: check the key works (pauses AI and emails Cody if not), then
+    // send any expiry reminder that is due.
+    $this->logger()->notice($this->keys->healthCheck());
     $this->logger()->notice($this->keys->sendReminderIfDue());
     return self::EXIT_SUCCESS;
   }

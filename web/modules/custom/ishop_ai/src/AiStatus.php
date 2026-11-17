@@ -9,7 +9,7 @@ use Drupal\Core\State\StateInterface;
 /**
  * What the site knows about Cody's Anthropic key: never the key itself.
  *
- * Saved on, expires on (Anthropic keys last 30 days), the last 4 characters,
+ * Saved on, expires on (NULL = no expiry), the last 4 characters,
  * the last successful call, the last error, whether AI is paused and why, and
  * the dates of past renewals. Kept in State (it changes; it isn't config).
  */
@@ -39,7 +39,13 @@ final class AiStatus {
     'auth' => 'Anthropic stopped accepting the key',
     'credit' => 'the Anthropic account is out of credit',
     'expired' => 'the key has expired',
+    'permission' => 'the key is not allowed to use the AI models',
   ];
+
+  /**
+   * Test failures that pause AI (anything else is only noted).
+   */
+  public const PAUSING_KINDS = ['auth', 'credit', 'permission'];
 
   public function __construct(
     private readonly StateInterface $state,
@@ -80,6 +86,7 @@ final class AiStatus {
       'paused' => NULL,
       'history' => [],
       'reminders_sent' => [],
+      'pause_notified' => FALSE,
     ];
   }
 
@@ -152,13 +159,14 @@ final class AiStatus {
     $status = [
       'configured' => TRUE,
       'saved_on' => $today,
-      'expires_on' => $expires,
+      'expires_on' => $expires === '' ? NULL : $expires,
       'last4' => $last4,
       'last_ok' => date('c'),
       'last_error' => NULL,
       'paused' => NULL,
       'history' => array_merge($status['history'], [$today]),
       'reminders_sent' => [],
+      'pause_notified' => FALSE,
     ];
     $this->set($status);
   }
@@ -178,6 +186,28 @@ final class AiStatus {
     $status = $this->get();
     $status['last_ok'] = date('c');
     $status['paused'] = NULL;
+    $status['pause_notified'] = FALSE;
+    $this->set($status);
+  }
+
+  /**
+   * The saved key has no expiry date (Cody says so): no reminders, no expiry pause.
+   */
+  public function clearExpiry(): void {
+    $status = $this->get();
+    $status['expires_on'] = NULL;
+    if ($status['paused'] === 'expired') {
+      $status['paused'] = NULL;
+    }
+    $this->set($status);
+  }
+
+  /**
+   * Cody has been told about the current pause (one email per pause).
+   */
+  public function markPauseNotified(): void {
+    $status = $this->get();
+    $status['pause_notified'] = TRUE;
     $this->set($status);
   }
 
@@ -190,7 +220,7 @@ final class AiStatus {
   public function recordFailure(string $kind, string $message): void {
     $status = $this->get();
     $status['last_error'] = ['time' => date('c'), 'message' => $message];
-    if (in_array($kind, ['auth', 'credit'], TRUE)) {
+    if (in_array($kind, self::PAUSING_KINDS, TRUE)) {
       $status['paused'] = $kind;
     }
     $this->set($status);
@@ -205,6 +235,10 @@ final class AiStatus {
     }
     if ($reason = self::pausedReason($status, $today)) {
       return sprintf('AI is paused: %s. Items and photos still save. Renew the key to turn AI back on.', self::PAUSE_REASONS[$reason] ?? $reason);
+    }
+    if (!$status['expires_on']) {
+      // A key with no expiry date: nothing to remind about.
+      return NULL;
     }
     $days = self::daysLeft((string) $status['expires_on'], $today);
     if ($days === 0) {

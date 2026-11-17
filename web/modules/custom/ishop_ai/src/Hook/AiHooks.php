@@ -215,7 +215,7 @@ final class AiHooks {
    */
   #[Hook('mail')]
   public function mail(string $key, array &$message, array $params): void {
-    if ($key === 'key_reminder') {
+    if (in_array($key, ['key_reminder', 'key_paused'], TRUE)) {
       $message['subject'] = $params['subject'];
       $message['body'][] = $params['body'];
     }
