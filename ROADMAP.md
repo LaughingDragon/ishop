@@ -425,13 +425,13 @@ authority). Work in this order, one report per step.
 
 Not phases: early phases closed 2026-10-20 (Liam) so the site goes live with an empty Stockroom.
 
-- [ ] **CSP enforced** on or after 10/23 if the report log is clean (punch 311).
-- [ ] **Marketplace inbox (was 9 B):** uses the business Gmail app password the site sends with
+- [x] **CSP enforced** on or after 10/23 if the report log is clean (punch 311). Done 2026-11-17 (cb73fed).
+- [x] **Marketplace inbox (was 9 B):** Switched on 2026-11-17 (fbbb11b): sale/label emails matched on real mail, one question per sale, nothing changes without Cody's tap. uses the business Gmail app password the site sends with
   (fdf9ecd). Preview 10-20: 81 emails, all genuine; offers match, but sale emails get no title (no
   match), labels don't attach to sold items, and "other" mail is too noisy. eBay sale, ship-by,
   return and case emails must match their items (eBay is email-only). Fix, re-preview on new
   site-made items, show Liam, switch on.
-- [ ] **eBay appeal outcome (was 9 C), by 2026-11-19.** eBay rejected Cody's developer account; one
+- [x] **eBay appeal outcome (was 9 C), by 2026-11-19.** No reply: API integration dropped 2026-11-17 (decision 738, punch 633 closed). eBay rejected Cody's developer account; one
   appeal (punch 633). Approved: build the Sell API connection as specified. Declined or no reply in
   30 days: drop the eBay API integration entirely (no scaffolding exists yet) and log it; eBay stays
   as a platform on items (listing rows, Sold-here cascade, paste-ready text, Terapeak). Meanwhile the
