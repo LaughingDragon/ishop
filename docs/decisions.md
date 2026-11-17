@@ -452,3 +452,10 @@ Liam's go-live brief 2026-11-17: declined or no reply -> drop it. No API code, s
 - Phase: handover (Handover countdown: finish the build, then close the site office)
 
 Liam's revised answer to report 2026-11-17-3: Cody doesn't sell enough for site taxes to matter. The 8 items deleted 11/17 are not restored. The tax export stays in My office but is not promoted (no reminders or prompts). Deleting an item still Posted on another platform asks 'Did it sell?' first (0c8128b). Cody punch 742: tap Yes / Sold here instead of deleting.
+
+## 2026-11-17 (747): eBay dropped as a selling platform; Check sold prices keeps eBay Research (Terapeak) first; public shop stays off
+
+- Decided by: cody
+- Phase: handover (Handover countdown: finish the build, then close the site office)
+
+Cody's decision, via Liam, 2026-11-17. eBay removed from items, Post page, eligibility, cascade, take-downs, stale nudges, bulk actions, Money and inbox matching; 72 eBay listing rows deleted (58 Posted, 14 To post, none Sold). Not built: the eBay bulk-listing / public photo link directive. Check sold prices keeps Terapeak first plus Mercari and Poshmark sold filters (research in Cody's own browser). Public shop: code kept, switched off (listing on the site isn't worth his time).

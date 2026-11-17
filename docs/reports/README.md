@@ -88,3 +88,4 @@ One file per report, as filed on the site office (oldest first).
 - [2026-11-17-5: 2026-11-17: Go-live part 4, documentation zip rebuilt](2026-11-17-5.md)
 - [2026-11-17-6: 2026-11-17: Liam's revised answer, delete guard and no tax prompts](2026-11-17-6.md)
 - [2026-11-17-7: 2026-11-17: Marketplace inbox, automatic where certain](2026-11-17-7.md)
+- [2026-11-17-8: 2026-11-17: eBay dropped as a selling platform; public shop stays off](2026-11-17-8.md)
