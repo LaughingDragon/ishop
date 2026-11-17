@@ -29,7 +29,8 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  * The daily digest email (Phase 5 step 6).
  *
  * About 7 a.m. Pacific: what needs Cody, bills due, today's calendar,
- * to-dos, items waiting to be posted, and a storage check. Short plain text
+ *
+ * @todo s, items waiting to be posted, and a storage check. Short plain text
  * for the phone. Sent to the owner (Cody) only after Liam's OK (STATE['cody']),
  * and the owner can turn it off on the account page. Tests go to webmaster only.
  */

@@ -114,7 +114,7 @@ This is the core of the business: items (node type `item`), one `platform_listin
 photo prep, posting helpers, sale cascade, shipping, stale nudges, the spreadsheet import, and the tax export.
 
 - **Entity:** `platform_listing` (content, revisionable; `Entity\PlatformListing`, `ListingAccessControlHandler`,
-  constraint `IshopUniqueItemPlatform`). Platforms: poshmark, mercari, ebay, depop, grailed, vinted, facebook.
+  constraint `IshopUniqueItemPlatform`). Platforms: poshmark, mercari, depop, grailed, vinted, facebook (eBay removed 2026-11-17, update 11013: 72 eBay rows deleted, 58 Posted + 14 To post, none sold; image style post_ebay and eBay shipping settings removed). eBay remains only in `SoldSearch` (Check sold prices: Terapeak first, then eBay/Mercari/Poshmark sold filters) and the AI price research.
 - **Services:** `PhotoPrep`, `ItemPhotos`, `ListingManager`, `BulkActions`, `StockroomFilters`, `StaleNudges`, `Money`,
   `TaxExport`, `PriceBook`, `Shipping`, `ListingImport\ListingImporter`, `EventSubscriber\WebpTypeSubscriber`.
   Other classes: `Cascade` (when one platform sells, the others go to "take down"), `Cleared`, `Eligibility`,
@@ -194,12 +194,13 @@ This module reads marketplace emails from the business Gmail and turns them into
 - **Hooks:** ishop_needs. **Routes:** `/inbox/{id}/{action}`. It also takes over the controller of
   `/room/my-office/mail-setup` to add `InboxSetupForm` under the sending form.
 
-### ishop_shop: public catalog (switch currently off)
+### ishop_shop: public catalog (available but switched off)
 
 This module serves `/shop`, `/shop/{slug}` and `/shop/sitemap.xml`. Items appear when they are published, have
 "Show in shop" ticked, are ready/listed, cleared, priced and have a photo. The routes are open (`_access: TRUE`) but
-return 404 to everyone except theowner and webmaster while `ishop_shop.settings:enabled` is false (it is false
-now).
+return 404 to everyone except theowner and webmaster while `ishop_shop.settings:enabled` is false. **Off on purpose**
+(Cody, 2026-11-17: listing items on the site isn't worth his time). The code stays; switch at
+`/room/my-office/public-shop` (not linked) or `drush cset ishop_shop.settings enabled 1`.
 
 - **Services:** `Shop`, `ShopPhotos` (public photo copies that exist only while the switch is on),
   `EventSubscriber\ShopSubscriber`. **Form:** `ShopSwitchForm` at `/room/my-office/public-shop`.
@@ -466,5 +467,5 @@ Other protections:
 - Preview (`drush ishop:inbox-preview --days=30`) shows `WOULD: AUTO ...` / `ask (reason)` per email (as if the
   setting were on). Mail with nothing to act on (favorites, promotions, "on its way", payouts without an amount)
   is recorded with status `ignored`. Buyer handles are never stored as titles.
-- Known gaps: Depop offer emails carry no item title; Depop labels are a download link (not attached); no real eBay
-  sale email seen yet.
+- Known gaps: Depop offer emails carry no item title; Depop labels are a download link (not attached).
+- eBay mail is not read (eBay is no longer a selling platform, 2026-11-17): `Senders::DOMAINS` and `ListingRef` have no eBay.

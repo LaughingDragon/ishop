@@ -11,12 +11,14 @@ final class Platforms {
 
   /**
    * Platforms, in the order they are shown.
+   *
+   * EBay was a platform 2026-10-16 to 2026-11-17; Cody dropped it as a place
+   * to sell (decision logged). eBay stays only as price research (SoldSearch:
+   * Terapeak first in "Check sold prices").
    */
   public const PLATFORMS = [
     'poshmark' => 'Poshmark',
     'mercari' => 'Mercari',
-    // Added 2026-10-16 (items 278, 280): Cody sells on eBay too.
-    'ebay' => 'eBay',
     'depop' => 'Depop',
     'grailed' => 'Grailed',
     'vinted' => 'Vinted',
@@ -29,7 +31,6 @@ final class Platforms {
   public const SHORT = [
     'poshmark' => 'P',
     'mercari' => 'M',
-    'ebay' => 'eB',
     'depop' => 'D',
     'grailed' => 'G',
     'vinted' => 'V',
@@ -61,15 +62,14 @@ final class Platforms {
    * Each platform's new-listing page ("Open <Platform> to list").
    *
    * Web links; on the iPhone they open the app when it's installed. Checked
-   * 2026-10-21: Poshmark, eBay, Vinted and Facebook answer with their listing
+   * 2026-10-21: Poshmark, Vinted and Facebook answer with their listing
    * page (or a sign-in that returns to it). Mercari, Depop and Grailed block
-   * the server with a bot check; Cody tapped those three on his iPhone and
+   * the server with a bot check; Cody tapped those three on the iPhone and
    * all opened their site (punch 647, 2026-10-21).
    */
   public const NEW_LISTING = [
     'poshmark' => 'https://poshmark.com/create-listing',
     'mercari' => 'https://www.mercari.com/sell/',
-    'ebay' => 'https://www.ebay.com/sl/sell',
     'depop' => 'https://www.depop.com/products/create/',
     'grailed' => 'https://www.grailed.com/sell/new',
     'vinted' => 'https://www.vinted.com/items/new',
@@ -84,7 +84,6 @@ final class Platforms {
   public const HOSTS = [
     'poshmark' => ['poshmark.com', 'posh.mk'],
     'mercari' => ['mercari.com', 'merc.li'],
-    'ebay' => ['ebay.com', 'ebay.us'],
     'depop' => ['depop.com', 'depop.app.link'],
     'grailed' => ['grailed.com', 'grailed.app.link'],
     'vinted' => ['vinted.com', 'vinted.co.uk', 'vinted.fr', 'vinted.de', 'vinted.ca'],

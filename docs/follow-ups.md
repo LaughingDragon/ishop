@@ -14,8 +14,12 @@ Tuned on 30 days of real mail (151 emails). Vinted, Depop and Mercari sale email
 
 ## 3. eBay appeal: dropped (2026-11-17)
 
-No reply to Cody's developer-account appeal since 10/21, so the eBay Sell API integration is dropped (decision 738, punch 633). Nothing had been built. eBay stays a platform on items (listing rows, Sold-here cascade, paste-ready text, Terapeak and Check sold prices), and its emails go through the inbox. Revisit only if eBay approves the account.
+No reply to Cody's developer-account appeal since 10/21, so the eBay Sell API integration is dropped (decision 738, punch 633). Nothing had been built. eBay first stayed a platform on items (listing rows, Sold-here cascade, paste-ready text, Terapeak and Check sold prices), and its emails go through the inbox. Revisit only if eBay approves the account.
 
 ## 4. Inbox: automatic where certain (2026-11-17)
 
 Liam's directive (step 3, restoring the deleted items, dropped by his later answer). Real-mail replay of the last 30 days in order, with everything rolled back afterwards: 2 automatic sales (Rolling cart on Vinted, then its label and "shipped"; Igloo cooler on Depop), both correct, no wrong matches. 4 Vinted sales asked because Cody accepted offers more than 10% under the listed price. 14 sale and label emails had no matching item (items Cody deleted). Switched on 07:33 (commit 6fb5f8c).
+
+## 5. eBay dropped as a selling platform (2026-11-17)
+
+Cody's decision, via Liam. No eBay listing rows, Post tab, eligibility, cascade, take-down reminders, stale nudges, bulk actions, Money or inbox matching. 72 eBay rows were deleted (58 Posted, 14 To post, none Sold, so no historical sale to keep). Check sold prices keeps eBay Research (Terapeak) first, then the eBay, Mercari and Poshmark sold filters, as research in Cody's own browser. The public shop stays off; its code stays.

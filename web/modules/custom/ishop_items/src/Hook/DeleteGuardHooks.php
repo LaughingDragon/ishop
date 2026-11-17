@@ -92,7 +92,7 @@ final class DeleteGuardHooks {
   }
 
   /**
-   * "Yes, mark sold": show step 2 (which site).
+   * Step 1, "Yes, mark sold": show step 2 (which site).
    */
   public static function askWhere(array &$form, FormStateInterface $form_state): void {
     $form_state->set('ishop_sold_step', TRUE);

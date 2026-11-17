@@ -22,8 +22,7 @@ namespace Drupal\ishop_items;
  * Seasonal Decor" category page. Mercari's other names and Grailed's come
  * from the Eligibility notes (checked 2026-08-17). Entries marked FALSE in
  * the third slot were not confirmed on the platform: the page says to check
- * the name in that platform's picker. EBay's names come from its live All
- * Categories page (checked 2026-10-16).
+ * the name in that platform's picker.
  */
 final class PlatformCategories {
 
@@ -52,7 +51,6 @@ final class PlatformCategories {
     "Men's Clothing" => [
       'poshmark' => ['Men', TRUE],
       'mercari' => ['Men', TRUE],
-      'ebay' => ['Clothing, Shoes & Accessories > Men', TRUE],
       'depop' => ['Menswear', TRUE],
       'grailed' => ['Menswear', TRUE],
       'vinted' => ['Men', TRUE],
@@ -60,7 +58,6 @@ final class PlatformCategories {
     "Women's Clothing" => [
       'poshmark' => ['Women', TRUE],
       'mercari' => ['Women', TRUE],
-      'ebay' => ['Clothing, Shoes & Accessories > Women', TRUE],
       'depop' => ['Womenswear', TRUE],
       'grailed' => ['Womenswear', TRUE],
       'vinted' => ['Women', TRUE],
@@ -68,7 +65,6 @@ final class PlatformCategories {
     'Shoes' => [
       'poshmark' => ['Women or Men > Shoes', FALSE],
       'mercari' => ['Women or Men > Shoes', FALSE],
-      'ebay' => ['Clothing, Shoes & Accessories > Men or Women > Shoes', FALSE],
       'depop' => ['Womenswear or Menswear > Shoes', FALSE],
       'grailed' => ['Menswear or Womenswear > Footwear', TRUE],
       'vinted' => ['Women or Men > Shoes', FALSE],
@@ -76,7 +72,6 @@ final class PlatformCategories {
     'Jewelry & Accessories' => [
       'poshmark' => ['Women or Men > Accessories / Jewelry', FALSE],
       'mercari' => ['Women or Men > Jewelry / Accessories', FALSE],
-      'ebay' => ['Jewelry & Watches (or Clothing, Shoes & Accessories)', TRUE],
       'depop' => ['Womenswear or Menswear > Jewellery / Accessories', FALSE],
       'grailed' => ['Menswear or Womenswear > Accessories', TRUE],
       'vinted' => ['Women or Men > Accessories / Jewellery', FALSE],
@@ -84,7 +79,6 @@ final class PlatformCategories {
     'Toys & Hobbies' => [
       'poshmark' => ['Kids > Toys', FALSE],
       'mercari' => ['Toys', TRUE],
-      'ebay' => ['Toys & Hobbies', TRUE],
       'depop' => ['closest match', FALSE],
       'grailed' => NULL,
       'vinted' => ['Hobbies & collectibles', TRUE],
@@ -92,7 +86,6 @@ final class PlatformCategories {
     'Collectibles' => [
       'poshmark' => NULL,
       'mercari' => ['Toys', FALSE],
-      'ebay' => ['Collectibles & Art', TRUE],
       'depop' => ['closest match', FALSE],
       'grailed' => NULL,
       'vinted' => ['Hobbies & collectibles', TRUE],
@@ -100,7 +93,6 @@ final class PlatformCategories {
     'Home & Kitchen' => [
       'poshmark' => ['Home', TRUE],
       'mercari' => ['Home', TRUE],
-      'ebay' => ['Home & Garden', TRUE],
       'depop' => ['Home', FALSE],
       'grailed' => NULL,
       'vinted' => ['Home', TRUE],
@@ -108,7 +100,6 @@ final class PlatformCategories {
     'Holiday & Seasonal' => [
       'poshmark' => ['Home > Holiday', TRUE],
       'mercari' => ['Home > Seasonal Decor', FALSE],
-      'ebay' => ['Home & Garden > Holiday & Seasonal Décor', TRUE],
       'depop' => ['Home', FALSE],
       'grailed' => NULL,
       'vinted' => ['Home > Celebrations & holidays > Holiday decor', TRUE],
@@ -116,7 +107,6 @@ final class PlatformCategories {
     'Electronics' => [
       'poshmark' => ['Electronics', TRUE],
       'mercari' => ['Electronics', TRUE],
-      'ebay' => ['Electronics', TRUE],
       'depop' => NULL,
       'grailed' => NULL,
       'vinted' => ['Electronics', TRUE],
@@ -124,7 +114,6 @@ final class PlatformCategories {
     'Sporting Goods' => [
       'poshmark' => NULL,
       'mercari' => ['Sports', TRUE],
-      'ebay' => ['Sporting Goods', TRUE],
       'depop' => ['closest match', FALSE],
       'grailed' => NULL,
       'vinted' => ['Sports', TRUE],
@@ -132,7 +121,6 @@ final class PlatformCategories {
     'Health & Beauty' => [
       'poshmark' => ['Beauty & Wellness', TRUE],
       'mercari' => ['Beauty', TRUE],
-      'ebay' => ['Health & Beauty', TRUE],
       'depop' => ['closest match', FALSE],
       'grailed' => NULL,
       'vinted' => ['Women > Beauty', FALSE],
@@ -140,7 +128,6 @@ final class PlatformCategories {
     'Office & Craft' => [
       'poshmark' => ['Home > Office', TRUE],
       'mercari' => ['Office (or Arts & Crafts)', TRUE],
-      'ebay' => ['Business & Industrial (or Home & Garden)', FALSE],
       'depop' => ['closest match', FALSE],
       'grailed' => NULL,
       'vinted' => ['Home', TRUE],
@@ -148,7 +135,6 @@ final class PlatformCategories {
     'Automotive' => [
       'poshmark' => NULL,
       'mercari' => ['Other', TRUE],
-      'ebay' => ['eBay Motors > Parts & Accessories', FALSE],
       'depop' => NULL,
       'grailed' => NULL,
       'vinted' => NULL,

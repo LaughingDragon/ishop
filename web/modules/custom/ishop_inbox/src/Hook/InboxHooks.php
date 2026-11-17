@@ -38,7 +38,6 @@ final class InboxHooks {
     $data['mail_bounces'] = $this->inbox->bounceSummary();
   }
 
-
   /**
    * Implements hook_ishop_digest_away(): the inbox's automatic actions.
    */

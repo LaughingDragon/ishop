@@ -15,7 +15,8 @@ What changed between the 2026-10-21 export and go-live, and how the site stands 
 
 ## How it stands
 
-- **Visitors:** the Reseller Matrix login page only. The public shop is off.
+- **Visitors:** the Reseller Matrix login page only. The public shop is built but switched off (Cody's choice).
+- **Platforms:** Poshmark, Mercari, Depop, Grailed, Vinted, Facebook. eBay dropped as a selling platform 2026-11-17 (72 rows removed, none sold); Check sold prices keeps eBay Research (Terapeak) first.
 - **Cody (theowner, administrator):** front desk, Stockroom, Shipping room, My office (money, logs, bills, AI setup, Mail setup; the year-end export is there but not promoted), Mailroom, Calendar wall, Break room.
 - **Mail:** sends through the business Gmail (one app password, also used by the inbox). Alerts go to Liam. The morning digest goes to Cody at 07:00.
 - **AI:** Cody's own Anthropic key, $32 monthly cap, daily health check.

@@ -199,8 +199,10 @@ final class MatrixController extends ControllerBase {
   }
 
   /**
-   * The "Needs you now" rows: take-downs after a sale, sales to ship, and
-   * rows from hook_ishop_needs() (the marketplace inbox).
+   * The "Needs you now" rows.
+   *
+   * Take-downs after a sale, sales to ship, and rows from hook_ishop_needs()
+   * (the marketplace inbox).
    */
   public function needs(int $now): array {
     $rows = [];
@@ -572,7 +574,7 @@ final class MatrixController extends ControllerBase {
   }
 
   /**
-   * /room/{room} for a room without its own page: the front desk.
+   * Sends /room/{room} for a room without its own page to the front desk.
    *
    * Every room has its own page now; this only catches /room/front-desk
    * and old links.

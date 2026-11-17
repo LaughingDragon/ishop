@@ -30,7 +30,7 @@ use Drupal\ishop_items\Shipping;
  * "Needs you now" row: a sale to confirm, a label to add to its sale, a
  * ship-by date to save, an offer, a buyer message, a return, a case or a
  * payout. Nothing changes an item or a listing until Cody taps the button:
- * a label PDF is only kept with its row (deleted if he says no). Mail with
+ * a label PDF is only kept with its row (deleted if the answer is no). Mail with
  * nothing to act on (favorites, promotions, "on its way") is recorded
  * quietly. Each email is read once (its row is the "processed" mark);
  * nothing in the mailbox is changed, sent or deleted.
@@ -102,9 +102,10 @@ final class Inbox {
   }
 
   /**
-   * Lists Gmail delivery-failure notices for crew (status.json), at most
-   * hourly. Read-only: headers of the returned message only, nothing
-   * stored in the inbox table, nothing shown to Cody.
+   * Lists Gmail delivery-failure notices for crew (status.json).
+   *
+   * At most hourly. Read-only: headers of the returned message only,
+   * nothing stored in the inbox table, nothing shown to Cody.
    *
    * @return string
    *   A summary line, or '' when it wasn't due.
@@ -629,8 +630,9 @@ final class Inbox {
   }
 
   /**
-   * Marks the sale delivered (shipped first if it wasn't), and records
-   * the payout when the email has one.
+   * Marks the sale delivered, and records the payout when there is one.
+   *
+   * Marks it shipped first if it wasn't.
    */
   private function performDelivered(array $row, PlatformListing $sale): string {
     if ($sale->get('date_shipped')->isEmpty()) {
@@ -997,22 +999,31 @@ final class Inbox {
         return ['text' => $this->t('@platform: shipping delay on @what.', $args), 'buttons' => [$open, $done]];
 
       case Classifier::RETURN:
-        return ['text' => $row['deadline']
-          ? $this->t('@platform: return requested for @what. Answer by @deadline.', $args)
-          : $this->t('@platform: return requested for @what. Answer it soon.', $args), 'buttons' => [$open, $done]];
+        return [
+          'text' => $row['deadline']
+            ? $this->t('@platform: return requested for @what. Answer by @deadline.', $args)
+            : $this->t('@platform: return requested for @what. Answer it soon.', $args),
+          'buttons' => [$open, $done],
+        ];
 
       case Classifier::CASE:
-        return ['text' => $row['deadline']
-          ? $this->t('@platform: a case was opened on @what. Answer by @deadline.', $args)
-          : $this->t('@platform: a case was opened on @what. Answer it soon.', $args), 'buttons' => [$open, $done]];
+        return [
+          'text' => $row['deadline']
+            ? $this->t('@platform: a case was opened on @what. Answer by @deadline.', $args)
+            : $this->t('@platform: a case was opened on @what. Answer it soon.', $args),
+          'buttons' => [$open, $done],
+        ];
 
       case Classifier::SHIPPED:
         return ['text' => $this->t('@platform says @what is on its way. Mark it shipped?', $args), 'buttons' => [['label' => $this->t('Mark shipped'), 'url' => $act('apply'), 'ghost' => FALSE], $notNeeded, $open]];
 
       case Classifier::DELIVERED:
-        return ['text' => $price
-          ? $this->t('@platform says @what was delivered (paid @price). Mark it delivered?', $args)
-          : $this->t('@platform says @what was delivered. Mark it delivered?', $args), 'buttons' => [['label' => $this->t('Mark delivered'), 'url' => $act('apply'), 'ghost' => FALSE], $notNeeded, $open]];
+        return [
+          'text' => $price
+            ? $this->t('@platform says @what was delivered (paid @price). Mark it delivered?', $args)
+            : $this->t('@platform says @what was delivered. Mark it delivered?', $args),
+          'buttons' => [['label' => $this->t('Mark delivered'), 'url' => $act('apply'), 'ghost' => FALSE], $notNeeded, $open],
+        ];
 
       case Classifier::LISTED:
         return ['text' => $this->t('@platform: @what is live. Save its listing link?', $args), 'buttons' => [['label' => $this->t('Save link'), 'url' => $act('apply'), 'ghost' => FALSE], $notNeeded, $open]];

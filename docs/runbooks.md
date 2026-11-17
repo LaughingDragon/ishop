@@ -111,3 +111,15 @@ Fix:
 2. On the VM: `lsblk -f` (look for the ext4 data disk by size and UUID), then `sudo mount -a` and `findmnt /srv/ishop-data`.
 3. Then `sudo systemctl restart` anything that failed (`systemctl --failed`), or reboot once.
 4. If the disk is lost: create a disk from the newest data-disk snapshot (see above).
+
+## Marketplace inbox: automatic or ask
+
+The inbox acts by itself only when it is certain (see [architecture.md](architecture.md), ishop_inbox). To make it ask about every email: untick **Mark certain sales automatically** on **My office > Mail setup**, or `drush cset -y ishop_inbox.settings auto 0 --input-format=yaml`. To see what it would do with recent mail without changing anything: `drush ishop:inbox-preview --days=30` (the `WOULD:` column). An automatic sale can be undone from the front desk for 7 days.
+
+## Public shop (built, switched off)
+
+Cody chose not to list items on the site (2026-11-17), so `/shop` returns 404 to visitors. The code stays. To switch it on later, only on Cody's and Liam's say-so: `drush cset -y ishop_shop.settings enabled 1 --input-format=yaml && drush cr` (or `/room/my-office/public-shop`, not linked anywhere). Only items with "Show in shop" ticked, cleared, priced and with a photo appear.
+
+## eBay (research only)
+
+eBay is not a selling platform since 2026-11-17 (decision logged): no listing rows, no Post tab, no inbox matching. **Check sold prices** on the item page still starts with eBay Research (Terapeak) in Cody's own browser, then the eBay, Mercari and Poshmark sold filters. Bringing eBay back as a platform would need the platform list (`Platforms::PLATFORMS` and the field's allowed values), a Post formatter, eligibility rules, the inbox sender and listing-link patterns: see commit history around update 11013.

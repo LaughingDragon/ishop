@@ -17,7 +17,6 @@ final class ListingRef {
    * Platform => pattern whose first group is the listing's ID.
    */
   private const PATTERNS = [
-    'ebay' => '#ebay\.[a-z.]+/itm/(?:[^/\s?"]+/)?(\d{9,15})#i',
     'poshmark' => '#poshmark\.com/listing/[^\s?"/]*?-?([0-9a-f]{24})\b#i',
     'mercari' => '#mercari\.com/(?:us/)?item/(m\d{6,15})#i',
     'depop' => '#depop\.com/products/([a-z0-9][a-z0-9-]{2,120})#i',

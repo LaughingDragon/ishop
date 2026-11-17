@@ -7,6 +7,9 @@
 
 declare(strict_types=1);
 
+use Drupal\ishop_items\Stale;
+use Drupal\ishop_items\ListingManager;
+use Drupal\ishop_items\Entity\PlatformListing;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\Entity\FieldStorageConfig;
@@ -348,7 +351,7 @@ function ishop_items_update_11009(): string {
   }
 
   $manager = \Drupal::entityDefinitionUpdateManager();
-  foreach (\Drupal\ishop_items\Entity\PlatformListing::shippingFieldDefinitions() as $name => $definition) {
+  foreach (PlatformListing::shippingFieldDefinitions() as $name => $definition) {
     if (!$manager->getFieldStorageDefinition($name, 'platform_listing')) {
       $manager->installFieldStorageDefinition($name, 'platform_listing', 'ishop_items', $definition);
     }
@@ -440,7 +443,7 @@ function ishop_items_update_11009(): string {
 function ishop_items_update_11010(): string {
   $config = \Drupal::configFactory()->getEditable('ishop_items.shipping');
   if ($config->get('photo_keep_days') === NULL) {
-    $config->set('photo_keep_days', array_fill_keys(array_keys(\Drupal\ishop_items\Platforms::PLATFORMS), 30))->save();
+    $config->set('photo_keep_days', array_fill_keys(array_keys(Platforms::PLATFORMS), 30))->save();
   }
   return 'Sold items keep their photos 30 days after delivery, then they are deleted.';
 }
@@ -455,7 +458,7 @@ function ishop_items_update_11010(): string {
 function ishop_items_update_11011(): string {
   $manager = \Drupal::entityDefinitionUpdateManager();
   if (!$manager->getFieldStorageDefinition('date_sold_unknown', 'platform_listing')) {
-    $fields = \Drupal\ishop_items\Entity\PlatformListing::baseFieldDefinitions(\Drupal::entityTypeManager()->getDefinition('platform_listing'));
+    $fields = PlatformListing::baseFieldDefinitions(\Drupal::entityTypeManager()->getDefinition('platform_listing'));
     $manager->installFieldStorageDefinition('date_sold_unknown', 'platform_listing', 'ishop_items', $fields['date_sold_unknown']);
   }
   $import = \Drupal::keyValue('ishop_items.listing_imports')->get(1);
@@ -465,7 +468,7 @@ function ishop_items_update_11011(): string {
   $storage = \Drupal::entityTypeManager()->getStorage('platform_listing');
   $ids = $storage->getQuery()->accessCheck(FALSE)
     ->condition('item', $import['nids'], 'IN')
-    ->condition('status', \Drupal\ishop_items\Platforms::SOLD_HERE)
+    ->condition('status', Platforms::SOLD_HERE)
     ->condition('date_sold', date('Y-m-d', (int) $import['finished']))
     ->execute();
   foreach ($storage->loadMultiple($ids) as $listing) {
@@ -487,18 +490,45 @@ function ishop_items_update_11011(): string {
 function ishop_items_update_11012(): string {
   $manager = \Drupal::entityDefinitionUpdateManager();
   if (!$manager->getFieldStorageDefinition('not_allowed_auto', 'platform_listing')) {
-    $fields = \Drupal\ishop_items\Entity\PlatformListing::baseFieldDefinitions(\Drupal::entityTypeManager()->getDefinition('platform_listing'));
+    $fields = PlatformListing::baseFieldDefinitions(\Drupal::entityTypeManager()->getDefinition('platform_listing'));
     $manager->installFieldStorageDefinition('not_allowed_auto', 'platform_listing', 'ishop_items', $fields['not_allowed_auto']);
   }
-  $listings = \Drupal::service(\Drupal\ishop_items\ListingManager::class);
+  $listings = \Drupal::service(ListingManager::class);
   $nodes = \Drupal::entityTypeManager()->getStorage('node');
   $nids = $nodes->getQuery()->accessCheck(FALSE)
     ->condition('type', 'item')
-    ->condition('field_item_status', \Drupal\ishop_items\Stale::ITEM_DONE, 'NOT IN')
+    ->condition('field_item_status', Stale::ITEM_DONE, 'NOT IN')
     ->execute();
   $changed = 0;
   foreach ($nodes->loadMultiple($nids) as $item) {
     $changed += count($listings->applyEligibility($item));
   }
   return sprintf('Not allowed set automatically on %d listings of %d items.', $changed, count($nids));
+}
+
+/**
+ * EBay dropped as a selling platform (Cody via Liam, 2026-11-17).
+ *
+ * Deletes any eBay listing rows left, the post_ebay image style and eBay's
+ * shipping settings, and applies the new platform list to the listing's
+ * platform field. eBay stays as price research only (SoldSearch, Terapeak).
+ */
+function ishop_items_update_11013(): string {
+  $storage = \Drupal::entityTypeManager()->getStorage('platform_listing');
+  $ids = $storage->getQuery()->accessCheck(FALSE)->condition('platform', 'ebay')->execute();
+  foreach (array_chunk($ids, 25) as $chunk) {
+    $storage->delete($storage->loadMultiple($chunk));
+  }
+  \Drupal::entityTypeManager()->getStorage('image_style')->load('post_ebay')?->delete();
+  $config = \Drupal::configFactory()->getEditable('ishop_items.shipping');
+  foreach (['handling_days', 'photo_keep_days'] as $key) {
+    $values = (array) $config->get($key);
+    unset($values['ebay']);
+    $config->set($key, $values);
+  }
+  $config->save();
+  $manager = \Drupal::entityDefinitionUpdateManager();
+  $definition = \Drupal::service('entity_field.manager')->getFieldStorageDefinitions('platform_listing')['platform'];
+  $manager->updateFieldStorageDefinition($definition);
+  return sprintf('eBay dropped as a selling platform: %d eBay listing rows deleted now (72 were deleted earlier the same day), post_ebay style and eBay shipping settings removed.', count($ids));
 }

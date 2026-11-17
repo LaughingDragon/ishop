@@ -1,6 +1,6 @@
 # Overview
 
-**Reseller Matrix** is the private website for Cody's resale business ("I Shop on Amazon Way Too Much"). Cody sells household overstock from home on eBay, Poshmark, Mercari, Depop, Grailed, Vinted and Facebook Marketplace. The site holds his items and photos, writes and prices listings (with AI on his own Anthropic account), tracks where each item is posted, runs the Shipping room, keeps his money, mileage and tax records, and emails him a morning digest.
+**Reseller Matrix** is the private website for Cody's resale business ("I Shop on Amazon Way Too Much"). Cody sells household overstock from home on Poshmark, Mercari, Depop, Grailed, Vinted and Facebook Marketplace (eBay was dropped as a place to sell on 2026-11-17; it stays as price research). The site holds his items and photos, writes and prices listings (with AI on his own Anthropic account), tracks where each item is posted, runs the Shipping room, keeps his money, mileage and tax records, and emails him a morning digest.
 
 | | |
 |---|---|
@@ -14,7 +14,7 @@
 
 ## What it doesn't do
 
-The site never posts to the marketplaces itself. Most of them have no public listing API, and automating their websites breaks their terms of service. Cody posts by hand from **Post this item** (copy fields, photos, an "Open <Platform> to list" link) and taps **I posted it** (decision 645). eBay posting can be built only if Cody's eBay developer appeal is approved (decision 639). If Cody ever wants one-tap crossposting, paid crosslisting services are the option.
+The site never posts to the marketplaces itself. Most of them have no public listing API, and automating their websites breaks their terms of service. Cody posts by hand from **Post this item** (copy fields, photos, an "Open <Platform> to list" link) and taps **I posted it** (decision 645). If Cody ever wants one-tap crossposting, paid crosslisting services are the option.
 
 ## Accounts
 

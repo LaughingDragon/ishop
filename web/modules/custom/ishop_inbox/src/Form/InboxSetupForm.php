@@ -47,7 +47,7 @@ final class InboxSetupForm extends FormBase {
         'set_up' => $set_up,
         'title' => $this->t('Marketplace inbox'),
         'text' => match (TRUE) {
-          $set_up && $on => $this->t('The site reads emails from eBay, Poshmark, Mercari, Depop, Grailed, Vinted and Facebook Marketplace in @address every 10 minutes, and puts what needs you on the front desk. It only reads: it never sends, deletes or marks anything in your mailbox.', ['@address' => $address]),
+          $set_up && $on => $this->t('The site reads emails from Poshmark, Mercari, Depop, Grailed, Vinted and Facebook Marketplace in @address every 10 minutes, and puts what needs you on the front desk. It only reads: it never sends, deletes or marks anything in your mailbox.', ['@address' => $address]),
           $set_up => $this->t('The inbox uses the same app password the site sends mail with. It switches on after a test with the emails already in your inbox.'),
           default => $this->t('Save the app password in the part above first: the inbox uses the same one to read your marketplace emails (sales, labels, ship-by dates, offers, returns). It only reads: it never sends, deletes or marks anything.'),
         },

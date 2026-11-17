@@ -17,7 +17,6 @@ final class Senders {
    * Platform => sending domains (subdomains count).
    */
   public const DOMAINS = [
-    'ebay' => ['ebay.com'],
     'poshmark' => ['poshmark.com'],
     'mercari' => ['mercari.com', 'mercariapp.com'],
     'depop' => ['depop.com', 'depopmail.com'],
@@ -54,10 +53,12 @@ final class Senders {
   }
 
   /**
-   * What a delivery-failure notice is about: the failed recipient and the
-   * returned message's subject and date (headers only, no body text).
+   * What a delivery-failure notice is about (headers only, no body text).
+   *
+   * The failed recipient and the returned message's subject and date.
    *
    * @return array{recipient: string, subject: string, sent: string}
+   *   The details.
    */
   public static function bounceDetails(string $raw): array {
     $raw = preg_replace("/\r?\n[ \t]+/", ' ', $raw);

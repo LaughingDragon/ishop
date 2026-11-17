@@ -75,6 +75,12 @@ domain (an install-time default), producing 27 delivery-failure notices in the b
 
 [follow-ups.md](follow-ups.md): all three are done (2026-11-17): CSP enforcing, marketplace inbox on, eBay API dropped. See [final-state.md](final-state.md).
 
+## Platforms and the shop (2026-11-17)
+
+- eBay is no longer a selling platform (Cody's decision): 72 eBay listing rows deleted (58 Posted, 14 To post, none sold), update 11013. Cody should end any live eBay listings on eBay himself. eBay stays in Check sold prices (Terapeak first) as research.
+- The public shop is built but switched off on purpose; see [runbooks.md](runbooks.md).
+- The inbox acts by itself on certain matches (setting on Mail setup); see [runbooks.md](runbooks.md).
+
 ## Before removing the site office (Phase 11 Stage B)
 
 Other modules depend on ishop_office (the full list is in [architecture.md](architecture.md), "Things outside ishop_office that depend on it"):

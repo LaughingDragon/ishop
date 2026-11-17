@@ -14,7 +14,7 @@ The Stockroom is empty on purpose. You took your listings down so every item goe
 
 Tap **Post this item**. You get one tab per site that fits the item. Sites that don't fit (Grailed and Facebook for home goods, for example) are left out by themselves.
 
-1. Tap **Open Poshmark to list** (or eBay, Mercari, ...). The site's listing page opens in a new tab, or the app if you have it.
+1. Tap **Open Poshmark to list** (or Mercari, Depop, ...). The site's listing page opens in a new tab, or the app if you have it.
 2. Copy the title, description and price across, and save the photos to your phone.
 3. When it's up, come back and tap **I posted it on Poshmark**. That's all. The site marks it Posted at your asking price with today's date, and moves you to the next site still to post.
 4. Wrong button? Tap **Undo** in the green bar at the top. It stays for 10 seconds.
@@ -53,7 +53,7 @@ The same password also lets the site read your marketplace emails, so you only e
 
 ## Your marketplace emails
 
-The site reads your marketplace emails (Vinted, Depop, Mercari, Poshmark, eBay, Grailed, Facebook Marketplace) every 10 minutes and puts what needs you on the front desk:
+The site reads your marketplace emails (Vinted, Depop, Mercari, Poshmark, Grailed, Facebook Marketplace) every 10 minutes and puts what needs you on the front desk:
 
 - **A sale it's sure about** (same site, the item is Posted there, the title matches only that item, and the price is within 10% of what you listed): the site marks it sold by itself, saves the price, date, label and ship-by date, and the front desk says "Sold on Vinted: <item>, $18. Take it down on Mercari, Poshmark". Tap **Undo** within 7 days if it's wrong, or **OK** to clear the line.
 - **A sale it isn't sure about** (for example, you accepted a lower offer): "Vinted: <item> sold for $15. Mark it sold here and add the shipping label?" Tap **Yes, mark sold**, or **Not this item** if it guessed wrong.
@@ -62,7 +62,11 @@ The site reads your marketplace emails (Vinted, Depop, Mercari, Poshmark, eBay, 
 - **Everything it did by itself** is in your morning email under **While you were away**. Don't want it? Untick **Mark certain sales automatically** on **My office > Mail setup**, and it will ask you every time. It never sends, deletes or marks anything in your Gmail.
 - **When something sells, tap Yes on the front desk or Sold here instead of deleting it**, so you get the take-down reminders for the other sites. If you delete an item that is still posted somewhere, the site asks whether it sold first.
 
-eBay: the eBay developer account wasn't approved, so the site doesn't connect to eBay directly. eBay still works on the site like every other platform, and its emails are read like the others.
+## eBay and the public shop
+
+- **eBay is no longer a place you sell from on the site** (your decision, 2026-11-17): no eBay row on items, no eBay tab on the Post page, and eBay emails aren't read. If you still have eBay listings up, end them on eBay yourself.
+- **Check sold prices still starts with eBay Research (Terapeak)**, then eBay sold, Mercari and Poshmark sold listings. It's research only, using your own eBay login in your browser.
+- **The public shop stays off.** It's built and can be switched on later if you ever want it.
 
 ## Who to call
 

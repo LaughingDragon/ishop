@@ -13,8 +13,10 @@ namespace Drupal\ishop_office\Parser;
 final class SecretScanner {
 
   /**
-   * Email domains that are fine to mention. None: the site's own domain has
-   * no mail service, so even placeholder addresses there are refused.
+   * Email domains that are fine to mention.
+   *
+   * None: the site's own domain has no mail service, so even placeholder
+   * addresses there are refused.
    */
   private const ALLOWED_EMAIL_DOMAINS = [];
 

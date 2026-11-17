@@ -132,7 +132,7 @@ final class Classifier {
       // Mercari: "Your package has arrived: Title", "Your item is on its way: Title",
       // "Your order has been completed for Title".
       [$subject, '/^your (?:package has arrived|item is on its way|order has been completed for)\s*:?\s+(.{3,160})$/iu'],
-      // Vinted completed: "Your sale of Title was completed successfully."
+      // Vinted completed: "Your sale of Title was completed successfully.".
       [$text, '/your sale of\s+(.{3,160}?)\s+was completed/iu'],
       // Quoted in the subject: "Title", “Title”.
       [$subject, '/["“]([^"”]{3,120})["”]/u'],

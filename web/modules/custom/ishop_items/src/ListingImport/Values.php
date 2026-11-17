@@ -23,9 +23,6 @@ final class Values {
     'pm' => 'poshmark',
     'mercari' => 'mercari',
     'merc' => 'mercari',
-    'ebay' => 'ebay',
-    'e-bay' => 'ebay',
-    'e bay' => 'ebay',
     'depop' => 'depop',
     'grailed' => 'grailed',
     'vinted' => 'vinted',
@@ -161,7 +158,7 @@ final class Values {
   }
 
   /**
-   * Platforms named in a cell: "Poshmark", "Posh, Merc", "eBay / FB".
+   * Platforms named in a cell: "Poshmark", "Posh, Merc", "Vinted / FB".
    *
    * @return array{platforms: string[], unknown: string[]}
    *   Platform keys in the order named, and the names not recognised.

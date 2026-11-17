@@ -9,8 +9,7 @@ namespace Drupal\ishop_items;
  *
  * A sale gets an estimated ship-by date from the platform's usual handling
  * time (config ishop_items.shipping:handling_days) until a real one is known:
- * typed by Cody, or read from the marketplace's email (Phase 10 B) or eBay
- * (Phase 10 C).
+ * typed by Cody, or read from the marketplace's email (Phase 10 B).
  */
 final class ShipBy {
 
