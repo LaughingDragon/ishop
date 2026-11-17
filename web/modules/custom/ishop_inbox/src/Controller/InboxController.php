@@ -28,8 +28,11 @@ final class InboxController extends ControllerBase {
     if (!$row || $row['status'] !== 'open') {
       $this->messenger()->addStatus($this->t('Already done.'));
     }
-    elseif ($action === 'sold' && $row['kind'] === Classifier::SOLD && $row['listing']) {
+    elseif ($action === 'sold' && in_array($row['kind'], [Classifier::SOLD, Classifier::LABEL], TRUE) && $row['listing']) {
       $this->messenger()->addStatus($this->inbox->confirmSale($row));
+    }
+    elseif ($action === 'apply' && $row['listing']) {
+      $this->messenger()->addStatus($this->inbox->applyToSale($row));
     }
     else {
       $this->inbox->close($row);

@@ -37,8 +37,8 @@ final class Matcher {
    * @param string $platform
    *   Platforms::PLATFORMS key.
    * @param string $kind
-   *   Classifier kind: sold and offer look at listings not sold yet (and a
-   *   sale already marked); the rest look at sales.
+   *   Classifier kind: sold, offer, label and message look at listings not
+   *   sold yet (and a sale already marked); the rest look at sales.
    * @param string|null $ref
    *   The listing ID from the email's links.
    * @param string|null $title
@@ -47,7 +47,9 @@ final class Matcher {
   public function find(string $platform, string $kind, ?string $ref, ?string $title): ?PlatformListing {
     $storage = $this->entityTypeManager->getStorage('platform_listing');
     $query = $storage->getQuery()->accessCheck(FALSE)->condition('platform', $platform);
-    if (in_array($kind, [Classifier::SOLD, Classifier::OFFER], TRUE)) {
+    // A label or a message can come before Cody marks the sale, so they look
+    // at unsold listings too.
+    if (in_array($kind, [Classifier::SOLD, Classifier::OFFER, Classifier::LABEL, Classifier::MESSAGE], TRUE)) {
       $query->condition('status', [Platforms::TO_POST, Platforms::POSTED, Platforms::AT_RISK, Platforms::SOLD_HERE], 'IN');
     }
     else {

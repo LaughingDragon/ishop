@@ -27,10 +27,13 @@ use Drupal\ishop_items\Shipping;
  *
  * Every 10 minutes (ishop-inbox.timer) reads new emails from the seven
  * marketplaces in the business Gmail, read-only, and turns each into a
- * "Needs you now" row: a sale to confirm with one tap, a label attached to
- * its sale, a real ship-by date, an offer, a return, a case, a payout, or
- * "New message from X: open it". Each email is read once (its row is the
- * "processed" mark); nothing in the mailbox is changed, sent or deleted.
+ * "Needs you now" row: a sale to confirm, a label to add to its sale, a
+ * ship-by date to save, an offer, a buyer message, a return, a case or a
+ * payout. Nothing changes an item or a listing until Cody taps the button:
+ * a label PDF is only kept with its row (deleted if he says no). Mail with
+ * nothing to act on (favorites, promotions, "on its way") is recorded
+ * quietly. Each email is read once (its row is the "processed" mark);
+ * nothing in the mailbox is changed, sent or deleted.
  */
 final class Inbox {
 
@@ -319,6 +322,10 @@ final class Inbox {
       $row['status'] = 'ignored';
       return $this->record($row, $dry, $extra, 'Not about Marketplace.');
     }
+    if ($c['kind'] === Classifier::OTHER || ($c['kind'] === Classifier::PAYOUT && $c['price'] === NULL)) {
+      $row['status'] = 'ignored';
+      return $this->record($row, $dry, $extra, 'Nothing to act on.');
+    }
     $listing = $this->matcher->find($row['platform'], $c['kind'], $c['ref'], $c['title']);
     $row['listing'] = $listing?->id();
     $extra['item'] = $listing?->getItem()->label();
@@ -335,33 +342,96 @@ final class Inbox {
   }
 
   /**
-   * Does what can be done without Cody; returns a note. May change $row.
+   * Prepares the row for Cody's tap; changes no item or listing.
+   *
+   * Keeps a label PDF with its row (deleted if Cody says no), joins a sale
+   * email and its label email into one row, and closes rows that would ask
+   * nothing new. Returns a note. May change $row.
    */
   private function act(array &$row, ?PlatformListing $listing, array $pdfs): ?string {
     $sale = $listing && $listing->getStatus() === Platforms::SOLD_HERE ? $listing : NULL;
-    $notes = [];
-    if ($sale && $row['ship_by'] !== NULL && ($sale->get('ship_by_estimated')->value || (string) $sale->get('ship_by')->value !== $row['ship_by']) && $sale->get('date_shipped')->isEmpty()) {
-      $this->shipping->setShipBy($sale, $row['ship_by'], sprintf('Ship-by date %s from the %s email.', $row['ship_by'], Platforms::PLATFORMS[$sale->getPlatform()]));
-      $notes[] = 'Ship-by date saved.';
-    }
-    if ($pdfs && $sale && $sale->get('shipping_label')->isEmpty() && $sale->get('date_shipped')->isEmpty()) {
-      $this->shipping->setLabel($sale, $this->saveLabel($row['platform'], $pdfs[0]['data']), sprintf('Shipping label from the %s email.', Platforms::PLATFORMS[$sale->getPlatform()]));
-      $notes[] = 'Label added.';
-    }
-    elseif ($pdfs && $row['kind'] === Classifier::SOLD && $listing && !$sale) {
-      // Kept for when Cody confirms the sale; deleted if the answer is no.
+    $shipped = $sale && !$sale->get('date_shipped')->isEmpty();
+    $needs_label = $listing && !$shipped && (!$sale || $sale->get('shipping_label')->isEmpty());
+    if ($pdfs && $needs_label && in_array($row['kind'], [Classifier::SOLD, Classifier::LABEL], TRUE)) {
       $row['fid'] = $this->saveLabel($row['platform'], $pdfs[0]['data'])->id();
     }
-    // A sale Cody already marked: nothing more to ask.
-    if ($row['kind'] === Classifier::SOLD && $sale) {
-      $row['status'] = 'done';
-      $notes[] = 'Already marked sold.';
+    $new_date = $sale && !$shipped && $row['ship_by'] !== NULL
+      && ($sale->get('ship_by_estimated')->value || (string) $sale->get('ship_by')->value !== $row['ship_by']);
+
+    // Already marked sold: only a label or a new ship-by date is worth asking.
+    if ($sale && in_array($row['kind'], [Classifier::SOLD, Classifier::LABEL, Classifier::SHIP_BY], TRUE)) {
+      if (!$row['fid'] && !$new_date) {
+        $row['status'] = 'done';
+        return $row['kind'] === Classifier::SOLD ? 'Already marked sold.' : 'Nothing new for this sale.';
+      }
+      return NULL;
     }
-    // A ship-by reminder that changes nothing needs no row.
-    if ($row['kind'] === Classifier::SHIP_BY && $sale && !$notes) {
-      $row['status'] = 'done';
+    if ($row['kind'] === Classifier::SHIP_BY && !$sale) {
+      // A ship-by reminder for a sale not marked yet: the sale row asks first.
+      return NULL;
     }
-    return $notes ? implode(' ', $notes) : NULL;
+
+    // A sale not marked yet: one question per sale, whichever email came first.
+    if ($listing && in_array($row['kind'], [Classifier::SOLD, Classifier::LABEL], TRUE)) {
+      $earlier = $this->database->select('ishop_inbox_message', 'm')->fields('m')
+        ->condition('status', 'open')
+        ->condition('listing', $listing->id())
+        ->condition('kind', [Classifier::SOLD, Classifier::LABEL], 'IN')
+        ->orderBy('id')->range(0, 1)->execute()->fetchAssoc();
+      if ($earlier) {
+        $merge = [];
+        foreach (['price', 'ship_by', 'fid'] as $field) {
+          if ($earlier[$field] === NULL && $row[$field] !== NULL) {
+            $merge[$field] = $row[$field];
+            if ($field === 'fid') {
+              $row['fid'] = NULL;
+            }
+          }
+        }
+        if ($merge) {
+          $merge['changed'] = $this->time->getRequestTime();
+          $this->database->update('ishop_inbox_message')->fields($merge)->condition('id', $earlier['id'])->execute();
+        }
+        if ($row['fid']) {
+          // The earlier row already has a label: this copy isn't needed.
+          $this->entityTypeManager->getStorage('file')->load($row['fid'])?->delete();
+          $row['fid'] = NULL;
+        }
+        $row['status'] = 'done';
+        return 'Joined with the earlier email about this sale.';
+      }
+    }
+    return NULL;
+  }
+
+  /**
+   * Cody tapped "Add label" / "Save date" on a sale already marked.
+   *
+   * @return string
+   *   What happened, for the message.
+   */
+  public function applyToSale(array $row): string {
+    $listing = $row['listing'] ? $this->entityTypeManager->getStorage('platform_listing')->load($row['listing']) : NULL;
+    if (!$listing instanceof PlatformListing || !$listing->getItem() || $listing->getStatus() !== Platforms::SOLD_HERE) {
+      $this->close($row, 'dismissed', 'Not a sale any more.');
+      return (string) $this->t('That sale is no longer marked sold, so nothing was changed.');
+    }
+    $platform = Platforms::PLATFORMS[$listing->getPlatform()];
+    $did = [];
+    if ($row['ship_by'] !== NULL && $listing->get('date_shipped')->isEmpty()) {
+      $this->shipping->setShipBy($listing, $row['ship_by'], sprintf('Ship-by date %s from the %s email (Cody tapped Save).', $row['ship_by'], $platform));
+      $did[] = (string) $this->t('ship-by date saved');
+      $listing = $this->entityTypeManager->getStorage('platform_listing')->loadUnchanged($listing->id());
+    }
+    $file = $row['fid'] ? $this->entityTypeManager->getStorage('file')->load($row['fid']) : NULL;
+    if ($file instanceof FileInterface && $listing->get('shipping_label')->isEmpty()) {
+      $this->shipping->setLabel($listing, $file, sprintf('Shipping label from the %s email (Cody tapped Add label).', $platform));
+      $did[] = (string) $this->t('label added');
+    }
+    $this->close($row, 'done', 'Applied by Cody: ' . ($did ? implode(', ', $did) : 'nothing left to do') . '.');
+    return $did
+      ? (string) $this->t('@item: @what. It is in the Shipping room.', ['@item' => $listing->getItem()->label(), '@what' => implode(', ', $did)])
+      : (string) $this->t('Nothing left to do for that sale.');
   }
 
   /**
@@ -480,6 +550,25 @@ final class Inbox {
   }
 
   /**
+   * A sale already marked: offer the label and/or the ship-by date.
+   */
+  private function saleUpdate(array $row, array $args, callable $act, array $open): array {
+    $text = match (TRUE) {
+      $row['fid'] && $row['ship_by'] => $this->t('@platform label for @what (ship by @date). Add the label and the date to the Shipping room?', $args),
+      (bool) $row['fid'] => $this->t('@platform label for @what. Add it to the Shipping room?', $args),
+      default => $this->t('@platform says ship @what by @date. Save that date in the Shipping room?', $args),
+    };
+    return [
+      'text' => $text,
+      'buttons' => [
+        ['label' => $row['fid'] ? $this->t('Add label') : $this->t('Save date'), 'url' => $act('apply'), 'ghost' => FALSE],
+        ['label' => $this->t('Not needed'), 'url' => $act('done'), 'ghost' => TRUE],
+        $open,
+      ],
+    ];
+  }
+
+  /**
    * One row's text and buttons.
    */
   private function line(array $row, ?string $item, ?PlatformListing $listing, string $return): array {
@@ -494,16 +583,26 @@ final class Inbox {
     $args = ['@platform' => $platform, '@what' => $what, '@price' => $price ?? '', '@date' => $row['ship_by'] ? (new \DateTimeImmutable($row['ship_by']))->format('D M j') : ''];
     switch ($row['kind']) {
       case Classifier::SOLD:
-        if ($listing && $item) {
+      case Classifier::LABEL:
+        $sold_here = $listing && $listing->getStatus() === Platforms::SOLD_HERE;
+        if ($listing && $item && !$sold_here) {
+          $args['@label'] = $row['fid'] ? (string) $this->t(' and add the shipping label') : '';
           return [
             'text' => $price
-              ? $this->t('@platform email: @what sold for @price. Mark it sold here?', $args)
-              : $this->t('@platform email: @what sold. Mark it sold here?', $args),
+              ? $this->t('@platform: @what sold for @price. Mark it sold here@label?', $args)
+              : $this->t('@platform: @what sold. Mark it sold here@label?', $args),
             'buttons' => [
               ['label' => $this->t('Yes, mark sold'), 'url' => $act('sold'), 'ghost' => FALSE],
               ['label' => $this->t('Not this item'), 'url' => $act('done'), 'ghost' => TRUE],
+              $open,
             ],
           ];
+        }
+        if ($listing && $item && $sold_here) {
+          return $this->saleUpdate($row, $args, $act, $open);
+        }
+        if ($row['kind'] === Classifier::LABEL) {
+          return ['text' => $this->t('@platform: a shipping label is ready for @what. Open the email to get it.', $args), 'buttons' => [$open, $done]];
         }
         return [
           'text' => $this->t("@platform email: you sold @what@for, but the site can't tell which item. Find it in the Stockroom and mark it Sold here.", $args + ['@for' => $price ? ' (' . $price . ')' : '']),
@@ -514,17 +613,14 @@ final class Inbox {
           ],
         ];
 
-      case Classifier::LABEL:
-        if ($row['note'] !== NULL && str_contains($row['note'], 'Label added')) {
-          return ['text' => $this->t('@platform label for @what is in the Shipping room.', $args), 'buttons' => [$ship_room, $ok]];
-        }
-        return ['text' => $this->t('@platform: a shipping label is ready for @what. Open the email to get it.', $args), 'buttons' => [$open, $done]];
-
       case Classifier::SHIP_BY:
-        if ($item && $row['ship_by']) {
-          return ['text' => $this->t('@platform: ship @what by @date (saved in the Shipping room).', $args), 'buttons' => [$ship_room, $ok]];
+        if ($item && $row['ship_by'] && $listing && $listing->getStatus() === Platforms::SOLD_HERE) {
+          return $this->saleUpdate($row, $args, $act, $open);
         }
         return ['text' => $this->t('@platform: reminder to ship @what.', $args), 'buttons' => [$open, $done]];
+
+      case Classifier::MESSAGE:
+        return ['text' => $this->t('@platform: new message about @what.', $args), 'buttons' => [$open, $done]];
 
       case Classifier::OFFER:
         return [
@@ -544,7 +640,7 @@ final class Inbox {
       case Classifier::PAYOUT:
         return ['text' => $price ? $this->t('@platform payout: @price.', $args) : $this->t('@platform: payout sent.', $args), 'buttons' => [$open, $ok]];
     }
-    return ['text' => $this->t('New message from @platform: open it.', $args), 'buttons' => [$open, $done]];
+    return ['text' => $this->t('@platform: open the email about @what.', $args), 'buttons' => [$open, $done]];
   }
 
 }

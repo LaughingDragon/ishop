@@ -24,6 +24,7 @@ final class Classifier {
   public const SHIP_BY = 'ship_by';
   public const OFFER = 'offer';
   public const PAYOUT = 'payout';
+  public const MESSAGE = 'message';
   public const OTHER = 'other';
   public const IGNORE = 'ignore';
 
@@ -34,11 +35,12 @@ final class Classifier {
     self::CASE => '/\b(case (was |has been )?(opened|open)|opened a case|dispute|claim (was |has been )?(opened|filed)|item not received|not as described|escalat)/i',
     self::RETURN => '/\b(return (request|requested|opened|started|is open)|requested a return|wants to return|return label for)/i',
     self::DELAY => '/\b(shipping delay|delayed|late shipment|running late|hasn\'t (been )?(shipped|scanned)|not (yet )?(been )?scanned)/i',
-    self::SOLD => '/\b(you (just )?(made (a|the) sale|sold)|(item|order|listing) (has )?(sold|been sold|was sold|been purchased|was purchased)|it sold|sold!|congrat\w*[^.]{0,40}\bsold|someone (bought|purchased)|new order|you have a new order)/i',
+    self::SOLD => '/\b(you(?:\'ve|’ve)? (just )?(made (a|the) sale|sold)|has bought\b|(item|order|listing) (has )?(sold|been sold|was sold|been purchased|was purchased)|it sold|sold!|congrat\w*[^.]{0,40}\bsold|someone (bought|purchased)|new order|you have a new order)/i',
     self::LABEL => '/\b(shipping label|prepaid label|print (your|the) label|label (is )?(ready|attached))/i',
     self::SHIP_BY => '/\b(ship by|please ship|reminder to ship|time to ship|ship (your|this|the) (item|order|sale)|ship within)/i',
     self::OFFER => '/\b(new offer|made (you )?an offer|sent (you )?an offer|offer (received|for|of)|counter ?offer)/i',
-    self::PAYOUT => '/\b(payout|funds (are )?(available|released)|money is on (its|the) way|you\'ve been paid|earnings (are )?(available|released)|redeemable)/i',
+    self::PAYOUT => '/\b(payout|funds (are )?(available|released)|money is on (its|the) way|you(?:\'ve|’ve) been paid|earnings (are )?(available|released)|redeemable)/i',
+    self::MESSAGE => '/\b(sent you a message|new message (about|from)|unread message|mentioned you)/i',
   ];
 
   /**
@@ -53,7 +55,8 @@ final class Classifier {
     self::RETURN => 'Return requested',
     self::CASE => 'Case or dispute',
     self::PAYOUT => 'Payout',
-    self::OTHER => 'Message',
+    self::MESSAGE => 'Message',
+    self::OTHER => 'Other',
   ];
 
   /**
@@ -106,16 +109,25 @@ final class Classifier {
    */
   public static function title(string $subject, string $text): ?string {
     $patterns = [
+      // Vinted sale: "<buyer> has bought" then the title on its own line.
+      [$text, '/has bought\s*\n\s*([^\n]{3,160})\n/u'],
+      // Depop sale: "Sale details" then the title (cut short with "...").
+      [$text, '/sale details\s*\n\s*([^\n]{3,160})\n/iu'],
+      // Vinted label: "Title shipping label – use by ...".
+      [$subject, '/^(.{3,160}?)\s+shipping label\s+[–-]/u'],
+      // Vinted: "New message about Title", "Order update for Title".
+      [$subject, '/^(?:new message about|order update for)\s+(.{3,160})$/iu'],
       // Quoted in the subject: "Title", “Title”.
       [$subject, '/["“]([^"”]{3,120})["”]/u'],
       // "... sold: Title", "You made the sale for Title", "Your item Title sold".
-      [$subject, '/\b(?:sold|sale for|purchased|offer (?:on|for)|ship|label for|return(?: request)? for)\s*[:!-]?\s+(?!your\b|an?\b|it\b)(.{3,120}?)\s*(?:[!.]|$| has | was | on (?:ebay|poshmark|mercari|depop|grailed|vinted))/iu'],
+      [$subject, '/\b(?:sold|sale for|made a sale|been paid|purchased|offer (?:on|for)|ship|label for|return(?: request)? for)\s*[:!-]?\s+(?!your\b|an?\b|it\b|on\b)(.{3,120}?)\s*(?:[!.](?:\s|$)|$| has | was | on (?:ebay|poshmark|mercari|depop|grailed|vinted))/iu'],
       [$text, '/^\s*(?:item|item title|listing|title)\s*:\s*(.{3,120})$/imu'],
     ];
     foreach ($patterns as [$haystack, $pattern]) {
       if (preg_match($pattern, $haystack, $m)) {
-        $title = trim($m[1], " \t\r\n\"'“”");
-        if ($title !== '' && !preg_match('/^\$?[\d.,]+$/', $title)) {
+        $title = trim(preg_replace('/(?:\.\.\.|…)$/u', '', trim($m[1])), " \t\r\n\"'“”");
+        // Never a price, and never a buyer's handle (@name).
+        if ($title !== '' && !preg_match('/^\$?[\d.,]+$/', $title) && !str_starts_with($title, '@')) {
           return $title;
         }
       }
@@ -134,11 +146,19 @@ final class Classifier {
       default => ['sold for', 'sale price', 'item price', 'price', 'order total', 'item total', 'total', 'subtotal'],
     };
     foreach ($labels as $label) {
-      if (preg_match('/\b' . $label . '\b[^$\n]{0,20}' . $money . '/i', $subject . "\n" . $text, $m)) {
+      if (preg_match('/\b' . $label . '\b[^$\n]{0,20}(?:\n\s*)?' . $money . '/i', $subject . "\n" . $text, $m)) {
         return (float) str_replace(',', '', $m[1]);
       }
     }
     if (preg_match('/' . $money . '/', $subject, $m)) {
+      return (float) str_replace(',', '', $m[1]);
+    }
+    // Vinted sale: the price is on the line after the title.
+    if ($kind === self::SOLD && preg_match('/has bought\s*\n[^\n]+\n\s*' . $money . '/u', $text, $m)) {
+      return (float) str_replace(',', '', $m[1]);
+    }
+    // Offers: "made you an offer of $30" (Depop puts the amount on the next line).
+    if ($kind === self::OFFER && preg_match('/offer of\s*\n?\s*' . $money . '/iu', $text, $m)) {
       return (float) str_replace(',', '', $m[1]);
     }
     return NULL;
@@ -148,7 +168,7 @@ final class Classifier {
    * The ship-by date (Y-m-d), or NULL.
    */
   public static function shipBy(string $text, string $received): ?string {
-    if (preg_match('/\bship(?: it| the item| your item)? within (\d{1,2}) (business )?days?/i', $text, $m)) {
+    if (preg_match('/\b(?:ship|send)(?: it| the item| your item| this order)? within (\d{1,2}) (business )?days?/i', $text, $m)) {
       return (new \DateTimeImmutable($received))->modify('+' . (int) $m[1] . (($m[2] ?? '') !== '' ? ' weekdays' : ' days'))->format('Y-m-d');
     }
     $months = 'jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?';
