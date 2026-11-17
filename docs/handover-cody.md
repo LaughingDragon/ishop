@@ -58,7 +58,7 @@ The site reads your marketplace emails (Vinted, Depop, Mercari, Poshmark, eBay, 
 - **A sale:** "Vinted: <item> sold for $15. Mark it sold here and add the shipping label?" Tap **Yes, mark sold** and the site marks it sold, saves the price and ship-by date, puts the label in the Shipping room, and tells you which other sites to take it down from. Tap **Not this item** if it guessed wrong.
 - **Offers and buyer messages:** a line with **Open it**, which opens the email.
 - **Nothing happens until you tap.** The site never changes an item by itself, and it never sends, deletes or marks anything in your Gmail.
-- **Please mark sales instead of deleting the item.** A deleted item drops out of your money totals and taxes.
+- **When something sells, tap Yes on the front desk or Sold here instead of deleting it**, so you get the take-down reminders for the other sites. If you delete an item that is still posted somewhere, the site asks whether it sold first.
 
 eBay: the eBay developer account wasn't approved, so the site doesn't connect to eBay directly. eBay still works on the site like every other platform, and its emails are read like the others.
 

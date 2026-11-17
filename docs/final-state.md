@@ -15,10 +15,10 @@ What changed between the 2026-10-21 export and go-live, and how the site stands 
 ## How it stands
 
 - **Visitors:** the Reseller Matrix login page only. The public shop is off.
-- **Cody (theowner, administrator):** front desk, Stockroom, Shipping room, My office (money, taxes, logs, bills, AI setup, Mail setup), Mailroom, Calendar wall, Break room.
+- **Cody (theowner, administrator):** front desk, Stockroom, Shipping room, My office (money, logs, bills, AI setup, Mail setup; the year-end export is there but not promoted), Mailroom, Calendar wall, Break room.
 - **Mail:** sends through the business Gmail (one app password, also used by the inbox). Alerts go to Liam. The morning digest goes to Cody at 07:00.
 - **AI:** Cody's own Anthropic key, $32 monthly cap, daily health check.
 - **Timers:** AI queue (every minute), inbox (every 10 minutes), digest (07:00), AI health check and reminders (07:05), backup (02:15), weekly update (Thursday 02:30), certbot.
 - **Disks (11/17):** boot 4.7 GB free (49% used), data 5.7 GB free (42% used).
 - **Still to do (Part 6, after Liam's go):** remove the site office and its leftovers (content types, Construction theme and negotiator, the site-foreman account and role, Claude Code hooks, crew shortcuts, leftover scripts, Webform if unused). Mail plugin, Mail setup form, DiskStatus, the anonymous-permission guard and the update script's reporting move out of `ishop_office` first ([architecture.md](architecture.md)).
-- **One habit to change:** Cody has been deleting items when they sell instead of marking them sold, so those sales are missing from Money and taxes. The inbox's one-tap "Yes, mark sold" makes marking them easy.
+- **One habit to change:** Cody has been deleting items when they sell instead of marking them sold, so he gets no take-down reminders for the other sites (double-selling risk). Deleting an item that is still Posted elsewhere now asks "Did it sell?" first. The 8 items deleted on 11/17 stay deleted (Liam). Taxes: Cody won't use the site for them; the export stays in My office, unpromoted.

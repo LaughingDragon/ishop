@@ -75,7 +75,7 @@ final class LogController extends ControllerBase {
           'receipt' => $this->t('Receipt'),
           'edit' => $this->t('Edit'),
           'delete' => $this->t('Delete'),
-          'note' => $this->t('Everything here goes into the year-end tax export in My office (Mileage and Expenses files). Miles are recorded as driven; the site does not work out any deduction.'),
+          'note' => $this->t('Miles are recorded as driven.'),
         ],
       ],
       '#attached' => ['library' => ['ishop_life/log']],
