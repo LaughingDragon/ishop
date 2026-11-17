@@ -445,3 +445,10 @@ Cody got stuck on his first new item (644) at "Paste the listing link... Go to L
 - Decided by: liam
 
 Liam's go-live brief 2026-11-17: declined or no reply -> drop it. No API code, settings or keys existed. eBay stays as a platform (listing rows, Sold-here cascade, paste-ready text, Terapeak/Check sold prices) and through the marketplace inbox. Revisit only if eBay approves the account.
+
+## 2026-11-17 (743): Taxes are out of scope for Cody; delete guard against double-selling instead of restoring deleted sales
+
+- Decided by: liam
+- Phase: handover (Handover countdown: finish the build, then close the site office)
+
+Liam's revised answer to report 2026-11-17-3: Cody doesn't sell enough for site taxes to matter. The 8 items deleted 11/17 are not restored. The tax export stays in My office but is not promoted (no reminders or prompts). Deleting an item still Posted on another platform asks 'Did it sell?' first (0c8128b). Cody punch 742: tap Yes / Sold here instead of deleting.

@@ -85,3 +85,5 @@ One file per report, as filed on the site office (oldest first).
 - [2026-11-17-2: 2026-11-17: Go-live part 1, status since 10/21](2026-11-17-2.md)
 - [2026-11-17-3: 2026-11-17: Go-live part 2, outstanding work finished](2026-11-17-3.md)
 - [2026-11-17-4: 2026-11-17: Go-live part 3, the go-live look](2026-11-17-4.md)
+- [2026-11-17-5: 2026-11-17: Go-live part 4, documentation zip rebuilt](2026-11-17-5.md)
+- [2026-11-17-6: 2026-11-17: Liam's revised answer, delete guard and no tax prompts](2026-11-17-6.md)

@@ -91,3 +91,4 @@ Every punch list item (Liam's three joke items are left out), oldest first.
 - [685 (closed, 2026-11-12): Automatic update on 2026-10-29 did not finish (preflight: git and config must be clean)](2026-10-29-685-automatic-update-on-2026-10-29-did-not-finish-preflight-git-.md)
 - [712 (closed, 2026-11-12): Automatic update on 2026-11-05 did not finish (preflight: git and config must be clean)](2026-11-05-712-automatic-update-on-2026-11-05-did-not-finish-preflight-git-.md)
 - [713 (open, 2026-11-12): Automatic update on 2026-11-12 did not finish (preflight: git and config must be clean)](2026-11-12-713-automatic-update-on-2026-11-12-did-not-finish-preflight-git-.md)
+- [742 (open, 2026-11-17): When something sells, tap Yes or Sold here instead of deleting](2026-11-17-742-when-something-sells-tap-yes-or-sold-here-instead-of-deletin.md)
