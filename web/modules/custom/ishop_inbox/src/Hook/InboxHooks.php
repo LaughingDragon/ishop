@@ -38,4 +38,13 @@ final class InboxHooks {
     $data['mail_bounces'] = $this->inbox->bounceSummary();
   }
 
+
+  /**
+   * Implements hook_ishop_digest_away(): the inbox's automatic actions.
+   */
+  #[Hook('ishop_digest_away')]
+  public function digestAway(int $since): array {
+    return \Drupal::service(Inbox::class)->awayLines($since);
+  }
+
 }

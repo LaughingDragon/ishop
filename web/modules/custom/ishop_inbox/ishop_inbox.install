@@ -32,10 +32,28 @@ function ishop_inbox_schema(): array {
       'note' => ['type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'description' => 'What the site did with it.'],
       'created' => ['type' => 'int', 'not null' => TRUE, 'default' => 0],
       'changed' => ['type' => 'int', 'not null' => TRUE, 'default' => 0],
+      'acted' => ['type' => 'int', 'not null' => TRUE, 'default' => 0, 'description' => 'When the site acted on it by itself (0 = never).'],
+      'undo' => ['type' => 'text', 'size' => 'normal', 'not null' => FALSE, 'description' => 'JSON: what an automatic sale changed, for Undo.'],
+      'deadline' => ['type' => 'varchar_ascii', 'length' => 10, 'not null' => FALSE, 'description' => 'Reply-by date for returns and cases.'],
     ],
     'primary key' => ['id'],
     'unique keys' => ['mail_key' => ['mail_key']],
     'indexes' => ['status' => ['status', 'received']],
   ];
   return $schema;
+}
+
+/**
+ * Automatic inbox: acted, undo and deadline columns; the 'auto' setting (on).
+ */
+function ishop_inbox_update_11001(): string {
+  $schema = \Drupal::database()->schema();
+  $fields = ishop_inbox_schema()['ishop_inbox_message']['fields'];
+  foreach (['acted', 'undo', 'deadline'] as $name) {
+    if (!$schema->fieldExists('ishop_inbox_message', $name)) {
+      $schema->addField('ishop_inbox_message', $name, $fields[$name]);
+    }
+  }
+  \Drupal::configFactory()->getEditable('ishop_inbox.settings')->set('auto', TRUE)->save();
+  return 'Inbox can act on certain matches by itself (setting on), with Undo for sales.';
 }

@@ -6,6 +6,7 @@ namespace Drupal\ishop_inbox\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\ishop_inbox\Classifier;
+use Drupal\ishop_inbox\Form\InboxAutoForm;
 use Drupal\ishop_inbox\Form\InboxSetupForm;
 use Drupal\ishop_inbox\Inbox;
 use Drupal\ishop_office\Form\MailSetupForm;
@@ -25,6 +26,16 @@ final class InboxController extends ControllerBase {
    */
   public function act(int $id, string $action): RedirectResponse {
     $row = $this->inbox->row($id);
+    if ($row && $row['status'] === 'auto') {
+      // An automatic sale: Undo (within 7 days) or OK. OK never deletes the label.
+      if ($action === 'undo' && (int) $row['acted'] >= \Drupal::time()->getRequestTime() - Inbox::UNDO_DAYS * 86400) {
+        $this->messenger()->addStatus($this->inbox->undoAuto($row));
+      }
+      else {
+        $this->inbox->markSeen($row);
+      }
+      return $this->redirect('ishop_matrix.dashboard', [], ['fragment' => 'needs']);
+    }
     if (!$row || $row['status'] !== 'open') {
       $this->messenger()->addStatus($this->t('Already done.'));
     }
@@ -47,6 +58,7 @@ final class InboxController extends ControllerBase {
     return [
       'mail' => $this->formBuilder()->getForm(MailSetupForm::class),
       'inbox' => $this->formBuilder()->getForm(InboxSetupForm::class),
+      'auto' => $this->formBuilder()->getForm(InboxAutoForm::class),
     ];
   }
 

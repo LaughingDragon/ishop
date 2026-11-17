@@ -27,6 +27,22 @@ final class ListingRef {
   ];
 
   /**
+   * The first listing link for $platform in $text (https, no tracking), or NULL.
+   */
+  public static function url(string $platform, string $text): ?string {
+    if (!isset(self::PATTERNS[$platform])) {
+      return NULL;
+    }
+    $decoded = rawurldecode(rawurldecode($text));
+    foreach ([$text, $decoded] as $haystack) {
+      if (preg_match(self::PATTERNS[$platform], $haystack, $m)) {
+        return 'https://' . (str_starts_with($m[0], 'www.') ? '' : 'www.') . $m[0];
+      }
+    }
+    return NULL;
+  }
+
+  /**
    * The first listing ID for $platform found in $text, or NULL.
    */
   public static function find(string $platform, string $text): ?string {

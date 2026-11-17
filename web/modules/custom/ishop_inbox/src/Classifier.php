@@ -19,6 +19,9 @@ final class Classifier {
   public const CASE = 'case';
   public const RETURN = 'return';
   public const DELAY = 'delay';
+  public const SHIPPED = 'shipped';
+  public const DELIVERED = 'delivered';
+  public const LISTED = 'listed';
   public const SOLD = 'sold';
   public const LABEL = 'label';
   public const SHIP_BY = 'ship_by';
@@ -35,6 +38,9 @@ final class Classifier {
     self::CASE => '/\b(case (was |has been )?(opened|open)|opened a case|dispute|claim (was |has been )?(opened|filed)|item not received|not as described|escalat)/i',
     self::RETURN => '/\b(return (request|requested|opened|started|is open)|requested a return|wants to return|return label for)/i',
     self::DELAY => '/\b(shipping delay|delayed|late shipment|running late|hasn\'t (been )?(shipped|scanned)|not (yet )?(been )?scanned)/i',
+    self::DELIVERED => '/\b(package has arrived|has been delivered|was delivered|order is completed|sale is complete|order has been completed|transaction for this item is now complete)/i',
+    self::SHIPPED => '/\b(package is on its way|item is on its way|has shipped|has been shipped|was shipped)/i',
+    self::LISTED => '/\b(your listing is (now )?live|listing is now live|listed successfully|your item is now listed)/i',
     self::SOLD => '/\b(you(?:\'ve|’ve)? (just )?(made (a|the) sale|sold)|has bought\b|(item|order|listing) (has )?(sold|been sold|was sold|been purchased|was purchased)|it sold|sold!|congrat\w*[^.]{0,40}\bsold|someone (bought|purchased)|new order|you have a new order)/i',
     self::LABEL => '/\b(shipping label|prepaid label|print (your|the) label|label (is )?(ready|attached))/i',
     self::SHIP_BY => '/\b(ship by|please ship|reminder to ship|time to ship|ship (your|this|the) (item|order|sale)|ship within)/i',
@@ -55,6 +61,9 @@ final class Classifier {
     self::RETURN => 'Return requested',
     self::CASE => 'Case or dispute',
     self::PAYOUT => 'Payout',
+    self::SHIPPED => 'Shipped',
+    self::DELIVERED => 'Delivered',
+    self::LISTED => 'Listing is live',
     self::MESSAGE => 'Message',
     self::OTHER => 'Other',
   ];
@@ -73,14 +82,14 @@ final class Classifier {
    * @param string $received
    *   Date received, Y-m-d (for "ship within 7 days" and dates without a year).
    *
-   * @return array{kind: string, title: ?string, price: ?float, ship_by: ?string, ref: ?string}
+   * @return array{kind: string, title: ?string, price: ?float, ship_by: ?string, ref: ?string, tracking: ?string, deadline: ?string, url: ?string}
    *   The kind, and what could be read (NULL when not found).
    */
   public static function classify(string $platform, string $subject, string $text, bool $has_pdf, string $received): array {
     $all = $subject . "\n" . $text;
     // Facebook sends everything from one domain: only Marketplace counts.
     if ($platform === 'facebook' && !preg_match('/marketplace/i', $all)) {
-      return ['kind' => self::IGNORE, 'title' => NULL, 'price' => NULL, 'ship_by' => NULL, 'ref' => NULL];
+      return ['kind' => self::IGNORE, 'title' => NULL, 'price' => NULL, 'ship_by' => NULL, 'ref' => NULL, 'tracking' => NULL, 'deadline' => NULL, 'url' => NULL];
     }
     $kind = self::OTHER;
     // The subject decides first; the body only when the subject says nothing.
@@ -101,6 +110,9 @@ final class Classifier {
       'price' => self::price($kind, $subject, $text),
       'ship_by' => self::shipBy($all, $received),
       'ref' => ListingRef::find($platform, $text),
+      'tracking' => in_array($kind, [self::SHIPPED, self::DELIVERED], TRUE) ? self::tracking($text) : NULL,
+      'deadline' => in_array($kind, [self::RETURN, self::CASE], TRUE) ? self::deadline($all, $received) : NULL,
+      'url' => $kind === self::LISTED ? ListingRef::url($platform, $text) : NULL,
     ];
   }
 
@@ -117,6 +129,11 @@ final class Classifier {
       [$subject, '/^(.{3,160}?)\s+shipping label\s+[–-]/u'],
       // Vinted: "New message about Title", "Order update for Title".
       [$subject, '/^(?:new message about|order update for)\s+(.{3,160})$/iu'],
+      // Mercari: "Your package has arrived: Title", "Your item is on its way: Title",
+      // "Your order has been completed for Title".
+      [$subject, '/^your (?:package has arrived|item is on its way|order has been completed for)\s*:?\s+(.{3,160})$/iu'],
+      // Vinted completed: "Your sale of Title was completed successfully."
+      [$text, '/your sale of\s+(.{3,160}?)\s+was completed/iu'],
       // Quoted in the subject: "Title", “Title”.
       [$subject, '/["“]([^"”]{3,120})["”]/u'],
       // "... sold: Title", "You made the sale for Title", "Your item Title sold".
@@ -143,12 +160,18 @@ final class Classifier {
     $labels = match ($kind) {
       self::OFFER => ['offer(?:ed)?(?: of| for)?', 'counter ?offer(?: of)?'],
       self::PAYOUT => ['payout(?: of)?', 'amount', 'total', 'earnings'],
+      // Delivered/completed: what was paid out for the sale (Vinted: wallet transfer).
+      self::DELIVERED => ['transferred to your vinted wallet', 'you(?:\'ve|’ve| have) earned', 'payout(?: of)?'],
+      self::SHIPPED, self::LISTED => [],
       default => ['sold for', 'sale price', 'item price', 'price', 'order total', 'item total', 'total', 'subtotal'],
     };
     foreach ($labels as $label) {
       if (preg_match('/\b' . $label . '\b[^$\n]{0,20}(?:\n\s*)?' . $money . '/i', $subject . "\n" . $text, $m)) {
         return (float) str_replace(',', '', $m[1]);
       }
+    }
+    if (in_array($kind, [self::DELIVERED, self::SHIPPED, self::LISTED], TRUE)) {
+      return NULL;
     }
     if (preg_match('/' . $money . '/', $subject, $m)) {
       return (float) str_replace(',', '', $m[1]);
@@ -160,6 +183,30 @@ final class Classifier {
     // Offers: "made you an offer of $30" (Depop puts the amount on the next line).
     if ($kind === self::OFFER && preg_match('/offer of\s*\n?\s*' . $money . '/iu', $text, $m)) {
       return (float) str_replace(',', '', $m[1]);
+    }
+    return NULL;
+  }
+
+  /**
+   * A tracking number (USPS or UPS format) in a shipped/delivered email, or NULL.
+   */
+  public static function tracking(string $text): ?string {
+    if (preg_match('/\b(9[1-5]\d{18,24}|1Z[0-9A-Z]{16})\b/', $text, $m)) {
+      return $m[1];
+    }
+    return NULL;
+  }
+
+  /**
+   * The reply-by date of a return or a case (Y-m-d), or NULL.
+   */
+  public static function deadline(string $text, string $received): ?string {
+    if (preg_match('/\b(?:respond|reply|answer|accept|decide|resolve|act)\b[^.\n]{0,60}?\bwithin (\d{1,2}) (business )?days?/i', $text, $m)) {
+      return (new \DateTimeImmutable($received))->modify('+' . (int) $m[1] . (($m[2] ?? '') !== '' ? ' weekdays' : ' days'))->format('Y-m-d');
+    }
+    // "respond by Nov 21", "reply before 11/21/2026": reuse the ship-by date reader.
+    if (preg_match('/\b(?:respond|reply|answer|accept|decide|resolve|act)\b[^.\n]{0,40}?\b(by|before|no later than)\b(.{0,40})/i', $text, $m)) {
+      return self::shipBy('ship by' . $m[2], $received);
     }
     return NULL;
   }

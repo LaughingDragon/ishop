@@ -81,6 +81,55 @@ final class Matcher {
   }
 
   /**
+   * Score an email title needs for a certain match (with no other item close).
+   */
+  public const CERTAIN_SCORE = 0.9;
+
+  /**
+   * The listing on $platform an email is certainly about, or NULL and why.
+   *
+   * Certain: the listing's own ID is in the email's links; or the title
+   * matches exactly one item on the whole site (score >= CERTAIN_SCORE and
+   * every other item below MIN_SCORE) and that item has a listing on
+   * $platform. Statuses and prices are checked by the caller.
+   *
+   * @return array{0: ?PlatformListing, 1: string}
+   *   The listing (or NULL) and a short reason.
+   */
+  public function certain(string $platform, ?string $ref, ?string $title): array {
+    $storage = $this->entityTypeManager->getStorage('platform_listing');
+    if ($ref !== NULL) {
+      $ids = $storage->getQuery()->accessCheck(FALSE)->condition('platform', $platform)->condition('url', '%' . $ref . '%', 'LIKE')->execute();
+      foreach ($storage->loadMultiple($ids) as $listing) {
+        if ($listing->getItem() && ListingRef::find($platform, (string) $listing->get('url')->value) === $ref) {
+          return [$listing, 'listing link'];
+        }
+      }
+    }
+    if ($title === NULL) {
+      return [NULL, 'no title in the email'];
+    }
+    $titles = \Drupal::database()->select('node_field_data', 'n')->fields('n', ['nid', 'title'])->condition('type', 'item')->execute()->fetchAllKeyed();
+    $close = [];
+    foreach ($titles as $nid => $item_title) {
+      $score = self::score($title, (string) $item_title);
+      if ($score >= self::MIN_SCORE) {
+        $close[$nid] = $score;
+      }
+    }
+    if (count($close) !== 1) {
+      return [NULL, $close ? count($close) . ' items match the title' : 'no item matches the title'];
+    }
+    $nid = (int) array_key_first($close);
+    if ($close[$nid] < self::CERTAIN_SCORE) {
+      return [NULL, 'title only partly matches'];
+    }
+    $ids = $storage->getQuery()->accessCheck(FALSE)->condition('item', $nid)->condition('platform', $platform)->execute();
+    $listing = $ids ? $storage->load(reset($ids)) : NULL;
+    return $listing instanceof PlatformListing ? [$listing, 'title'] : [NULL, 'the item has no listing on this site'];
+  }
+
+  /**
    * Share of the email title's words found in the item's title (0 to 1).
    *
    * The email's title may be cut short, so only its words are counted.

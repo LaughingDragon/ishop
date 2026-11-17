@@ -55,6 +55,7 @@ final class InboxCommands extends DrushCommands {
         $row['ship_by'] !== NULL ? 'ship by ' . $row['ship_by'] : NULL,
         $row['item'] !== NULL ? 'MATCH: ' . $row['item'] : 'no match',
         $row['pdfs'] ? $row['pdfs'] . ' pdf' : NULL,
+        isset($row['would']) ? 'WOULD: ' . $row['would'] : NULL,
         $options['subjects'] ? 'subject: ' . $row['subject'] : NULL,
       ])));
     }

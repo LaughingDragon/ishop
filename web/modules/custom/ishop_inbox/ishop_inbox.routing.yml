@@ -6,6 +6,6 @@ ishop_inbox.act:
     _permission: 'manage platform listings'
     _csrf_token: 'TRUE'
     id: \d+
-    action: 'sold|apply|done'
+    action: 'sold|apply|undo|done'
   options:
     no_cache: TRUE

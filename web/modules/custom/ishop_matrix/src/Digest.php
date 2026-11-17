@@ -154,6 +154,16 @@ final class Digest {
     $lines[] = 'NEEDS YOU';
     $lines = array_merge($lines, $needs ? array_map(fn ($line) => '- ' . $line, $needs) : ['Nothing needs you today.']);
 
+    // What the site did by itself in the last 24 hours (the marketplace
+    // inbox's automatic sales, shipping, payouts), so nothing is silent.
+    $away = \Drupal::moduleHandler()->invokeAll('ishop_digest_away', [(int) $now - 86400]);
+    if ($away) {
+      $lines[] = '';
+      $lines[] = 'WHILE YOU WERE AWAY';
+      $lines = array_merge($lines, array_map(fn ($line) => '- ' . $line, $away));
+      $lines[] = 'Something wrong? Undo is on the front desk for 7 days.';
+    }
+
     // Today's calendar: events and game days (bills and to-dos are above).
     $calendar = array_filter(
       $this->classResolver->getInstanceFromDefinition(CalendarController::class)->entries($today, $today),

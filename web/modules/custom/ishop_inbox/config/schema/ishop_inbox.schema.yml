@@ -11,3 +11,6 @@ ishop_inbox.settings:
     enabled_since:
       type: integer
       label: 'When it was switched on (older mail is recorded, not shown)'
+    auto:
+      type: boolean
+      label: 'Mark certain sales (and shipping, payouts, listing links) automatically'

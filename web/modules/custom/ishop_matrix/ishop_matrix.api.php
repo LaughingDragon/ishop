@@ -20,3 +20,16 @@
 function hook_ishop_needs(string $return): array {
   return [['text' => 'Something needs you.', 'url' => '/room/front-desk', 'action' => 'Look', 'ghost' => FALSE]];
 }
+
+/**
+ * Lines for the morning digest's "While you were away" section.
+ *
+ * Everything the site did by itself since $since (a Unix timestamp), one
+ * plain-text line each, oldest first. The section is left out when empty.
+ *
+ * @return string[]
+ *   Lines.
+ */
+function hook_ishop_digest_away(int $since): array {
+  return ['Sold on Vinted: Nike hoodie, $18.00. Take it down on Mercari, Poshmark.'];
+}

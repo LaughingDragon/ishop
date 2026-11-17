@@ -3,3 +3,4 @@ _core:
 enabled: true
 days: 14
 enabled_since: 1794927550
+auto: true
