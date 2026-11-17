@@ -6,7 +6,7 @@ seckit_xss:
     vendor-prefix:
       x: false
       webkit: false
-    report-only: true
+    report-only: false
     default-src: "'self'"
     script-src: "'self' 'unsafe-inline'"
     object-src: "'none'"
