@@ -157,6 +157,7 @@ final class AiRuns {
   public function processNext(): string {
     $id = $this->database->select('ishop_ai_run', 'r')->fields('r', ['id'])
       ->condition('status', 'queued')->orderBy('id')->range(0, 1)->execute()->fetchField();
+    $id = (int) $id;
     if (!$id) {
       return 'Nothing queued.';
     }
